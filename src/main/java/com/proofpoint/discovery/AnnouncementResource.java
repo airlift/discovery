@@ -37,21 +37,19 @@ public class AnnouncementResource
     {
         if (!nodeInfo.getEnvironment().equals(announcement.getEnvironment())) {
             return Response.status(BAD_REQUEST)
-                           .entity(format("Environment mismatch. Expected: %s, Provided: %s", nodeInfo.getEnvironment(), announcement.getEnvironment()))
-                           .build();
+                    .entity(format("Environment mismatch. Expected: %s, Provided: %s", nodeInfo.getEnvironment(), announcement.getEnvironment()))
+                    .build();
         }
-
 
         String location = Objects.firstNonNull(announcement.getLocation(), "/" + nodeId.toString());
 
-        ImmutableSet.Builder<ServiceDescriptor> builder = new ImmutableSet.Builder<ServiceDescriptor>();
-        for (ServiceRepresentation representation : announcement.getServices()) {
-            builder.add(new ServiceDescriptor(representation.getId(),
-                                              nodeId,
-                                              representation.getType(),
-                                              representation.getPool(),
-                                              location,
-                                              representation.getProperties()));
+        ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
+        for (Service input : announcement.getServices()) {
+            Service descriptor = Service.copyOf(input)
+                    .setNodeId(nodeId)
+                    .setLocation(location)
+                    .build();
+            builder.add(descriptor);
         }
 
         store.put(nodeId, builder.build());

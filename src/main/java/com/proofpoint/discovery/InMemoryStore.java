@@ -14,14 +14,14 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.filter;
-import static com.proofpoint.discovery.ServiceDescriptor.matchesPool;
-import static com.proofpoint.discovery.ServiceDescriptor.matchesType;
+import static com.proofpoint.discovery.Service.matchesPool;
+import static com.proofpoint.discovery.Service.matchesType;
 
 @ThreadSafe
 public class InMemoryStore
         implements Store
 {
-    private final ConcurrentMap<UUID, Set<ServiceDescriptor>> descriptors;
+    private final ConcurrentMap<UUID, Set<Service>> descriptors;
 
     @Inject
     public InMemoryStore(DiscoveryConfig config)
@@ -30,7 +30,7 @@ public class InMemoryStore
     }
 
     @Override
-    public void put(UUID nodeId, Set<ServiceDescriptor> descriptors)
+    public void put(UUID nodeId, Set<Service> descriptors)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(descriptors, "descriptors is null");
@@ -39,7 +39,7 @@ public class InMemoryStore
     }
 
     @Override
-    public Set<ServiceDescriptor> delete(UUID nodeId)
+    public Set<Service> delete(UUID nodeId)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
 
@@ -47,7 +47,7 @@ public class InMemoryStore
     }
 
     @Override
-    public Set<ServiceDescriptor> get(String type)
+    public Set<Service> get(String type)
     {
         Preconditions.checkNotNull(type, "type is null");
 
@@ -55,7 +55,7 @@ public class InMemoryStore
     }
 
     @Override
-    public Set<ServiceDescriptor> get(String type, String pool)
+    public Set<Service> get(String type, String pool)
     {
         Preconditions.checkNotNull(type, "type is null");
         Preconditions.checkNotNull(pool, "pool is null");

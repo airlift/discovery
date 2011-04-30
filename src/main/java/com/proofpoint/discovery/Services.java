@@ -1,18 +1,21 @@
 package com.proofpoint.discovery;
 
+import com.google.common.collect.ImmutableSet;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Set;
 
-public class ServicesRepresentation
+@Immutable
+public class Services
 {
     private final String environment;
-    private final Set<ServiceRepresentation> services;
+    private final Set<Service> services;
 
-    public ServicesRepresentation(String environment, Set<ServiceRepresentation> services)
+    public Services(String environment, Set<Service> services)
     {
         this.environment = environment;
-        this.services = services;
+        this.services = ImmutableSet.copyOf(services);
     }
 
     @JsonProperty
@@ -22,7 +25,7 @@ public class ServicesRepresentation
     }
 
     @JsonProperty
-    public Set<ServiceRepresentation> getServices()
+    public Set<Service> getServices()
     {
         return services;
     }

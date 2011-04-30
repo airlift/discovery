@@ -5,8 +5,8 @@ import java.util.UUID;
 
 public interface Store
 {
-    void put(UUID nodeId, Set<ServiceDescriptor> descriptors);
-    Set<ServiceDescriptor> delete(UUID nodeId);
-    Set<ServiceDescriptor> get(String type);
-    Set<ServiceDescriptor> get(String type, String pool);
+    void put(UUID nodeId, Set<Service> descriptors);
+    Set<Service> delete(UUID nodeId);
+    Set<Service> get(String type);
+    Set<Service> get(String type, String pool);
 }

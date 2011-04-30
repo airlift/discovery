@@ -14,12 +14,12 @@ public class Announcement
 {
     private final String environment;
     private final String location;
-    private final Set<ServiceRepresentation> services;
+    private final Set<Service> services;
 
     @JsonCreator
     public Announcement(@JsonProperty("environment") String environment,
                         @JsonProperty("location") String location,
-                        @JsonProperty("services") Set<ServiceRepresentation> services)
+                        @JsonProperty("services") Set<Service> services)
     {
         this.environment = environment;
         this.location = location;
@@ -42,7 +42,7 @@ public class Announcement
     @JsonProperty
     @NotNull
     @Valid
-    public Set<ServiceRepresentation> getServices()
+    public Set<Service> getServices()
     {
         return services;
     }

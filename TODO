@@ -3,5 +3,3 @@
 - Etags
 - Metrics
 - Events
-
-- Figure out better approach to ServiceDescriptor vs ServiceRepresentation. They are exactly the same except for the bean validation bits in one and preconditions in the other.
