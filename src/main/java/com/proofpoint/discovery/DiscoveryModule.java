@@ -15,10 +15,5 @@ public class DiscoveryModule
         binder.bind(Store.class).to(InMemoryStore.class).in(Scopes.SINGLETON);
 
         ConfigurationModule.bindConfig(binder).to(DiscoveryConfig.class);
-
-//        binder.bind(DiscoveryService.class).in(Scopes.SINGLETON);
-//        MBeanModule.newExporter(binder).export(DiscoveryService.class).withGeneratedName();
-
-//        binder.bind(ServiceLocatorDAO.class).toProvider(ServiceLocatorDAOProvider.class).in(Scopes.SINGLETON);
     }
 }
