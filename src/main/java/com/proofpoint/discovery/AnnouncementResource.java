@@ -64,6 +64,6 @@ public class AnnouncementResource
             return Response.status(NOT_FOUND).build();
         }
 
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 }
