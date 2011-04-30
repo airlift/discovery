@@ -10,8 +10,10 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
 
 import static java.lang.String.format;
@@ -33,7 +35,7 @@ public class AnnouncementResource
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response put(@PathParam("node_id") UUID nodeId, Announcement announcement)
+    public Response put(@PathParam("node_id") UUID nodeId, @Context UriInfo uriInfo, Announcement announcement)
     {
         if (!nodeInfo.getEnvironment().equals(announcement.getEnvironment())) {
             return Response.status(BAD_REQUEST)
@@ -52,9 +54,11 @@ public class AnnouncementResource
             builder.add(descriptor);
         }
 
-        store.put(nodeId, builder.build());
+        if (store.put(nodeId, builder.build())) {
+            return Response.created(uriInfo.getRequestUri()).build();
+        }
 
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 
     @DELETE

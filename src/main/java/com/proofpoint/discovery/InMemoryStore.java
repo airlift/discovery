@@ -30,12 +30,14 @@ public class InMemoryStore
     }
 
     @Override
-    public void put(UUID nodeId, Set<Service> descriptors)
+    public boolean put(UUID nodeId, Set<Service> descriptors)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(descriptors, "descriptors is null");
 
-        this.descriptors.put(nodeId, ImmutableSet.copyOf(descriptors));
+        Set<Service> old = this.descriptors.put(nodeId, ImmutableSet.copyOf(descriptors));
+
+        return old == null;
     }
 
     @Override
