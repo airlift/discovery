@@ -33,4 +33,34 @@ public class Services
     {
         return services;
     }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Services services1 = (Services) o;
+
+        if (!environment.equals(services1.environment)) {
+            return false;
+        }
+        if (!services.equals(services1.services)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = environment.hashCode();
+        result = 31 * result + services.hashCode();
+        return result;
+    }
 }
