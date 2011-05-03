@@ -1,6 +1,16 @@
-- Cassandra-backed store
+- Tests
+    - DiscoveryConfig
+    - CassandraStore
+    - Integration
+    - Services
+	- equivalence test
+
 - Static announcements
+- CLI
+
 - Cache control
 - Etags
+- Auth for PUT/DELETE
+
 - Metrics
 - Events
