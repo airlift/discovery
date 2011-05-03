@@ -7,7 +7,6 @@ import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.annotation.concurrent.Immutable;
-import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.UUID;
 
