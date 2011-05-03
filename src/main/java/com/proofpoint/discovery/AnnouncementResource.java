@@ -43,7 +43,7 @@ public class AnnouncementResource
                     .build();
         }
 
-        String location = Objects.firstNonNull(announcement.getLocation(), "/" + nodeId.toString());
+        String location = Objects.firstNonNull(announcement.getLocation(), "/somewhere/" + nodeId.toString());
 
         ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
         for (ServiceAnnouncement entry : announcement.getServices()) {
