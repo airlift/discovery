@@ -114,4 +114,22 @@ public class TestAnnouncementResource
 
         assertTrue(store.getAll().isEmpty());
     }
+
+    @Test
+    public void testMakesUpLocation()
+    {
+        ServiceAnnouncement serviceAnnouncement = new ServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
+        Announcement announcement = new Announcement("testing", null, ImmutableSet.of(serviceAnnouncement));
+
+        UUID nodeId = UUID.randomUUID();
+        Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
+
+        assertNotNull(response);
+        assertEquals(response.getStatus(), Response.Status.CREATED.getStatusCode());
+
+        assertEquals(store.getAll().size(), 1);
+        Service service = store.getAll().iterator().next();
+        assertEquals(service.getId(), service.getId());
+        assertNotNull(service.getLocation());
+    }
 }
