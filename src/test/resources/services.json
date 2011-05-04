@@ -1,0 +1,25 @@
+{
+    "environment" : "testing",
+    "services" : [
+        {
+            "id" : "c0c5be5f-b298-4cfa-922a-3e5954208444",
+            "nodeId" : "3ff52f57-04e0-46c3-b606-7497b09dd5c7",
+            "type" : "blue",
+            "pool" : "poolA",
+            "location" : "/locationA",
+            "properties" : {
+                "key" : "valueA"
+            }
+        },
+        {
+            "id" : "e3780aba-98fe-4de1-b682-5cd7a3264367",
+            "nodeId" : "989c4a90-ef68-4a05-8ad9-73a02aea406c",
+            "type" : "red",
+            "pool" : "poolB",
+            "location" : "/locationB",
+            "properties" : {
+                "key" : "valueB"
+            }
+        }
+    ]
+}
