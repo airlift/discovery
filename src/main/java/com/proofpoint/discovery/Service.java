@@ -38,7 +38,6 @@ public class Service
     }
 
     @JsonProperty
-    @NotNull
     public UUID getId()
     {
         return id;
@@ -51,14 +50,12 @@ public class Service
     }
 
     @JsonProperty
-    @NotNull
     public String getType()
     {
         return type;
     }
 
     @JsonProperty
-    @NotNull
     public String getPool()
     {
         return pool;
@@ -71,7 +68,6 @@ public class Service
     }
 
     @JsonProperty
-    @NotNull
     public Map<String, String> getProperties()
     {
         return properties;
@@ -138,9 +134,9 @@ public class Service
                 '}';
     }
 
-    public static Builder copyOf(Service other)
+    public static Builder copyOf(ServiceAnnouncement announcement)
     {
-        return new Builder().copyOf(other);
+        return new Builder().copyOf(announcement);
     }
 
     public static class Builder
@@ -152,21 +148,13 @@ public class Service
         private String location;
         private Map<String, String> properties;
 
-        public Builder copyOf(Service other)
+        public Builder copyOf(ServiceAnnouncement announcement)
         {
-            id = other.id;
-            nodeId = other.nodeId;
-            type = other.type;
-            pool = other.pool;
-            location = other.location;
-            properties = ImmutableMap.copyOf(other.properties);
+            id = announcement.getId();
+            type = announcement.getType();
+            pool = announcement.getPool();
+            properties = ImmutableMap.copyOf(announcement.getProperties());
 
-            return this;
-        }
-
-        public Builder setId(UUID id)
-        {
-            this.id = id;
             return this;
         }
 
@@ -176,27 +164,9 @@ public class Service
             return this;
         }
 
-        public Builder setType(String type)
-        {
-            this.type = type;
-            return this;
-        }
-
-        public Builder setPool(String pool)
-        {
-            this.pool = pool;
-            return this;
-        }
-
         public Builder setLocation(String location)
         {
             this.location = location;
-            return this;
-        }
-
-        public Builder setProperties(Map<String, String> properties)
-        {
-            this.properties = ImmutableMap.copyOf(properties);
             return this;
         }
 

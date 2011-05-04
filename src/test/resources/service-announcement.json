@@ -1,0 +1,8 @@
+{
+    "id": "ff824508-b6a6-4dfc-8f0b-85028465534d",
+    "type": "blue",
+    "pool": "poolA",
+    "properties": {
+        "key": "valueA"
+    }
+}

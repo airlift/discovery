@@ -46,8 +46,8 @@ public class AnnouncementResource
         String location = Objects.firstNonNull(announcement.getLocation(), "/" + nodeId.toString());
 
         ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
-        for (Service input : announcement.getServices()) {
-            Service descriptor = Service.copyOf(input)
+        for (ServiceAnnouncement entry : announcement.getServices()) {
+            Service descriptor = Service.copyOf(entry)
                     .setNodeId(nodeId)
                     .setLocation(location)
                     .build();
