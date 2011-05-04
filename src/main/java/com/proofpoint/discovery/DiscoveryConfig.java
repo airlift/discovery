@@ -15,8 +15,9 @@ public class DiscoveryConfig
     }
 
     @Config("discovery.max-age")
-    public void setMaxAge(Duration maxAge)
+    public DiscoveryConfig setMaxAge(Duration maxAge)
     {
         this.maxAge = maxAge;
+        return this;
     }
 }
