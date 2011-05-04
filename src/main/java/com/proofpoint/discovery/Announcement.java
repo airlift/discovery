@@ -32,20 +32,17 @@ public class Announcement
         }
     }
 
-    @JsonProperty
     @NotNull
     public String getEnvironment()
     {
         return environment;
     }
 
-    @JsonProperty
     public String getLocation()
     {
         return location;
     }
 
-    @JsonProperty
     @NotNull
     @Valid
     public Set<ServiceAnnouncement> getServices()
