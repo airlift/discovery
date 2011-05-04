@@ -23,7 +23,13 @@ public class Announcement
     {
         this.environment = environment;
         this.location = location;
-        this.services = ImmutableSet.copyOf(services);
+
+        if (services != null) {
+            this.services = ImmutableSet.copyOf(services);
+        }
+        else {
+            this.services = null;
+        }
     }
 
     @JsonProperty
