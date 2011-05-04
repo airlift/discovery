@@ -8,7 +8,6 @@ import com.proofpoint.experimental.json.JsonCodec;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,8 +17,6 @@ import static org.testng.Assert.assertEquals;
 
 public class TestService
 {
-    // TODO: test that it can be deserialized from json -- Service is used as the internal representation in the cassandra
-    // store
     @Test
     public void testEquivalence()
     {
@@ -73,6 +70,18 @@ public class TestService
         JsonCodec<Object> codec = JsonCodec.jsonCodec(Object.class);
         Object parsed = codec.fromJson(json);
         Object expected = codec.fromJson(Resources.toString(Resources.getResource("service.json"), Charsets.UTF_8));
+
+        assertEquals(parsed, expected);
+    }
+
+    @Test
+    public void testParseJson()
+            throws IOException
+    {
+        JsonCodec<Service> codec = JsonCodec.jsonCodec(Service.class);
+        Service parsed = codec.fromJson(Resources.toString(Resources.getResource("service.json"), Charsets.UTF_8));
+
+        Service expected = new Service(UUID.fromString("c0c5be5f-b298-4cfa-922a-3e5954208444"), UUID.fromString("3ff52f57-04e0-46c3-b606-7497b09dd5c7"), "type", "pool", "/location", ImmutableMap.of("key", "value"));
 
         assertEquals(parsed, expected);
     }

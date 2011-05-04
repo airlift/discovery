@@ -1,0 +1,10 @@
+{
+    "id" : "c0c5be5f-b298-4cfa-922a-3e5954208444",
+    "nodeId" : "3ff52f57-04e0-46c3-b606-7497b09dd5c7",
+    "type" : "type",
+    "pool" : "pool",
+    "location" : "/location",
+    "properties" : {
+        "key" : "value"
+    }
+}
