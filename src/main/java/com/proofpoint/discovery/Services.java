@@ -1,5 +1,6 @@
 package com.proofpoint.discovery;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -14,6 +15,9 @@ public class Services
 
     public Services(String environment, Set<Service> services)
     {
+        Preconditions.checkNotNull(environment, "environment is null");
+        Preconditions.checkNotNull(services, "services is null");
+
         this.environment = environment;
         this.services = ImmutableSet.copyOf(services);
     }
