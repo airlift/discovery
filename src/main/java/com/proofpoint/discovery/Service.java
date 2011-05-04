@@ -3,6 +3,7 @@ package com.proofpoint.discovery;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.annotation.concurrent.Immutable;
@@ -20,6 +21,7 @@ public class Service
     private final String location;
     private final Map<String, String> properties;
 
+    @JsonCreator
     public Service(@JsonProperty("id") UUID id,
                    @JsonProperty("nodeId") UUID nodeId,
                    @JsonProperty("type") String type,
