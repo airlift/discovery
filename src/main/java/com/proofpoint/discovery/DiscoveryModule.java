@@ -15,5 +15,6 @@ public class DiscoveryModule
         binder.bind(Store.class).to(CassandraStore.class).in(Scopes.SINGLETON);
 
         ConfigurationModule.bindConfig(binder).to(DiscoveryConfig.class);
+        ConfigurationModule.bindConfig(binder).to(CassandraStoreConfig.class);
     }
 }
