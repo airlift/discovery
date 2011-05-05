@@ -123,6 +123,19 @@ public class Service
         };
     }
 
+    @Override
+    public String toString()
+    {
+        return "Service{" +
+                "id=" + id +
+                ", nodeId=" + nodeId +
+                ", type='" + type + '\'' +
+                ", pool='" + pool + '\'' +
+                ", location='" + location + '\'' +
+                ", properties=" + properties +
+                '}';
+    }
+
     public static Builder copyOf(Service other)
     {
         return new Builder().copyOf(other);
