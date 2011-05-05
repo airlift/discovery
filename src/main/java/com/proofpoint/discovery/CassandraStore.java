@@ -42,7 +42,6 @@ public class CassandraStore
     private final static Logger log = Logger.get(CassandraStore.class);
 
     private static final String CLUSTER = "discovery";
-    private static final String KEYSPACE = "discovery";
     private final static String COLUMN_FAMILY = "announcements";
     private static final String SERVICES_COLUMN = "services";
     private static final String TIMESTAMP_COLUMN = "timestamp";
@@ -55,7 +54,7 @@ public class CassandraStore
     private final Duration maxAge;
 
     @Inject
-    public CassandraStore(CassandraServerInfo cassandraInfo, DiscoveryConfig discoveryConfig, NodeInfo nodeInfo)
+    public CassandraStore(CassandraStoreConfig config, CassandraServerInfo cassandraInfo, DiscoveryConfig discoveryConfig, NodeInfo nodeInfo)
     {
         maxAge = discoveryConfig.getMaxAge();
 
@@ -63,16 +62,17 @@ public class CassandraStore
                                                                       InetAddresses.toUriString(nodeInfo.getPublicIp()),
                                                                       cassandraInfo.getRpcPort()));
 
-        KeyspaceDefinition definition = cluster.describeKeyspace(KEYSPACE);
+        String keyspaceName = config.getKeyspace();
+        KeyspaceDefinition definition = cluster.describeKeyspace(keyspaceName);
         if (definition == null) {
-            cluster.addKeyspace(new ThriftKsDef(KEYSPACE));
+            cluster.addKeyspace(new ThriftKsDef(keyspaceName));
         }
 
-        if (cluster.describeKeyspace(KEYSPACE).getCfDefs().isEmpty()) {
-            cluster.addColumnFamily(new ThriftCfDef(KEYSPACE, COLUMN_FAMILY));
+        if (cluster.describeKeyspace(keyspaceName).getCfDefs().isEmpty()) {
+            cluster.addColumnFamily(new ThriftCfDef(keyspaceName, COLUMN_FAMILY));
         }
 
-        keyspace = HFactory.createKeyspace(KEYSPACE, cluster);
+        keyspace = HFactory.createKeyspace(keyspaceName, cluster);
         keyspace.setConsistencyLevelPolicy(new AllOneConsistencyLevelPolicy());
     }
 
