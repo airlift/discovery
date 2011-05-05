@@ -12,7 +12,7 @@ public class DiscoveryModule
     {
         binder.bind(AnnouncementResource.class).in(Scopes.SINGLETON);
         binder.bind(ServiceResource.class).in(Scopes.SINGLETON);
-        binder.bind(Store.class).to(InMemoryStore.class).in(Scopes.SINGLETON);
+        binder.bind(Store.class).to(CassandraStore.class).in(Scopes.SINGLETON);
 
         ConfigurationModule.bindConfig(binder).to(DiscoveryConfig.class);
     }
