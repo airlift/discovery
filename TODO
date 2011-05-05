@@ -1,9 +1,11 @@
 - Tests
     - DiscoveryConfig
     - CassandraStore
+    - CassandraServerConfig
     - Integration
     - Services
 	- equivalence test
+	- expiration
 
 - Static announcements
 - CLI
