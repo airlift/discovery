@@ -49,6 +49,12 @@ public class InMemoryStore
     }
 
     @Override
+    public Set<Service> getAll()
+    {
+        return ImmutableSet.copyOf(concat(descriptors.values()));
+    }
+
+    @Override
     public Set<Service> get(String type)
     {
         Preconditions.checkNotNull(type, "type is null");
