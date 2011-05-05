@@ -5,8 +5,10 @@ import com.proofpoint.node.NodeInfo;
 import org.apache.cassandra.config.ConfigurationException;
 import org.apache.thrift.transport.TTransportException;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +23,7 @@ public class TestCassandraStore
     private File tempDir;
     private EmbeddedCassandraServer server;
     private int rpcPort;
+    private CassandraStore cassandraStore;
 
     @BeforeClass
     public void setupServer()
@@ -60,7 +63,21 @@ public class TestCassandraStore
         CassandraStoreConfig config = new CassandraStoreConfig()
                 .setKeyspace("keyspace" + counter.incrementAndGet());
 
-        store = new CassandraStore(config, new CassandraServerInfo(rpcPort), new DiscoveryConfig(), new NodeInfo("testing"));
+        cassandraStore = new CassandraStore(config, new CassandraServerInfo(rpcPort), new DiscoveryConfig(), new NodeInfo("testing"));
+        cassandraStore.initialize();
+        store = cassandraStore;
+    }
+
+    @AfterMethod
+    public void teardown()
+    {
+        cassandraStore.shutdown();
+    }
+
+    @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "Already initialized")
+    public void testCannotBeInitalizedTwice()
+    {
+        cassandraStore.initialize();
     }
 
     private int findUnusedPort()

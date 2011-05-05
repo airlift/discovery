@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Iterables.filter;
@@ -52,6 +53,8 @@ public class CassandraStore
     private final Keyspace keyspace;
 
     private final Duration maxAge;
+
+    private final AtomicBoolean initialized = new AtomicBoolean(false);
 
     @Inject
     public CassandraStore(CassandraStoreConfig config, CassandraServerInfo cassandraInfo, DiscoveryConfig discoveryConfig, NodeInfo nodeInfo)
@@ -79,6 +82,10 @@ public class CassandraStore
     @PostConstruct
     public void initialize()
     {
+        if (!initialized.compareAndSet(false, true)) {
+            throw new IllegalStateException("Already initialized");
+        }
+
         reaper.scheduleWithFixedDelay(new Runnable()
         {
             @Override
