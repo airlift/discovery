@@ -64,7 +64,7 @@ public class AnnouncementResource
     @DELETE
     public Response delete(@PathParam("node_id") UUID nodeId)
     {
-        if (store.delete(nodeId) == null) {
+        if (!store.delete(nodeId)) {
             return Response.status(NOT_FOUND).build();
         }
 

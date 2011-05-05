@@ -41,11 +41,11 @@ public class InMemoryStore
     }
 
     @Override
-    public Set<Service> delete(UUID nodeId)
+    public boolean delete(UUID nodeId)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
 
-        return descriptors.remove(nodeId);
+        return descriptors.remove(nodeId) != null;
     }
 
     @Override
