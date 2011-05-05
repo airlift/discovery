@@ -65,23 +65,53 @@
             <artifactId>jmx</artifactId>
         </dependency>
 
-        <!--copied  cassandra stuffs -->
         <dependency>
             <groupId>me.prettyprint</groupId>
             <artifactId>hector-core</artifactId>
             <version>0.7.0-28</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.cassandra</groupId>-->
-            <!--<artifactId>cassandra-all</artifactId>-->
-            <!--<version>0.7.0</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.cassandra</groupId>-->
-            <!--<artifactId>cassandra-javautils</artifactId>-->
-            <!--<version>0.7.0</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.cassandra</groupId>
+            <artifactId>cassandra-all</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cassandra</groupId>
+            <artifactId>cassandra-javautils</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cassandra.deps</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>0.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.8</version>
+        </dependency>
 
         <!-- for packaging -->
         <dependency>
