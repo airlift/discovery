@@ -100,37 +100,6 @@ public class CassandraStore
         reaper.shutdown();
     }
 
-    private void removeExpired()
-    {
-        List<Row<String, String, Long>> result = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), LongSerializer.get())
-                .setColumnFamily(COLUMN_FAMILY)
-                .setKeys("", "")
-                .setColumnNames(TIMESTAMP_COLUMN)
-                .execute()
-                .get()
-                .getList();
-
-        ImmutableSet.Builder<String> toDelete = new ImmutableSet.Builder<String>();
-        for (Row<String, String, Long> row : result) {
-            HColumn<String, Long> column = row.getColumnSlice().getColumnByName(TIMESTAMP_COLUMN);
-            if (column != null) {
-                Long timestamp = column.getValue();
-
-                if (System.currentTimeMillis() - timestamp > maxAge.toMillis()) {
-                    toDelete.add(row.getKey());
-                }
-            }
-        }
-
-        // TODO: race
-
-        Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-        for (String key : toDelete.build()) {
-            mutator.addDeletion(key, COLUMN_FAMILY);
-        }
-        mutator.execute();
-    }
-
     @Override
     public boolean put(UUID nodeId, Set<Service> descriptors)
     {
@@ -209,4 +178,34 @@ public class CassandraStore
         return existed;
     }
 
+    private void removeExpired()
+    {
+        List<Row<String, String, Long>> result = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), LongSerializer.get())
+                .setColumnFamily(COLUMN_FAMILY)
+                .setKeys("", "")
+                .setColumnNames(TIMESTAMP_COLUMN)
+                .execute()
+                .get()
+                .getList();
+
+        ImmutableSet.Builder<String> toDelete = new ImmutableSet.Builder<String>();
+        for (Row<String, String, Long> row : result) {
+            HColumn<String, Long> column = row.getColumnSlice().getColumnByName(TIMESTAMP_COLUMN);
+            if (column != null) {
+                Long timestamp = column.getValue();
+
+                if (System.currentTimeMillis() - timestamp > maxAge.toMillis()) {
+                    toDelete.add(row.getKey());
+                }
+            }
+        }
+
+        // TODO: race condition here ...
+
+        Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
+        for (String key : toDelete.build()) {
+            mutator.addDeletion(key, COLUMN_FAMILY);
+        }
+        mutator.execute();
+    }
 }
