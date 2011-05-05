@@ -29,7 +29,7 @@ public abstract class TestStore
 
         Service blue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
 
-        store.put(nodeId, ImmutableSet.of(blue));
+        assertTrue(store.put(nodeId, ImmutableSet.of(blue)));
 
         assertEquals(store.getAll(), ImmutableSet.of(blue));
     }
@@ -43,7 +43,7 @@ public abstract class TestStore
         Service red = new Service(UUID.randomUUID(), nodeId, "web", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
         Service green = new Service(UUID.randomUUID(), nodeId, "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:3333"));
 
-        store.put(nodeId, ImmutableSet.of(blue, red, green));
+        assertTrue(store.put(nodeId, ImmutableSet.of(blue, red, green)));
 
         assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(blue, red, green));
     }
@@ -69,9 +69,9 @@ public abstract class TestStore
         Service red = new Service(UUID.randomUUID(), UUID.randomUUID(), "web", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
         Service green = new Service(UUID.randomUUID(), UUID.randomUUID(), "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:3333"));
 
-        store.put(blue.getNodeId(), ImmutableSet.of(blue));
-        store.put(red.getNodeId(), ImmutableSet.of(red));
-        store.put(green.getNodeId(), ImmutableSet.of(green));
+        assertTrue(store.put(blue.getNodeId(), ImmutableSet.of(blue)));
+        assertTrue(store.put(red.getNodeId(), ImmutableSet.of(red)));
+        assertTrue(store.put(green.getNodeId(), ImmutableSet.of(green)));
 
         assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(blue, red, green));
     }
@@ -129,7 +129,7 @@ public abstract class TestStore
 
         assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(blue1, blue2, red));
 
-        store.delete(blueNodeId);
+        assertTrue(store.delete(blueNodeId));
 
         assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(red));
         assertTrue(store.get("storage").isEmpty());

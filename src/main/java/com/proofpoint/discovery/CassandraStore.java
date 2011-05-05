@@ -134,26 +134,30 @@ public class CassandraStore
     @Override
     public boolean put(UUID nodeId, Set<Service> descriptors)
     {
+        boolean exists = exists(nodeId);
+
+        // TODO: race condition here....
+
         Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
         mutator.addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createStringColumn(SERVICES_COLUMN, codec.toJson(ImmutableList.copyOf(descriptors))));
         mutator.addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createColumn(TIMESTAMP_COLUMN, System.currentTimeMillis(), StringSerializer.get(), LongSerializer.get()));
         mutator.execute();
 
-        // TODO: return true/false depending on whether key already existed
-
-        return false;
+        return !exists;
     }
 
     @Override
     public boolean delete(UUID nodeId)
     {
+        boolean exists = exists(nodeId);
+
+        // TODO: race condition here....
+
         Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
         mutator.addDeletion(nodeId.toString(), COLUMN_FAMILY);
         mutator.execute();
 
-        // TODO: return true if key already existed
-
-        return false;
+        return exists;
     }
 
     public Set<Service> getAll()
@@ -188,4 +192,21 @@ public class CassandraStore
     {
         return ImmutableSet.copyOf(filter(getAll(), and(matchesType(type), matchesPool(pool))));
     }
+
+    private boolean exists(UUID nodeId)
+    {
+        HColumn<String, Long> column = HFactory.createColumnQuery(keyspace, StringSerializer.get(), StringSerializer.get(), LongSerializer.get())
+                .setColumnFamily(COLUMN_FAMILY)
+                .setKey(nodeId.toString())
+                .setName(TIMESTAMP_COLUMN)
+                .execute()
+                .get();
+
+        boolean existed = false;
+        if (column != null && column.getValue() != null && System.currentTimeMillis() - column.getValue() < maxAge.toMillis()) {
+            existed = true;
+        }
+        return existed;
+    }
+
 }
