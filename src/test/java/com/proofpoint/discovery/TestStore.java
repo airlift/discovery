@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import static com.proofpoint.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 public abstract class TestStore
@@ -45,6 +46,20 @@ public abstract class TestStore
         store.put(nodeId, ImmutableSet.of(blue, red, green));
 
         assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(blue, red, green));
+    }
+
+    @Test
+    public void testReplace()
+    {
+        UUID nodeId = UUID.randomUUID();
+
+        Service oldBlue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
+        Service newBlue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
+
+        assertTrue(store.put(nodeId, ImmutableSet.of(oldBlue)));
+        assertFalse(store.put(nodeId, ImmutableSet.of(newBlue)));
+
+        assertEquals(store.getAll(), ImmutableSet.of(newBlue));
     }
 
     @Test
