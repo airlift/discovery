@@ -14,7 +14,9 @@ import me.prettyprint.cassandra.service.ThriftCfDef;
 import me.prettyprint.cassandra.service.ThriftKsDef;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
+import me.prettyprint.hector.api.beans.ColumnSlice;
 import me.prettyprint.hector.api.beans.HColumn;
+import me.prettyprint.hector.api.beans.OrderedRows;
 import me.prettyprint.hector.api.beans.Row;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
@@ -44,8 +46,6 @@ public class CassandraStore
 
     private static final String CLUSTER = "discovery";
     private final static String COLUMN_FAMILY = "announcements";
-    private static final String SERVICES_COLUMN = "services";
-    private static final String TIMESTAMP_COLUMN = "timestamp";
 
     private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
     private final ScheduledExecutorService reaper = new ScheduledThreadPoolExecutor(1);
@@ -98,7 +98,7 @@ public class CassandraStore
                     log.error(e);
                 }
             }
-        }, 0, 1, TimeUnit.SECONDS);
+        }, 0, 1, TimeUnit.MINUTES);
     }
 
     @PreDestroy
@@ -114,10 +114,11 @@ public class CassandraStore
 
         // TODO: race condition here....
 
-        Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-        mutator.addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createStringColumn(SERVICES_COLUMN, codec.toJson(ImmutableList.copyOf(descriptors))));
-        mutator.addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createColumn(TIMESTAMP_COLUMN, System.currentTimeMillis(), StringSerializer.get(), LongSerializer.get()));
-        mutator.execute();
+        String value = codec.toJson(ImmutableList.copyOf(descriptors));
+
+        HFactory.createMutator(keyspace, StringSerializer.get())
+                .addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createColumn(System.currentTimeMillis(), value, LongSerializer.get(), StringSerializer.get()))
+                .execute();
 
         return !exists;
     }
@@ -138,19 +139,19 @@ public class CassandraStore
 
     public Set<Service> getAll()
     {
-        List<Row<String, String, String>> result = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
+        List<Row<String, Long, String>> result = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKeys("", "")
-                .setColumnNames(SERVICES_COLUMN)
+                .setRange(Long.MAX_VALUE, System.currentTimeMillis() - (long) maxAge.toMillis(), true, 1)
                 .execute()
                 .get()
                 .getList();
 
         ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
-        for (Row<String, String, String> row : result) {
-            HColumn column = row.getColumnSlice().getColumnByName(SERVICES_COLUMN);
-            if (column != null) {
-                builder.addAll(codec.fromJson(column.getValue().toString()));
+        for (Row<String, Long, String> row : result) {
+            List<HColumn<Long, String>> columns = row.getColumnSlice().getColumns();
+            if (!columns.isEmpty()) { // TODO: can this ever be empty? or will cassandra suppress rows that have no columns in the specified range?
+                builder.addAll(codec.fromJson(columns.iterator().next().getValue()));
             }
         }
 
@@ -171,52 +172,31 @@ public class CassandraStore
 
     private boolean exists(UUID nodeId)
     {
-        HColumn<String, Long> column = HFactory.createColumnQuery(keyspace, StringSerializer.get(), StringSerializer.get(), LongSerializer.get())
+        ColumnSlice<Long, String> slice = HFactory.createSliceQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKey(nodeId.toString())
-                .setName(TIMESTAMP_COLUMN)
+                .setRange(System.currentTimeMillis() - (long) maxAge.toMillis(), Long.MAX_VALUE, false, 1)
                 .execute()
                 .get();
 
-        boolean existed = false;
-        if (column != null && column.getValue() != null && System.currentTimeMillis() - column.getValue() < maxAge.toMillis()) {
-            existed = true;
-        }
-        return existed;
+        return !slice.getColumns().isEmpty();
     }
 
     private void removeExpired()
     {
-        List<Row<String, String, Long>> result = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), LongSerializer.get())
+        OrderedRows<String, Long, String> rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKeys("", "")
-                .setColumnNames(TIMESTAMP_COLUMN)
+                .setRange(-Long.MAX_VALUE, System.currentTimeMillis() - (long) maxAge.toMillis(), false, Integer.MAX_VALUE)
                 .execute()
-                .get()
-                .getList();
+                .get();
 
-        ImmutableSet.Builder<String> builder = new ImmutableSet.Builder<String>();
-        for (Row<String, String, Long> row : result) {
-            HColumn<String, Long> column = row.getColumnSlice().getColumnByName(TIMESTAMP_COLUMN);
-            if (column != null) {
-                Long timestamp = column.getValue();
-
-                if (System.currentTimeMillis() - timestamp > maxAge.toMillis()) {
-                    builder.add(row.getKey());
-                }
+        Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
+        for (Row<String, Long, String> row : rows) {
+            for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
+                mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName());
             }
         }
-
-        Set<String> toDelete = builder.build();
-
-        // TODO: race condition here ...
-
-        if (!toDelete.isEmpty()) {
-            Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-            for (String key : builder.build()) {
-                mutator.addDeletion(key, COLUMN_FAMILY);
-            }
-            mutator.execute();
-        }
+        mutator.execute();
     }
 }
