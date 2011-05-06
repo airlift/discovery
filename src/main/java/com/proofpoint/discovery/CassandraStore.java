@@ -195,24 +195,28 @@ public class CassandraStore
                 .get()
                 .getList();
 
-        ImmutableSet.Builder<String> toDelete = new ImmutableSet.Builder<String>();
+        ImmutableSet.Builder<String> builder = new ImmutableSet.Builder<String>();
         for (Row<String, String, Long> row : result) {
             HColumn<String, Long> column = row.getColumnSlice().getColumnByName(TIMESTAMP_COLUMN);
             if (column != null) {
                 Long timestamp = column.getValue();
 
                 if (System.currentTimeMillis() - timestamp > maxAge.toMillis()) {
-                    toDelete.add(row.getKey());
+                    builder.add(row.getKey());
                 }
             }
         }
 
+        Set<String> toDelete = builder.build();
+
         // TODO: race condition here ...
 
-        Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-        for (String key : toDelete.build()) {
-            mutator.addDeletion(key, COLUMN_FAMILY);
+        if (!toDelete.isEmpty()) {
+            Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
+            for (String key : builder.build()) {
+                mutator.addDeletion(key, COLUMN_FAMILY);
+            }
+            mutator.execute();
         }
-        mutator.execute();
     }
 }
