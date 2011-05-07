@@ -65,10 +65,13 @@ public class TestAnnouncement
     public void testParsing()
             throws IOException
     {
-        JsonCodec<ServiceAnnouncement> codec = JsonCodec.jsonCodec(ServiceAnnouncement.class);
+        JsonCodec<Announcement> codec = JsonCodec.jsonCodec(Announcement.class);
 
-        ServiceAnnouncement parsed = codec.fromJson(Resources.toString(Resources.getResource("service-announcement.json"), Charsets.UTF_8));
-        ServiceAnnouncement expected = new ServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueA"));
+        Announcement parsed = codec.fromJson(Resources.toString(Resources.getResource("announcement.json"), Charsets.UTF_8));
+
+        ServiceAnnouncement red = new ServiceAnnouncement(UUID.fromString("1c001650-7841-11e0-a1f0-0800200c9a66"), "red", "poolA", ImmutableMap.of("key", "redValue"));
+        ServiceAnnouncement blue = new ServiceAnnouncement(UUID.fromString("2a817750-7841-11e0-a1f0-0800200c9a66"), "blue", "poolA", ImmutableMap.of("key", "blueValue"));
+        Announcement expected = new Announcement("testing", "/a/b/c", ImmutableSet.of(red, blue));
 
         assertEquals(parsed, expected);
     }

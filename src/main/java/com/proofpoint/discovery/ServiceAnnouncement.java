@@ -94,4 +94,15 @@ public class ServiceAnnouncement
         result = 31 * result + (properties != null ? properties.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString()
+    {
+        return "ServiceAnnouncement{" +
+                "id=" + id +
+                ", type='" + type + '\'' +
+                ", pool='" + pool + '\'' +
+                ", properties=" + properties +
+                '}';
+    }
 }
