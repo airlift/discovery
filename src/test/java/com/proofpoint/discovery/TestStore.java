@@ -2,10 +2,15 @@ package com.proofpoint.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.proofpoint.units.Duration;
+import org.joda.time.DateTime;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import javax.inject.Provider;
+import java.util.Collections;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.proofpoint.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
@@ -14,7 +19,18 @@ import static org.testng.Assert.assertTrue;
 
 public abstract class TestStore
 {
+    protected TestingTimeProvider timeProvider;
     protected Store store;
+
+    protected abstract Store initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider);
+
+    @BeforeMethod
+    public void setup()
+    {
+        timeProvider = new TestingTimeProvider();
+        DiscoveryConfig config = new DiscoveryConfig().setMaxAge(new Duration(1, TimeUnit.MINUTES));
+        store = initializeStore(config, timeProvider);
+    }
 
     @Test
     public void testEmpty()
@@ -26,12 +42,24 @@ public abstract class TestStore
     public void testPutSingle()
     {
         UUID nodeId = UUID.randomUUID();
-
         Service blue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
 
         assertTrue(store.put(nodeId, ImmutableSet.of(blue)));
 
         assertEquals(store.getAll(), ImmutableSet.of(blue));
+    }
+
+    @Test
+    public void testExpires()
+    {
+        UUID nodeId = UUID.randomUUID();
+        Service blue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
+
+        assertTrue(store.put(nodeId, ImmutableSet.of(blue)));
+
+        timeProvider.set(timeProvider.get().plusMinutes(5));
+
+        assertEquals(store.getAll(), Collections.<Service>emptySet());
     }
 
     @Test
@@ -109,13 +137,6 @@ public abstract class TestStore
         assertEqualsIgnoreOrder(store.get("storage", "poolB"), ImmutableSet.of(yellow));
     }
 
-
-    @Test
-    public void testExpiration()
-    {
-        // TODO
-    }
-
     @Test
     public void testDelete()
     {
@@ -135,4 +156,5 @@ public abstract class TestStore
         assertTrue(store.get("storage").isEmpty());
         assertTrue(store.get("web", "poolA").isEmpty());
     }
+
 }

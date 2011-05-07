@@ -21,10 +21,12 @@ import me.prettyprint.hector.api.beans.Row;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
+import org.joda.time.DateTime;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -55,10 +57,17 @@ public class CassandraStore
     private final Duration maxAge;
 
     private final AtomicBoolean initialized = new AtomicBoolean(false);
+    private final Provider<DateTime> currentTime;
 
     @Inject
-    public CassandraStore(CassandraStoreConfig config, CassandraServerInfo cassandraInfo, DiscoveryConfig discoveryConfig, NodeInfo nodeInfo)
+    public CassandraStore(
+            CassandraStoreConfig config,
+            CassandraServerInfo cassandraInfo,
+            DiscoveryConfig discoveryConfig,
+            NodeInfo nodeInfo,
+            Provider<DateTime> currentTime)
     {
+        this.currentTime = currentTime;
         maxAge = discoveryConfig.getMaxAge();
 
         Cluster cluster = HFactory.getOrCreateCluster(CLUSTER, format("%s:%s",
@@ -117,7 +126,7 @@ public class CassandraStore
         String value = codec.toJson(ImmutableList.copyOf(descriptors));
 
         HFactory.createMutator(keyspace, StringSerializer.get())
-                .addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createColumn(System.currentTimeMillis(), value, LongSerializer.get(), StringSerializer.get()))
+                .addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createColumn(currentTime.get().getMillis(), value, LongSerializer.get(), StringSerializer.get()))
                 .execute();
 
         return !exists;
@@ -142,7 +151,7 @@ public class CassandraStore
         List<Row<String, Long, String>> result = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKeys("", "")
-                .setRange(Long.MAX_VALUE, System.currentTimeMillis() - (long) maxAge.toMillis(), true, 1)
+                .setRange(Long.MAX_VALUE, expirationCutoff().getMillis(), true, 1)
                 .execute()
                 .get()
                 .getList();
@@ -175,7 +184,7 @@ public class CassandraStore
         ColumnSlice<Long, String> slice = HFactory.createSliceQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKey(nodeId.toString())
-                .setRange(System.currentTimeMillis() - (long) maxAge.toMillis(), Long.MAX_VALUE, false, 1)
+                .setRange(expirationCutoff().getMillis(), Long.MAX_VALUE, false, 1)
                 .execute()
                 .get();
 
@@ -187,7 +196,7 @@ public class CassandraStore
         OrderedRows<String, Long, String> rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKeys("", "")
-                .setRange(-Long.MAX_VALUE, System.currentTimeMillis() - (long) maxAge.toMillis(), false, Integer.MAX_VALUE)
+                .setRange(0L, expirationCutoff().getMillis(), false, Integer.MAX_VALUE)
                 .execute()
                 .get();
 
@@ -198,5 +207,10 @@ public class CassandraStore
             }
         }
         mutator.execute();
+    }
+
+    private DateTime expirationCutoff()
+    {
+        return currentTime.get().minusMillis((int) maxAge.toMillis());
     }
 }

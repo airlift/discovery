@@ -23,7 +23,7 @@ public class TestAnnouncementResource
     @BeforeMethod
     public void setup()
     {
-        store = new InMemoryStore(new DiscoveryConfig());
+        store = new InMemoryStore(new DiscoveryConfig(), new RealTimeProvider());
         resource = new AnnouncementResource(store, new NodeInfo("testing"));
     }
 

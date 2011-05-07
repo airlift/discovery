@@ -4,12 +4,13 @@ import com.google.common.io.Files;
 import com.proofpoint.node.NodeInfo;
 import org.apache.cassandra.config.ConfigurationException;
 import org.apache.thrift.transport.TTransportException;
+import org.joda.time.DateTime;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import javax.inject.Provider;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,7 +18,7 @@ import java.net.ServerSocket;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class TestCassandraStore
-    extends TestStore
+        extends TestStore
 {
     private final static AtomicLong counter = new AtomicLong(0);
     private File tempDir;
@@ -57,15 +58,15 @@ public class TestCassandraStore
         }
     }
 
-    @BeforeMethod
-    public void setup()
+    @Override
+    protected Store initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider)
     {
-        CassandraStoreConfig config = new CassandraStoreConfig()
+        CassandraStoreConfig storeConfig = new CassandraStoreConfig()
                 .setKeyspace("keyspace" + counter.incrementAndGet());
 
-        cassandraStore = new CassandraStore(config, new CassandraServerInfo(rpcPort), new DiscoveryConfig(), new NodeInfo("testing"));
+        cassandraStore = new CassandraStore(storeConfig, new CassandraServerInfo(rpcPort), config, new NodeInfo("testing"), timeProvider);
         cassandraStore.initialize();
-        store = cassandraStore;
+        return cassandraStore;
     }
 
     @AfterMethod

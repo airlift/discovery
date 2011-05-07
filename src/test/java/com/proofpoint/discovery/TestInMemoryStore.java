@@ -1,13 +1,15 @@
 package com.proofpoint.discovery;
 
-import org.testng.annotations.BeforeMethod;
+import org.joda.time.DateTime;
+
+import javax.inject.Provider;
 
 public class TestInMemoryStore
     extends TestStore
 {
-    @BeforeMethod
-    public void setup()
+    @Override
+    public Store initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider)
     {
-        store = new InMemoryStore(new DiscoveryConfig());
+        return new InMemoryStore(config, timeProvider);
     }
 }

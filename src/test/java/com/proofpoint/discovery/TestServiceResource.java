@@ -19,7 +19,7 @@ public class TestServiceResource
     @BeforeMethod
     protected void setUp()
     {
-        store = new InMemoryStore(new DiscoveryConfig());
+        store = new InMemoryStore(new DiscoveryConfig(), new TestingTimeProvider());
         resource = new ServiceResource(store, new NodeInfo("testing"));
     }
 
