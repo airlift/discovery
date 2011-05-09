@@ -9,17 +9,21 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import static com.google.common.collect.Sets.union;
+
 
 @Path("/v1/service")
 public class ServiceResource
 {
     private final DynamicStore dynamicStore;
+    private final StaticStore staticStore;
     private final NodeInfo node;
 
     @Inject
-    public ServiceResource(DynamicStore dynamicStore, NodeInfo node)
+    public ServiceResource(DynamicStore dynamicStore, StaticStore staticStore, NodeInfo node)
     {
         this.dynamicStore = dynamicStore;
+        this.staticStore = staticStore;
         this.node = node;
     }
 
@@ -28,7 +32,7 @@ public class ServiceResource
     @Produces(MediaType.APPLICATION_JSON)
     public Services getServices(@PathParam("type") String type, @PathParam("pool") String pool)
     {
-        return new Services(node.getEnvironment(), dynamicStore.get(type, pool));
+        return new Services(node.getEnvironment(), union(dynamicStore.get(type, pool), staticStore.get(type, pool)));
     }
 
     @GET
@@ -36,6 +40,6 @@ public class ServiceResource
     @Produces(MediaType.APPLICATION_JSON)
     public Services getServices(@PathParam("type") String type)
     {
-        return new Services(node.getEnvironment(), dynamicStore.get(type));
+        return new Services(node.getEnvironment(), union(dynamicStore.get(type), staticStore.get(type)));
     }
 }

@@ -1,0 +1,9 @@
+{
+    "environment": "testing",
+    "location": "/a/b/c",
+    "type": "blue",
+    "pool": "poolA",
+    "properties": {
+        "key": "valueA"
+    }
+}

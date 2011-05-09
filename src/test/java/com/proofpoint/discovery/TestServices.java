@@ -3,7 +3,6 @@ package com.proofpoint.discovery;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import com.proofpoint.experimental.json.JsonCodec;
@@ -11,13 +10,11 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.proofpoint.experimental.json.JsonCodec.jsonCodec;
 import static com.proofpoint.testing.Assertions.assertNotEquals;
-import static com.proofpoint.testing.EquivalenceTester.equivalenceTester;
 import static org.testng.Assert.assertEquals;
 
 public class TestServices

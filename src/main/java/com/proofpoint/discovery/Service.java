@@ -21,15 +21,15 @@ public class Service
     private final Map<String, String> properties;
 
     @JsonCreator
-    public Service(@JsonProperty("id") UUID id,
-                   @JsonProperty("nodeId") UUID nodeId,
-                   @JsonProperty("type") String type,
-                   @JsonProperty("pool") String pool,
-                   @JsonProperty("location") String location,
-                   @JsonProperty("properties") Map<String, String> properties)
+    public Service(
+            @JsonProperty("id") UUID id,
+            @JsonProperty("nodeId") UUID nodeId,
+            @JsonProperty("type") String type,
+            @JsonProperty("pool") String pool,
+            @JsonProperty("location") String location,
+            @JsonProperty("properties") Map<String, String> properties)
     {
         Preconditions.checkNotNull(id, "id is null");
-        Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(type, "type is null");
         Preconditions.checkNotNull(pool, "pool is null");
         Preconditions.checkNotNull(location, "location is null");
@@ -145,6 +145,11 @@ public class Service
         return new Builder().copyOf(announcement);
     }
 
+    public static Builder copyOf(StaticAnnouncement announcement)
+    {
+        return new Builder().copyOf(announcement);
+    }
+
     public static class Builder
     {
         private UUID id;
@@ -161,6 +166,21 @@ public class Service
             pool = announcement.getPool();
             properties = ImmutableMap.copyOf(announcement.getProperties());
 
+            return this;
+        }
+
+        public Builder copyOf(StaticAnnouncement announcement)
+        {
+            type = announcement.getType();
+            pool = announcement.getPool();
+            properties = ImmutableMap.copyOf(announcement.getProperties());
+
+            return this;
+        }
+
+        public Builder setId(UUID id)
+        {
+            this.id = id;
             return this;
         }
 

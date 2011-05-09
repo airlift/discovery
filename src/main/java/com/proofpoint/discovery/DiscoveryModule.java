@@ -12,9 +12,11 @@ public class DiscoveryModule
     public void configure(Binder binder)
     {
         binder.bind(DynamicAnnouncementResource.class).in(Scopes.SINGLETON);
+        binder.bind(StaticAnnouncementResource.class).in(Scopes.SINGLETON);
         binder.bind(ServiceResource.class).in(Scopes.SINGLETON);
 
         binder.bind(DynamicStore.class).to(CassandraDynamicStore.class).in(Scopes.SINGLETON);
+        binder.bind(StaticStore.class).to(InMemoryStaticStore.class).in(Scopes.SINGLETON);
         binder.bind(DateTime.class).toProvider(RealTimeProvider.class).in(Scopes.SINGLETON);
 
         ConfigurationModule.bindConfig(binder).to(DiscoveryConfig.class);

@@ -92,12 +92,6 @@ public class TestService
         new Service(null, UUID.randomUUID(), "type", "pool", "/location", ImmutableMap.of("key", "value"));
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "nodeId.*")
-    public void testValidatesNodeIdNotNull()
-    {
-        new Service(UUID.randomUUID(), null, "type", "pool", "/location", ImmutableMap.of("key", "value"));
-    }
-
     @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "type.*")
     public void testValidatesTypeNotNull()
     {
