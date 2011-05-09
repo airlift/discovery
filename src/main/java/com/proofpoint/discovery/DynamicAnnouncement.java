@@ -10,16 +10,16 @@ import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Immutable
-public class Announcement
+public class DynamicAnnouncement
 {
     private final String environment;
     private final String location;
-    private final Set<ServiceAnnouncement> services;
+    private final Set<DynamicServiceAnnouncement> services;
 
     @JsonCreator
-    public Announcement(@JsonProperty("environment") String environment,
-                        @JsonProperty("location") String location,
-                        @JsonProperty("services") Set<ServiceAnnouncement> services)
+    public DynamicAnnouncement(@JsonProperty("environment") String environment,
+            @JsonProperty("location") String location,
+            @JsonProperty("services") Set<DynamicServiceAnnouncement> services)
     {
         this.environment = environment;
         this.location = location;
@@ -45,7 +45,7 @@ public class Announcement
 
     @NotNull
     @Valid
-    public Set<ServiceAnnouncement> getServices()
+    public Set<DynamicServiceAnnouncement> getServices()
     {
         return services;
     }
@@ -60,7 +60,7 @@ public class Announcement
             return false;
         }
 
-        Announcement that = (Announcement) o;
+        DynamicAnnouncement that = (DynamicAnnouncement) o;
 
         if (environment != null ? !environment.equals(that.environment) : that.environment != null) {
             return false;

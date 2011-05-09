@@ -17,14 +17,14 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class TestCassandraStore
-        extends TestStore
+public class TestCassandraDynamicStore
+        extends TestDynamicStore
 {
     private final static AtomicLong counter = new AtomicLong(0);
     private File tempDir;
     private EmbeddedCassandraServer server;
     private int rpcPort;
-    private CassandraStore cassandraStore;
+    private CassandraDynamicStore cassandraStore;
 
     @BeforeClass
     public void setupServer()
@@ -59,12 +59,12 @@ public class TestCassandraStore
     }
 
     @Override
-    protected Store initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider)
+    protected DynamicStore initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider)
     {
         CassandraStoreConfig storeConfig = new CassandraStoreConfig()
                 .setKeyspace("keyspace" + counter.incrementAndGet());
 
-        cassandraStore = new CassandraStore(storeConfig, new CassandraServerInfo(rpcPort), config, new NodeInfo("testing"), timeProvider);
+        cassandraStore = new CassandraDynamicStore(storeConfig, new CassandraServerInfo(rpcPort), config, new NodeInfo("testing"), timeProvider);
         cassandraStore.initialize();
         return cassandraStore;
     }

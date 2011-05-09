@@ -17,12 +17,12 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-public abstract class TestStore
+public abstract class TestDynamicStore
 {
     protected TestingTimeProvider timeProvider;
-    protected Store store;
+    protected DynamicStore store;
 
-    protected abstract Store initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider);
+    protected abstract DynamicStore initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider);
 
     @BeforeMethod
     public void setup()

@@ -21,21 +21,21 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 @Path("/v1/announcement/{node_id}")
-public class AnnouncementResource
+public class DynamicAnnouncementResource
 {
     private final NodeInfo nodeInfo;
-    private final Store store;
+    private final DynamicStore dynamicStore;
 
     @Inject
-    public AnnouncementResource(Store store, NodeInfo nodeInfo)
+    public DynamicAnnouncementResource(DynamicStore dynamicStore, NodeInfo nodeInfo)
     {
-        this.store = store;
+        this.dynamicStore = dynamicStore;
         this.nodeInfo = nodeInfo;
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response put(@PathParam("node_id") UUID nodeId, @Context UriInfo uriInfo, Announcement announcement)
+    public Response put(@PathParam("node_id") UUID nodeId, @Context UriInfo uriInfo, DynamicAnnouncement announcement)
     {
         if (!nodeInfo.getEnvironment().equals(announcement.getEnvironment())) {
             return Response.status(BAD_REQUEST)
@@ -46,7 +46,7 @@ public class AnnouncementResource
         String location = Objects.firstNonNull(announcement.getLocation(), "/somewhere/" + nodeId.toString());
 
         ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
-        for (ServiceAnnouncement entry : announcement.getServices()) {
+        for (DynamicServiceAnnouncement entry : announcement.getServices()) {
             Service descriptor = Service.copyOf(entry)
                     .setNodeId(nodeId)
                     .setLocation(location)
@@ -54,7 +54,7 @@ public class AnnouncementResource
             builder.add(descriptor);
         }
 
-        if (store.put(nodeId, builder.build())) {
+        if (dynamicStore.put(nodeId, builder.build())) {
             return Response.created(uriInfo.getRequestUri()).build();
         }
 
@@ -64,7 +64,7 @@ public class AnnouncementResource
     @DELETE
     public Response delete(@PathParam("node_id") UUID nodeId)
     {
-        if (!store.delete(nodeId)) {
+        if (!dynamicStore.delete(nodeId)) {
             return Response.status(NOT_FOUND).build();
         }
 

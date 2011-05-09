@@ -13,13 +13,13 @@ import javax.ws.rs.core.MediaType;
 @Path("/v1/service")
 public class ServiceResource
 {
-    private final Store store;
+    private final DynamicStore dynamicStore;
     private final NodeInfo node;
 
     @Inject
-    public ServiceResource(Store store, NodeInfo node)
+    public ServiceResource(DynamicStore dynamicStore, NodeInfo node)
     {
-        this.store = store;
+        this.dynamicStore = dynamicStore;
         this.node = node;
     }
 
@@ -28,7 +28,7 @@ public class ServiceResource
     @Produces(MediaType.APPLICATION_JSON)
     public Services getServices(@PathParam("type") String type, @PathParam("pool") String pool)
     {
-        return new Services(node.getEnvironment(), store.get(type, pool));
+        return new Services(node.getEnvironment(), dynamicStore.get(type, pool));
     }
 
     @GET
@@ -36,6 +36,6 @@ public class ServiceResource
     @Produces(MediaType.APPLICATION_JSON)
     public Services getServices(@PathParam("type") String type)
     {
-        return new Services(node.getEnvironment(), store.get(type));
+        return new Services(node.getEnvironment(), dynamicStore.get(type));
     }
 }

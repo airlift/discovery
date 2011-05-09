@@ -140,7 +140,7 @@ public class Service
                 '}';
     }
 
-    public static Builder copyOf(ServiceAnnouncement announcement)
+    public static Builder copyOf(DynamicServiceAnnouncement announcement)
     {
         return new Builder().copyOf(announcement);
     }
@@ -154,7 +154,7 @@ public class Service
         private String location;
         private Map<String, String> properties;
 
-        public Builder copyOf(ServiceAnnouncement announcement)
+        public Builder copyOf(DynamicServiceAnnouncement announcement)
         {
             id = announcement.getId();
             type = announcement.getType();

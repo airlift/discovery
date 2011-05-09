@@ -41,10 +41,10 @@ import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
 import static java.lang.String.format;
 
-public class CassandraStore
-        implements Store
+public class CassandraDynamicStore
+        implements DynamicStore
 {
-    private final static Logger log = Logger.get(CassandraStore.class);
+    private final static Logger log = Logger.get(CassandraDynamicStore.class);
 
     private static final String CLUSTER = "discovery";
     private final static String COLUMN_FAMILY = "announcements";
@@ -60,7 +60,7 @@ public class CassandraStore
     private final Provider<DateTime> currentTime;
 
     @Inject
-    public CassandraStore(
+    public CassandraDynamicStore(
             CassandraStoreConfig config,
             CassandraServerInfo cassandraInfo,
             DiscoveryConfig discoveryConfig,

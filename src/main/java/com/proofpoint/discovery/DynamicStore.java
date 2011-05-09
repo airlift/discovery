@@ -3,7 +3,7 @@ package com.proofpoint.discovery;
 import java.util.Set;
 import java.util.UUID;
 
-public interface Store
+public interface DynamicStore
 {
     boolean put(UUID nodeId, Set<Service> descriptors);
     boolean delete(UUID nodeId);

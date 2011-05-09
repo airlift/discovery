@@ -20,15 +20,15 @@ import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
 
 @ThreadSafe
-public class InMemoryStore
-        implements Store
+public class InMemoryDynamicStore
+        implements DynamicStore
 {
     private final Map<UUID, Entry> descriptors = Maps.newHashMap();
     private final Duration maxAge;
     private final Provider<DateTime> currentTime;
 
     @Inject
-    public InMemoryStore(DiscoveryConfig config, Provider<DateTime> timeSource)
+    public InMemoryDynamicStore(DiscoveryConfig config, Provider<DateTime> timeSource)
     {
         this.currentTime = timeSource;
         this.maxAge = config.getMaxAge();

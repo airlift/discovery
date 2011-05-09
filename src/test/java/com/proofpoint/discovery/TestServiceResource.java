@@ -13,14 +13,14 @@ import static org.testng.Assert.assertEquals;
 
 public class TestServiceResource
 {
-    private InMemoryStore store;
+    private InMemoryDynamicStore dynamicStore;
     private ServiceResource resource;
 
     @BeforeMethod
     protected void setUp()
     {
-        store = new InMemoryStore(new DiscoveryConfig(), new TestingTimeProvider());
-        resource = new ServiceResource(store, new NodeInfo("testing"));
+        dynamicStore = new InMemoryDynamicStore(new DiscoveryConfig(), new TestingTimeProvider());
+        resource = new ServiceResource(dynamicStore, new NodeInfo("testing"));
     }
 
     @Test
@@ -32,9 +32,9 @@ public class TestServiceResource
         Service green = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "2"));
         Service yellow = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "beta", "/a/b/c", ImmutableMap.of("key", "3"));
 
-        store.put(redNodeId, ImmutableSet.of(red1, red2));
-        store.put(green.getNodeId(), ImmutableSet.of(green));
-        store.put(yellow.getNodeId(), ImmutableSet.of(yellow));
+        dynamicStore.put(redNodeId, ImmutableSet.of(red1, red2));
+        dynamicStore.put(green.getNodeId(), ImmutableSet.of(green));
+        dynamicStore.put(yellow.getNodeId(), ImmutableSet.of(yellow));
 
         assertEquals(resource.getServices("storage"), new Services("testing", ImmutableSet.of(red1, green, yellow)));
         assertEquals(resource.getServices("data"), new Services("testing", ImmutableSet.of(red2)));
@@ -50,9 +50,9 @@ public class TestServiceResource
         Service green = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "2"));
         Service yellow = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "beta", "/a/b/c", ImmutableMap.of("key", "3"));
 
-        store.put(redNodeId, ImmutableSet.of(red1, red2));
-        store.put(green.getNodeId(), ImmutableSet.of(green));
-        store.put(yellow.getNodeId(), ImmutableSet.of(yellow));
+        dynamicStore.put(redNodeId, ImmutableSet.of(red1, red2));
+        dynamicStore.put(green.getNodeId(), ImmutableSet.of(green));
+        dynamicStore.put(yellow.getNodeId(), ImmutableSet.of(yellow));
 
         assertEquals(resource.getServices("storage", "alpha"), new Services("testing", ImmutableSet.of(red1, green)));
         assertEquals(resource.getServices("storage", "beta"), new Services("testing", ImmutableSet.of(yellow)));

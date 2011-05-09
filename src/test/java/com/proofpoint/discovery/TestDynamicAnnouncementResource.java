@@ -15,23 +15,23 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
-public class TestAnnouncementResource
+public class TestDynamicAnnouncementResource
 {
-    private InMemoryStore store;
-    private AnnouncementResource resource;
+    private InMemoryDynamicStore store;
+    private DynamicAnnouncementResource resource;
 
     @BeforeMethod
     public void setup()
     {
-        store = new InMemoryStore(new DiscoveryConfig(), new RealTimeProvider());
-        resource = new AnnouncementResource(store, new NodeInfo("testing"));
+        store = new InMemoryDynamicStore(new DiscoveryConfig(), new RealTimeProvider());
+        resource = new DynamicAnnouncementResource(store, new NodeInfo("testing"));
     }
 
     @Test
     public void testPutNew()
     {
-        ServiceAnnouncement serviceAnnouncement = new ServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
-        Announcement announcement = new Announcement("testing", "/a/b/c", ImmutableSet.of(serviceAnnouncement));
+        DynamicServiceAnnouncement serviceAnnouncement = new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(serviceAnnouncement));
 
         UUID nodeId = UUID.randomUUID();
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
@@ -56,8 +56,8 @@ public class TestAnnouncementResource
         store.put(nodeId, ImmutableSet.of(existing));
 
 
-        ServiceAnnouncement serviceAnnouncement = new ServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("key", "new"));
-        Announcement announcement = new Announcement("testing", "/a/b/c", ImmutableSet.of(serviceAnnouncement));
+        DynamicServiceAnnouncement serviceAnnouncement = new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("key", "new"));
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(serviceAnnouncement));
 
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
 
@@ -75,8 +75,8 @@ public class TestAnnouncementResource
     @Test
     public void testEnvironmentConflict()
     {
-        ServiceAnnouncement serviceAnnouncement = new ServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
-        Announcement announcement = new Announcement("production", "/a/b/c", ImmutableSet.of(serviceAnnouncement));
+        DynamicServiceAnnouncement serviceAnnouncement = new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
+        DynamicAnnouncement announcement = new DynamicAnnouncement("production", "/a/b/c", ImmutableSet.of(serviceAnnouncement));
 
         UUID nodeId = UUID.randomUUID();
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
@@ -118,8 +118,8 @@ public class TestAnnouncementResource
     @Test
     public void testMakesUpLocation()
     {
-        ServiceAnnouncement serviceAnnouncement = new ServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
-        Announcement announcement = new Announcement("testing", null, ImmutableSet.of(serviceAnnouncement));
+        DynamicServiceAnnouncement serviceAnnouncement = new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", null, ImmutableSet.of(serviceAnnouncement));
 
         UUID nodeId = UUID.randomUUID();
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);

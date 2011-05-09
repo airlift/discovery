@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.UUID;
 
-public class ServiceAnnouncement
+public class DynamicServiceAnnouncement
 {
     private final UUID id;
     private final String type;
@@ -16,10 +16,10 @@ public class ServiceAnnouncement
     private final Map<String, String> properties;
 
     @JsonCreator
-    public ServiceAnnouncement(@JsonProperty("id") UUID id,
-                               @JsonProperty("type") String type,
-                               @JsonProperty("pool") String pool,
-                               @JsonProperty("properties") Map<String, String> properties)
+    public DynamicServiceAnnouncement(@JsonProperty("id") UUID id,
+            @JsonProperty("type") String type,
+            @JsonProperty("pool") String pool,
+            @JsonProperty("properties") Map<String, String> properties)
     {
         this.id = id;
         this.type = type;
@@ -67,7 +67,7 @@ public class ServiceAnnouncement
             return false;
         }
 
-        ServiceAnnouncement that = (ServiceAnnouncement) o;
+        DynamicServiceAnnouncement that = (DynamicServiceAnnouncement) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
