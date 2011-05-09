@@ -1,11 +1,15 @@
 - Tests
     - DiscoveryConfig
     - CassandraStore
+        - background expiration thread
     - CassandraServerConfig
     - Integration
     - Services
-	- equivalence test
-	- expiration
+	- DynamicAnnouncement
+	    - equivalence test
+	    - toString
+	- DynamicServiceAnnouncement
+	    - toString
 
 - Static announcements
 - CLI
