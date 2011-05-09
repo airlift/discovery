@@ -103,23 +103,23 @@ public class TestDynamicServiceAnnouncement
     {
         Map<String, String> properties = Maps.newHashMap();
         properties.put("key", "value");
-        Service service = new Service(UUID.randomUUID(), UUID.randomUUID(), "type", "pool", "/location", properties);
+        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(UUID.randomUUID(), "type", "pool", properties);
 
-        assertEquals(service.getProperties(), properties);
+        assertEquals(announcement.getProperties(), properties);
         properties.put("key2", "value2");
-        assertNotEquals(service.getProperties(), properties);
+        assertNotEquals(announcement.getProperties(), properties);
     }
 
     @Test
     public void testImmutableProperties()
     {
-        Service service = new Service(UUID.randomUUID(), UUID.randomUUID(), "type", "pool", "/location", ImmutableMap.of("key", "value"));
+        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement (UUID.randomUUID(), "type", "pool", ImmutableMap.of("key", "value"));
 
         try {
-            service.getProperties().put("key2", "value2");
+            announcement.getProperties().put("key2", "value2");
 
             // a copy of the internal map is acceptable
-            assertEquals(service.getProperties(), ImmutableMap.of("key", "value"));
+            assertEquals(announcement.getProperties(), ImmutableMap.of("key", "value"));
         }
         catch (UnsupportedOperationException e) {
             // an exception is ok, too

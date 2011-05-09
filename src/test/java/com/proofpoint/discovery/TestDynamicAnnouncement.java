@@ -76,65 +76,6 @@ public class TestDynamicAnnouncement
         assertEquals(parsed, expected);
     }
 
-    @Test
-    public void testEquivalence()
-    {
-        equivalenceTester()
-                // vary fields, one by one
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueA")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueB")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueB")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolB", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolB", ImmutableMap.of("key", "valueA")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "red", "poolA", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "red", "poolA", ImmutableMap.of("key", "valueA")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("4960d071-67b0-4552-8b12-b7abd869aa83"), "blue", "poolA", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("4960d071-67b0-4552-8b12-b7abd869aa83"), "blue", "poolA", ImmutableMap.of("key", "valueA")))
-                        // null fields
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", null),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", null))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", null, ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", null, ImmutableMap.of("key", "valueA")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), null, "poolA", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), null, "poolA", ImmutableMap.of("key", "valueA")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(null, "blue", "poolA", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(null, "blue", "poolA", ImmutableMap.of("key", "valueA")))
-
-                        // empty properties
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", Collections.<String, String>emptyMap()),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", Collections.<String, String>emptyMap()))
-                .check();
-    }
-
-    @Test
-    public void testCreatesDefensiveCopyOfProperties()
-    {
-        Map<String, String> properties = Maps.newHashMap();
-        properties.put("key", "value");
-        Service service = new Service(UUID.randomUUID(), UUID.randomUUID(), "type", "pool", "/location", properties);
-
-        assertEquals(service.getProperties(), properties);
-        properties.put("key2", "value2");
-        assertNotEquals(service.getProperties(), properties);
-    }
-
-    @Test
-    public void testImmutableProperties()
-    {
-        Service service = new Service(UUID.randomUUID(), UUID.randomUUID(), "type", "pool", "/location", ImmutableMap.of("key", "value"));
-
-        try {
-            service.getProperties().put("key2", "value2");
-
-            // a copy of the internal map is acceptable
-            assertEquals(service.getProperties(), ImmutableMap.of("key", "value"));
-        }
-        catch (UnsupportedOperationException e) {
-            // an exception is ok, too
-        }
-    }
-
     private <T> void assertFailedValidation(T bean, String field, String message, Class<? extends Annotation> annotation)
     {
         Set<ConstraintViolation<T>> violations = VALIDATOR.validate(bean);
