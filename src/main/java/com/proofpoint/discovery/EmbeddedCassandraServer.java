@@ -76,7 +76,11 @@ public class EmbeddedCassandraServer
                 .put("rpc_port", config.getRpcPort())
                 .put("endpoint_snitch", "org.apache.cassandra.locator.SimpleSnitch") // TODO: make configurable
                 .put("request_scheduler", "org.apache.cassandra.scheduler.NoScheduler")
-                .put("in_memory_compaction_limit_in_mb", 64)
+                .put("in_memory_compaction_limit_in_mb", 8)
+                .put("sliced_buffer_size_in_kb", 64)
+                .put("thrift_framed_transport_size_in_mb", 3)
+                .put("thrift_max_message_length_in_mb", 4)
+                .put("column_index_size_in_kb", 16)
                 .build();
 
         File configFile = new File(directory, "config.yaml");
