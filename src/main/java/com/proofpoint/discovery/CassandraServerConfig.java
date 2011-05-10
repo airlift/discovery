@@ -11,8 +11,8 @@ public class CassandraServerConfig
 {
     private String clusterName;
     private File directory;
-    private int rpcPort;
-    private int storagePort;
+    private int rpcPort = 9160;
+    private int storagePort = 7000;
     private String seeds;
 
 
