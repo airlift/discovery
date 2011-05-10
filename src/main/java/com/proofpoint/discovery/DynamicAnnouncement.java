@@ -17,7 +17,8 @@ public class DynamicAnnouncement
     private final Set<DynamicServiceAnnouncement> services;
 
     @JsonCreator
-    public DynamicAnnouncement(@JsonProperty("environment") String environment,
+    public DynamicAnnouncement(
+            @JsonProperty("environment") String environment,
             @JsonProperty("location") String location,
             @JsonProperty("services") Set<DynamicServiceAnnouncement> services)
     {
