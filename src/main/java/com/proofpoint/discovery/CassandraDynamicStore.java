@@ -1,5 +1,6 @@
 package com.proofpoint.discovery;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.InetAddresses;
@@ -122,6 +123,8 @@ public class CassandraDynamicStore
         boolean exists = exists(nodeId);
 
         // TODO: race condition here....
+        Preconditions.checkNotNull(nodeId, "nodeId is null");
+        Preconditions.checkNotNull(descriptors, "descriptors is null");
 
         String value = codec.toJson(ImmutableList.copyOf(descriptors));
 
