@@ -13,7 +13,9 @@
 	- EmbeddedCassandraServer
 	    - creates directory if missing or throws error if it can't
 
-- Static announcements
+- CassandraStaticStore
+    - Detect new vs replaced
+
 - CLI
 
 - Cache control
