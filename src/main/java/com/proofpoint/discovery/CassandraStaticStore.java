@@ -13,6 +13,7 @@ import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.Row;
+import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
@@ -51,7 +52,15 @@ public class CassandraStaticStore
             cluster.addKeyspace(new ThriftKsDef(keyspaceName));
         }
 
-        if (cluster.describeKeyspace(keyspaceName).getCfDefs().isEmpty()) {
+        boolean exists = false;
+        for (ColumnFamilyDefinition columnFamily : cluster.describeKeyspace(keyspaceName).getCfDefs()) {
+            if (columnFamily.getName().equals(COLUMN_FAMILY)) {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists) {
             cluster.addColumnFamily(new ThriftCfDef(keyspaceName, COLUMN_FAMILY));
         }
 

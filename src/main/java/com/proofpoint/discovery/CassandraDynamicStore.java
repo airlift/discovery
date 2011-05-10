@@ -20,6 +20,7 @@ import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.OrderedRows;
 import me.prettyprint.hector.api.beans.Row;
 import me.prettyprint.hector.api.beans.Rows;
+import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
@@ -82,7 +83,15 @@ public class CassandraDynamicStore
             cluster.addKeyspace(new ThriftKsDef(keyspaceName));
         }
 
-        if (cluster.describeKeyspace(keyspaceName).getCfDefs().isEmpty()) {
+        boolean exists = false;
+        for (ColumnFamilyDefinition columnFamily : cluster.describeKeyspace(keyspaceName).getCfDefs()) {
+            if (columnFamily.getName().equals(COLUMN_FAMILY)) {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists) {
             cluster.addColumnFamily(new ThriftCfDef(keyspaceName, COLUMN_FAMILY));
         }
 
