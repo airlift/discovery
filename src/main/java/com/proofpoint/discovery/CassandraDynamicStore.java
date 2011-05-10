@@ -47,7 +47,7 @@ public class CassandraDynamicStore
     private final static Logger log = Logger.get(CassandraDynamicStore.class);
 
     private static final String CLUSTER = "discovery";
-    private final static String COLUMN_FAMILY = "announcements";
+    private final static String COLUMN_FAMILY = "dynamic_announcements";
 
     private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
     private final ScheduledExecutorService reaper = new ScheduledThreadPoolExecutor(1);
