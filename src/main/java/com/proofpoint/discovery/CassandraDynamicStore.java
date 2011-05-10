@@ -19,6 +19,7 @@ import me.prettyprint.hector.api.beans.ColumnSlice;
 import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.OrderedRows;
 import me.prettyprint.hector.api.beans.Row;
+import me.prettyprint.hector.api.beans.Rows;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
@@ -120,19 +121,38 @@ public class CassandraDynamicStore
     @Override
     public boolean put(UUID nodeId, Set<Service> descriptors)
     {
-        boolean exists = exists(nodeId);
-
-        // TODO: race condition here....
         Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(descriptors, "descriptors is null");
 
         String value = codec.toJson(ImmutableList.copyOf(descriptors));
 
+        DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
+        DateTime now = currentTime.get();
+
+        // insert our record
         HFactory.createMutator(keyspace, StringSerializer.get())
-                .addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createColumn(currentTime.get().getMillis(), value, LongSerializer.get(), StringSerializer.get()))
+                .addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createColumn(expiration.getMillis(), value, now.getMillis(), LongSerializer.get(), StringSerializer.get()))
                 .execute();
 
-        return !exists;
+        // get all unexpired entries
+        Rows<String,Long,String> rows = HFactory.createMultigetSliceQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
+                .setColumnFamily(COLUMN_FAMILY)
+                .setKeys(nodeId.toString())
+                .setRange(now.getMillis(), null, false, Integer.MAX_VALUE)
+                .execute()
+                .get();
+
+        for (Row<String, Long, String> row : rows) {
+            // there should be only one row since we queried for one key
+            for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
+                // if column is not yet expired but it's older (timestamp-wise) than ours, assume an entry already existed
+                if (column.getClock() < now.getMillis()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -154,16 +174,22 @@ public class CassandraDynamicStore
         List<Row<String, Long, String>> result = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKeys("", "")
-                .setRange(Long.MAX_VALUE, expirationCutoff().getMillis(), true, 1)
+                .setRange(null, currentTime.get().getMillis(), true, Integer.MAX_VALUE)
                 .execute()
                 .get()
                 .getList();
 
         ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
         for (Row<String, Long, String> row : result) {
-            List<HColumn<Long, String>> columns = row.getColumnSlice().getColumns();
-            if (!columns.isEmpty()) { // TODO: can this ever be empty? or will cassandra suppress rows that have no columns in the specified range?
-                builder.addAll(codec.fromJson(columns.iterator().next().getValue()));
+            // select the newest column
+            HColumn<Long, String> chosen = null;
+            for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
+                if (chosen == null || column.getClock() > chosen.getClock()) {
+                    chosen = column;
+                }
+            }
+            if (chosen != null) {
+                builder.addAll(codec.fromJson(chosen.getValue()));
             }
         }
 
@@ -187,7 +213,7 @@ public class CassandraDynamicStore
         ColumnSlice<Long, String> slice = HFactory.createSliceQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKey(nodeId.toString())
-                .setRange(expirationCutoff().getMillis(), Long.MAX_VALUE, false, 1)
+                .setRange(expirationCutoff().getMillis(), null, false, 1)
                 .execute()
                 .get();
 
@@ -199,7 +225,7 @@ public class CassandraDynamicStore
         OrderedRows<String, Long, String> rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKeys("", "")
-                .setRange(0L, expirationCutoff().getMillis(), false, Integer.MAX_VALUE)
+                .setRange(null, currentTime.get().getMillis(), false, Integer.MAX_VALUE)
                 .execute()
                 .get();
 
