@@ -23,6 +23,7 @@ import static com.proofpoint.testing.Assertions.assertInstanceOf;
 import static com.proofpoint.testing.Assertions.assertNotEquals;
 import static com.proofpoint.testing.EquivalenceTester.equivalenceTester;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 public class TestDynamicAnnouncement
@@ -74,6 +75,14 @@ public class TestDynamicAnnouncement
         DynamicAnnouncement expected = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(red, blue));
 
         assertEquals(parsed, expected);
+    }
+
+    @Test
+    public void testToString()
+    {
+        Set<DynamicServiceAnnouncement> serviceAnnouncements = ImmutableSet.of(new DynamicServiceAnnouncement(null, "type", "pool", Collections.<String, String>emptyMap()));
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/location", serviceAnnouncements);
+        assertNotNull(announcement.toString());
     }
 
     private <T> void assertFailedValidation(T bean, String field, String message, Class<? extends Annotation> annotation)

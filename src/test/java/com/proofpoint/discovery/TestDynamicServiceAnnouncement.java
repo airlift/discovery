@@ -22,6 +22,7 @@ import static com.proofpoint.testing.Assertions.assertInstanceOf;
 import static com.proofpoint.testing.Assertions.assertNotEquals;
 import static com.proofpoint.testing.EquivalenceTester.equivalenceTester;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class TestDynamicServiceAnnouncement
 {
@@ -124,6 +125,14 @@ public class TestDynamicServiceAnnouncement
         catch (UnsupportedOperationException e) {
             // an exception is ok, too
         }
+    }
+
+    @Test
+    public void testToString()
+    {
+        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueA"));
+
+        assertNotNull(announcement.toString());
     }
 
     private void assertFailedValidation(DynamicServiceAnnouncement announcement, String field, String message, Class<? extends Annotation> annotation)
