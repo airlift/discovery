@@ -1,5 +1,6 @@
 package com.proofpoint.discovery;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 import com.proofpoint.node.NodeInfo;
 import org.apache.cassandra.config.ConfigurationException;
@@ -60,6 +61,7 @@ public class CassandraServerSetup
 
     public static CassandraServerInfo getServerInfo()
     {
+        Preconditions.checkState(initialized.get(), "Embedded Cassandra instance not yet initialized. Make sure to call tryInitialize() before calling this method.");
         return new CassandraServerInfo(rpcPort);
     }
 
