@@ -34,6 +34,7 @@ public class CassandraStaticStore
 {
     private static final String CLUSTER = "discovery";
     private final static String COLUMN_FAMILY = "static_announcements";
+    private static final String COLUMN_NAME = "static";
 
     private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
 
@@ -74,7 +75,7 @@ public class CassandraStaticStore
         String value = codec.toJson(ImmutableList.of(service));
 
         HFactory.createMutator(keyspace, StringSerializer.get())
-                .addInsertion(service.getId().toString(), COLUMN_FAMILY, HFactory.createColumn("static", value, StringSerializer.get(), StringSerializer.get()))
+                .addInsertion(service.getId().toString(), COLUMN_FAMILY, HFactory.createColumn(COLUMN_NAME, value, StringSerializer.get(), StringSerializer.get()))
                 .execute();
     }
 
@@ -92,14 +93,14 @@ public class CassandraStaticStore
         List<Row<String, String, String>> result = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKeys("", "")
-                .setColumnNames("static")
+                .setColumnNames(COLUMN_NAME)
                 .execute()
                 .get()
                 .getList();
 
         ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
         for (Row<String, String, String> row : result) {
-            HColumn<String, String> column = row.getColumnSlice().getColumnByName("static");
+            HColumn<String, String> column = row.getColumnSlice().getColumnByName(COLUMN_NAME);
             if (column != null) {
                 builder.addAll(codec.fromJson(column.getValue()));
             }
