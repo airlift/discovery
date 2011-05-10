@@ -9,7 +9,7 @@ import java.io.File;
 
 public class CassandraServerConfig
 {
-    private String clusterName;
+    private String clusterName = "cluster";
     private File directory;
     private int rpcPort = 9160;
     private int storagePort = 7000;
