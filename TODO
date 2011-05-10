@@ -7,7 +7,6 @@
     - Services
 	- DynamicAnnouncement
 	    - equivalence test
-	    - toString
 	- DynamicServiceAnnouncement
 	    - toString
 	- EmbeddedCassandraServer
@@ -15,6 +14,9 @@
 
 - CassandraStaticStore
     - Detect new vs replaced
+
+- Factor out assertFailedValidation
+- Factor out keyspace & column family initialization from static/dynamic cassandra stores
 
 - CLI
 
