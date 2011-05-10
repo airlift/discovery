@@ -1,28 +1,35 @@
 package com.proofpoint.discovery;
 
+import com.proofpoint.units.Duration;
 import org.joda.time.DateTime;
 
 import javax.inject.Provider;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 class TestingTimeProvider
         implements Provider<DateTime>
 {
-    private final AtomicReference<DateTime> currentTime;
+    private final AtomicLong currentTime = new AtomicLong(System.currentTimeMillis());
 
-    TestingTimeProvider()
+    public void add(Duration interval)
     {
-        currentTime = new AtomicReference<DateTime>(new DateTime());
+        currentTime.addAndGet((long) interval.toMillis());
     }
 
     public void set(DateTime currentTime)
     {
-        this.currentTime.set(currentTime);
+        this.currentTime.set(currentTime.getMillis());
+    }
+
+    public void increment()
+    {
+        currentTime.incrementAndGet();
     }
 
     @Override
     public DateTime get()
     {
-        return currentTime.get();
+        return new DateTime(currentTime.get());
     }
 }

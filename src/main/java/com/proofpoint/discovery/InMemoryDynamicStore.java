@@ -43,7 +43,7 @@ public class InMemoryDynamicStore
         DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
         Entry old = descriptors.put(nodeId, new Entry(expiration, ImmutableSet.copyOf(services)));
 
-        return old == null;
+        return old == null || old.getExpiration().isBefore(currentTime.get());
     }
 
     @Override

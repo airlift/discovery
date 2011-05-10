@@ -19,7 +19,9 @@ import static org.testng.Assert.assertTrue;
 
 public abstract class TestDynamicStore
 {
-    protected TestingTimeProvider timeProvider;
+    private static final Duration MAX_AGE = new Duration(1, TimeUnit.MINUTES);
+
+    protected TestingTimeProvider currentTime;
     protected DynamicStore store;
 
     protected abstract DynamicStore initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider);
@@ -27,9 +29,9 @@ public abstract class TestDynamicStore
     @BeforeMethod
     public void setup()
     {
-        timeProvider = new TestingTimeProvider();
+        currentTime = new TestingTimeProvider();
         DiscoveryConfig config = new DiscoveryConfig().setMaxAge(new Duration(1, TimeUnit.MINUTES));
-        store = initializeStore(config, timeProvider);
+        store = initializeStore(config, currentTime);
     }
 
     @Test
@@ -56,9 +58,7 @@ public abstract class TestDynamicStore
         Service blue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
 
         assertTrue(store.put(nodeId, ImmutableSet.of(blue)));
-
-        timeProvider.set(timeProvider.get().plusMinutes(5));
-
+        advanceTimeBeyondMaxAge();
         assertEquals(store.getAll(), Collections.<Service>emptySet());
     }
 
@@ -85,7 +85,23 @@ public abstract class TestDynamicStore
         Service newBlue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
 
         assertTrue(store.put(nodeId, ImmutableSet.of(oldBlue)));
+        currentTime.increment();
         assertFalse(store.put(nodeId, ImmutableSet.of(newBlue)));
+
+        assertEquals(store.getAll(), ImmutableSet.of(newBlue));
+    }
+
+    @Test
+    public void testReplaceExpired()
+    {
+        UUID nodeId = UUID.randomUUID();
+
+        Service oldBlue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
+        Service newBlue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
+
+        assertTrue(store.put(nodeId, ImmutableSet.of(oldBlue)));
+        advanceTimeBeyondMaxAge();
+        assertTrue(store.put(nodeId, ImmutableSet.of(newBlue)));
 
         assertEquals(store.getAll(), ImmutableSet.of(newBlue));
     }
@@ -157,4 +173,8 @@ public abstract class TestDynamicStore
         assertTrue(store.get("web", "poolA").isEmpty());
     }
 
+    private void advanceTimeBeyondMaxAge()
+    {
+        currentTime.add(new Duration(MAX_AGE.toMillis() * 2, TimeUnit.MILLISECONDS));
+    }
 }
