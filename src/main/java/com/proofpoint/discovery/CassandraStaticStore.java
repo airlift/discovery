@@ -98,7 +98,7 @@ public class CassandraStaticStore
                 .get()
                 .getList();
 
-        ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
+        ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
         for (Row<String, String, String> row : result) {
             HColumn<String, String> column = row.getColumnSlice().getColumnByName(COLUMN_NAME);
             if (column != null) {

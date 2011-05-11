@@ -28,7 +28,7 @@ public class TestCassandraServerConfig
     @Test
     public void testExplicitPropertyMappings()
     {
-        Map<String, String> properties = new ImmutableMap.Builder<String, String>()
+        Map<String, String> properties = ImmutableMap.<String, String>builder()
                 .put("cassandra.cluster-name", "megacluster")
                 .put("cassandra.directory", "/tmp")
                 .put("cassandra.seeds", "10.0.0.1")

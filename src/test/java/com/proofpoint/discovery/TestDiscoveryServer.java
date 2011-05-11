@@ -58,7 +58,7 @@ public class TestDiscoveryServer
             throws Exception
     {
         // start server
-        Map<String, String> serverProperties = new ImmutableMap.Builder<String, String>()
+        Map<String, String> serverProperties = ImmutableMap.<String, String>builder()
                     .put("node.environment", "testing")
                     .build();
 
@@ -79,7 +79,7 @@ public class TestDiscoveryServer
         server.start();
 
         // publish announcement
-        Map<String, String> announcerProperties = new ImmutableMap.Builder<String, String>()
+        Map<String, String> announcerProperties = ImmutableMap.<String, String>builder()
             .put("node.environment", "testing")
             .put("discovery.uri", server.getBaseUrl().toString())
             .build();
@@ -110,7 +110,7 @@ public class TestDiscoveryServer
         NodeInfo announcerNodeInfo = announcerInjector.getInstance(NodeInfo.class);
 
         // client
-        Map<String, String> clientProperties = new ImmutableMap.Builder<String, String>()
+        Map<String, String> clientProperties = ImmutableMap.<String, String>builder()
             .put("node.environment", "testing")
             .put("discovery.uri", server.getBaseUrl().toString())
             .put("discovery.apple.pool", "red")

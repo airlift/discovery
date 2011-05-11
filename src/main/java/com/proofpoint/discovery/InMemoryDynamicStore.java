@@ -59,7 +59,7 @@ public class InMemoryDynamicStore
     {
         removeExpired();
 
-        ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
+        ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
         for (Entry entry : descriptors.values()) {
             builder.addAll(entry.getServices());
         }

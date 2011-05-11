@@ -45,7 +45,7 @@ public class DynamicAnnouncementResource
 
         String location = Objects.firstNonNull(announcement.getLocation(), "/somewhere/" + nodeId.toString());
 
-        ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
+        ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
         for (DynamicServiceAnnouncement entry : announcement.getServices()) {
             Service descriptor = Service.copyOf(entry)
                     .setNodeId(nodeId)

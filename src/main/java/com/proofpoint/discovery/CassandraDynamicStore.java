@@ -188,7 +188,7 @@ public class CassandraDynamicStore
                 .get()
                 .getList();
 
-        ImmutableSet.Builder<Service> builder = new ImmutableSet.Builder<Service>();
+        ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
         for (Row<String, Long, String> row : result) {
             // select the newest column
             HColumn<Long, String> chosen = null;
