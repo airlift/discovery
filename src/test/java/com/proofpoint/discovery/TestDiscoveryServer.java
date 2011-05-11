@@ -68,6 +68,10 @@ public class TestDiscoveryServer
                 new TestingCassandraModule(),
                 new ConfigurationModule(new ConfigurationFactory(serverProperties)));
 
+        // TODO: wrap this in a testing bootstrap that handles PostConstruct & PreDestroy
+        CassandraDynamicStore store = serverInjector.getInstance(CassandraDynamicStore.class);
+        store.initialize();
+
         TestingHttpServer server = serverInjector.getInstance(TestingHttpServer.class);
         server.start();
 
