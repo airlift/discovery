@@ -9,15 +9,15 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.proofpoint.configuration.ConfigurationFactory;
 import com.proofpoint.configuration.ConfigurationModule;
-import com.proofpoint.experimental.discovery.client.DiscoveryBinder;
-import com.proofpoint.experimental.discovery.client.DiscoveryClient;
-import com.proofpoint.experimental.discovery.client.ServiceAnnouncement;
-import com.proofpoint.experimental.discovery.client.ServiceDescriptor;
-import com.proofpoint.experimental.discovery.client.ServiceSelector;
-import com.proofpoint.experimental.discovery.client.ServiceSelectorConfig;
-import com.proofpoint.experimental.discovery.client.ServiceTypes;
-import com.proofpoint.experimental.discovery.client.testing.SimpleServiceSelector;
-import com.proofpoint.experimental.json.JsonModule;
+import com.proofpoint.discovery.client.DiscoveryBinder;
+import com.proofpoint.discovery.client.DiscoveryClient;
+import com.proofpoint.discovery.client.ServiceAnnouncement;
+import com.proofpoint.discovery.client.ServiceDescriptor;
+import com.proofpoint.discovery.client.ServiceSelector;
+import com.proofpoint.discovery.client.ServiceSelectorConfig;
+import com.proofpoint.discovery.client.ServiceTypes;
+import com.proofpoint.discovery.client.testing.SimpleServiceSelector;
+import com.proofpoint.json.JsonModule;
 import com.proofpoint.http.server.testing.TestingHttpServer;
 import com.proofpoint.http.server.testing.TestingHttpServerModule;
 import com.proofpoint.jaxrs.JaxrsModule;
@@ -88,7 +88,7 @@ public class TestDiscoveryServer
                 new NodeModule(),
                 new JsonModule(),
                 new ConfigurationModule(new ConfigurationFactory(announcerProperties)),
-                new com.proofpoint.experimental.discovery.client.DiscoveryModule(),
+                new com.proofpoint.discovery.client.DiscoveryModule(),
                 new Module()
                 {
                     @Override
@@ -120,7 +120,7 @@ public class TestDiscoveryServer
                 new NodeModule(),
                 new JsonModule(),
                 new ConfigurationModule(new ConfigurationFactory(clientProperties)),
-                new com.proofpoint.experimental.discovery.client.DiscoveryModule(),
+                new com.proofpoint.discovery.client.DiscoveryModule(),
                 new Module()
                 {
                     @Override
