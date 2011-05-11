@@ -140,7 +140,7 @@ public class TestDiscoveryServer
         ServiceDescriptor service = services.get(0);
         assertNotNull(service.getId());
         assertEquals(service.getNodeId(), announcerNodeInfo.getNodeId());
-        assertEquals(service.getLocation(), announcerNodeInfo.getNodeId()); // TODO: fix once client supports location
+        assertEquals(service.getLocation(), announcerNodeInfo.getLocation());
         assertEquals(service.getPool(), announcement.getPool());
         assertEquals(service.getProperties(), announcement.getProperties());
 
