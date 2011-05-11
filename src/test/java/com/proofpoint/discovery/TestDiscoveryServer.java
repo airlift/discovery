@@ -14,7 +14,9 @@ import com.proofpoint.experimental.discovery.client.DiscoveryClient;
 import com.proofpoint.experimental.discovery.client.ServiceAnnouncement;
 import com.proofpoint.experimental.discovery.client.ServiceDescriptor;
 import com.proofpoint.experimental.discovery.client.ServiceSelector;
+import com.proofpoint.experimental.discovery.client.ServiceSelectorConfig;
 import com.proofpoint.experimental.discovery.client.ServiceTypes;
+import com.proofpoint.experimental.discovery.client.testing.SimpleServiceSelector;
 import com.proofpoint.experimental.json.JsonModule;
 import com.proofpoint.http.server.testing.TestingHttpServer;
 import com.proofpoint.http.server.testing.TestingHttpServerModule;
@@ -33,6 +35,7 @@ import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public class TestDiscoveryServer
 {
@@ -140,5 +143,12 @@ public class TestDiscoveryServer
         assertEquals(service.getLocation(), announcerInfo.getNodeId()); // TODO: fix once client supports location
         assertEquals(service.getPool(), announcement.getPool());
         assertEquals(service.getProperties(), announcement.getProperties());
+
+
+        // ensure that service is no longer visible
+        client.unannounce();
+
+        ServiceSelector freshSelector = new SimpleServiceSelector("apple", new ServiceSelectorConfig().setPool("red"), client);
+        assertTrue(freshSelector.selectAllServices().isEmpty());
     }
 }
