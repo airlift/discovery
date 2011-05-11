@@ -107,7 +107,7 @@ public class TestDiscoveryServer
         DiscoveryClient client = announcerInjector.getInstance(DiscoveryClient.class);
         client.announce(ImmutableSet.of(announcement));
 
-        NodeInfo announcerInfo = announcerInjector.getInstance(NodeInfo.class);
+        NodeInfo announcerNodeInfo = announcerInjector.getInstance(NodeInfo.class);
 
         // client
         Map<String, String> clientProperties = new ImmutableMap.Builder<String, String>()
@@ -139,8 +139,8 @@ public class TestDiscoveryServer
 
         ServiceDescriptor service = services.get(0);
         assertNotNull(service.getId());
-        assertEquals(service.getNodeId(), announcerInfo.getNodeId());
-        assertEquals(service.getLocation(), announcerInfo.getNodeId()); // TODO: fix once client supports location
+        assertEquals(service.getNodeId(), announcerNodeInfo.getNodeId());
+        assertEquals(service.getLocation(), announcerNodeInfo.getNodeId()); // TODO: fix once client supports location
         assertEquals(service.getPool(), announcement.getPool());
         assertEquals(service.getProperties(), announcement.getProperties());
 
