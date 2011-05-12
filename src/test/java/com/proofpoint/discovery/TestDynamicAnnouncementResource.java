@@ -44,7 +44,7 @@ public class TestDynamicAnnouncementResource
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.CREATED.getStatusCode());
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServices(), toServiceWith(nodeId, announcement.getLocation())));
+        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation())));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class TestDynamicAnnouncementResource
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.NO_CONTENT.getStatusCode());
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServices(), toServiceWith(nodeId, announcement.getLocation())));
+        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation())));
     }
 
     @Test
@@ -105,7 +105,7 @@ public class TestDynamicAnnouncementResource
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.NO_CONTENT.getStatusCode());
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServices(), toServiceWith(redNodeId, red.getLocation())));
+        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation())));
     }
 
     @Test

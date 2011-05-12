@@ -140,11 +140,6 @@ public class Service
                 '}';
     }
 
-    public static Builder copyOf(DynamicServiceAnnouncement announcement)
-    {
-        return new Builder().copyOf(announcement);
-    }
-
     public static Builder copyOf(StaticAnnouncement announcement)
     {
         return new Builder().copyOf(announcement);
@@ -158,16 +153,6 @@ public class Service
         private String pool;
         private String location;
         private Map<String, String> properties;
-
-        public Builder copyOf(DynamicServiceAnnouncement announcement)
-        {
-            id = announcement.getId();
-            type = announcement.getType();
-            pool = announcement.getPool();
-            properties = ImmutableMap.copyOf(announcement.getProperties());
-
-            return this;
-        }
 
         public Builder copyOf(StaticAnnouncement announcement)
         {

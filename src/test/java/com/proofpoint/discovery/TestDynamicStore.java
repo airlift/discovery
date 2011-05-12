@@ -53,7 +53,7 @@ public abstract class TestDynamicStore
 
         assertTrue(store.put(nodeId, blue));
 
-        assertEquals(store.getAll(), transform(blue.getServices(), toServiceWith(nodeId, blue.getLocation())));
+        assertEquals(store.getAll(), transform(blue.getServiceAnnouncements(), toServiceWith(nodeId, blue.getLocation())));
     }
 
     @Test
@@ -81,7 +81,7 @@ public abstract class TestDynamicStore
 
         assertTrue(store.put(nodeId, announcement));
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServices(), toServiceWith(nodeId, announcement.getLocation())));
+        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation())));
     }
 
     @Test
@@ -101,7 +101,7 @@ public abstract class TestDynamicStore
         currentTime.increment();
         assertFalse(store.put(nodeId, newAnnouncement));
 
-        assertEquals(store.getAll(), transform(newAnnouncement.getServices(), toServiceWith(nodeId, newAnnouncement.getLocation())));
+        assertEquals(store.getAll(), transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation())));
     }
 
     @Test
@@ -121,7 +121,7 @@ public abstract class TestDynamicStore
         advanceTimeBeyondMaxAge();
         assertTrue(store.put(nodeId, newAnnouncement));
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(newAnnouncement.getServices(), toServiceWith(nodeId, newAnnouncement.getLocation())));
+        assertEqualsIgnoreOrder(store.getAll(), transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation())));
     }
 
     @Test
@@ -147,9 +147,9 @@ public abstract class TestDynamicStore
         assertTrue(store.put(greenNodeId, green));
 
         assertEqualsIgnoreOrder(store.getAll(), concat(
-                transform(blue.getServices(), toServiceWith(blueNodeId, blue.getLocation())),
-                transform(red.getServices(), toServiceWith(redNodeId, red.getLocation())),
-                transform(green.getServices(), toServiceWith(greenNodeId, green.getLocation()))));
+                transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation())),
+                transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation())),
+                transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, green.getLocation()))));
     }
 
     @Test
@@ -175,10 +175,10 @@ public abstract class TestDynamicStore
         assertTrue(store.put(greenNodeId, green));
 
         assertEqualsIgnoreOrder(store.get("storage"), concat(
-                transform(blue.getServices(), toServiceWith(blueNodeId, blue.getLocation())),
-                transform(red.getServices(), toServiceWith(redNodeId, red.getLocation()))));
+                transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation())),
+                transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation()))));
 
-        assertEqualsIgnoreOrder(store.get("monitoring"), transform(green.getServices(), toServiceWith(greenNodeId, green.getLocation())));
+        assertEqualsIgnoreOrder(store.get("monitoring"), transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, green.getLocation())));
     }
 
     @Test
@@ -210,14 +210,14 @@ public abstract class TestDynamicStore
         assertTrue(store.put(yellowNodeId, yellow));
 
         assertEqualsIgnoreOrder(store.get("storage", "poolA"), concat(
-                transform(blue.getServices(), toServiceWith(blueNodeId, blue.getLocation())),
-                transform(red.getServices(), toServiceWith(redNodeId, red.getLocation()))));
+                transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation())),
+                transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation()))));
 
         assertEqualsIgnoreOrder(store.get("monitoring", "poolA"), concat(
-                transform(green.getServices(), toServiceWith(greenNodeId, red.getLocation()))));
+                transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, red.getLocation()))));
 
         assertEqualsIgnoreOrder(store.get("storage", "poolB"), concat(
-                transform(yellow.getServices(), toServiceWith(yellowNodeId, red.getLocation()))));
+                transform(yellow.getServiceAnnouncements(), toServiceWith(yellowNodeId, red.getLocation()))));
     }
 
     @Test
@@ -238,12 +238,12 @@ public abstract class TestDynamicStore
         assertTrue(store.put(redNodeId, red));
 
         assertEqualsIgnoreOrder(store.getAll(), concat(
-                transform(blue.getServices(), toServiceWith(blueNodeId, blue.getLocation())),
-                transform(red.getServices(), toServiceWith(redNodeId, red.getLocation()))));
+                transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation())),
+                transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation()))));
 
         assertTrue(store.delete(blueNodeId));
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServices(), toServiceWith(redNodeId, red.getLocation())));
+        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation())));
 
         assertTrue(store.get("storage").isEmpty());
         assertTrue(store.get("web", "poolA").isEmpty());

@@ -46,7 +46,7 @@ public class DynamicAnnouncement
 
     @NotNull
     @Valid
-    public Set<DynamicServiceAnnouncement> getServices()
+    public Set<DynamicServiceAnnouncement> getServiceAnnouncements()
     {
         return services;
     }
@@ -110,7 +110,7 @@ public class DynamicAnnouncement
         {
             environment = announcement.getEnvironment();
             location = announcement.getLocation();
-            services = announcement.getServices();
+            services = announcement.getServiceAnnouncements();
 
             return this;
         }

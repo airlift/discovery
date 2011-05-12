@@ -10,7 +10,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -44,7 +43,7 @@ public class InMemoryDynamicStore
         Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(announcement, "announcement is null");
 
-        Set<Service> services = ImmutableSet.copyOf(transform(announcement.getServices(), toServiceWith(nodeId, announcement.getLocation())));
+        Set<Service> services = ImmutableSet.copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation())));
 
         DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
         Entry old = descriptors.put(nodeId, new Entry(expiration, services));

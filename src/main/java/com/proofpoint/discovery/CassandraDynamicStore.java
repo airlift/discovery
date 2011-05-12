@@ -1,7 +1,6 @@
 package com.proofpoint.discovery;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.InetAddresses;
 import com.proofpoint.json.JsonCodec;
@@ -136,7 +135,7 @@ public class CassandraDynamicStore
         Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(announcement, "announcement is null");
 
-        List<Service> services = copyOf(transform(announcement.getServices(), toServiceWith(nodeId, announcement.getLocation())));
+        List<Service> services = copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation())));
         String value = codec.toJson(services);
 
         DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
