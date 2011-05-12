@@ -7,13 +7,19 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 
 import static java.lang.String.format;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 public class ValidationAssertions
 {
     private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
-    public static <T> void assertFailedValidation(T object, String field, String message, Class<? extends Annotation> annotation)
+    public static void assertPassesValidation(Object object)
+    {
+        assertTrue(VALIDATOR.validate(object).isEmpty());
+    }
+
+    public static <T> void assertFailsValidation(T object, String field, String message, Class<? extends Annotation> annotation)
     {
         Set<ConstraintViolation<T>> violations = VALIDATOR.validate(object);
 

@@ -36,6 +36,6 @@ public class TestCassandraStoreConfig
     {
         CassandraStoreConfig config = new CassandraStoreConfig().setKeyspace(null);
 
-        assertFailedValidation(config, "keyspace", "may not be null", NotNull.class);
+        assertFailsValidation(config, "keyspace", "may not be null", NotNull.class);
     }
 }

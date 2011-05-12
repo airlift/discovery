@@ -7,17 +7,12 @@ import com.google.common.io.Resources;
 import com.proofpoint.json.JsonCodec;
 import org.testng.annotations.Test;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
-import static com.proofpoint.testing.Assertions.assertInstanceOf;
+import static com.proofpoint.discovery.ValidationAssertions.assertFailsValidation;
 import static com.proofpoint.testing.Assertions.assertNotEquals;
 import static com.proofpoint.testing.EquivalenceTester.equivalenceTester;
 import static org.testng.Assert.assertEquals;
@@ -25,27 +20,25 @@ import static org.testng.Assert.assertNotNull;
 
 public class TestDynamicServiceAnnouncement
 {
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-
     @Test
     public void testValidatesNullId()
     {
         DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(null, "type", Collections.<String, String>emptyMap());
-        assertFailedValidation(announcement, "id", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "id", "may not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullType()
     {
         DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(Id.<Service>random(), null, Collections.<String, String>emptyMap());
-        assertFailedValidation(announcement, "type", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "type", "may not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullProperties()
     {
         DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(Id.<Service>random(), "type", null);
-        assertFailedValidation(announcement, "properties", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "properties", "may not be null", NotNull.class);
     }
 
     @Test
@@ -122,16 +115,4 @@ public class TestDynamicServiceAnnouncement
 
         assertNotNull(announcement.toString());
     }
-
-    private void assertFailedValidation(DynamicServiceAnnouncement announcement, String field, String message, Class<? extends Annotation> annotation)
-    {
-        Set<ConstraintViolation<DynamicServiceAnnouncement>> violations = VALIDATOR.validate(announcement);
-        assertEquals(violations.size(), 1);
-
-        ConstraintViolation<DynamicServiceAnnouncement> violation = violations.iterator().next();
-        assertInstanceOf(violation.getConstraintDescriptor().getAnnotation(), annotation);
-        assertEquals(violation.getPropertyPath().toString(), field);
-        assertEquals(violation.getMessage(), message);
-    }
-
 }

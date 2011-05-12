@@ -7,16 +7,12 @@ import com.google.common.io.Resources;
 import com.proofpoint.json.JsonCodec;
 import org.testng.annotations.Test;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
+import static com.proofpoint.discovery.ValidationAssertions.assertFailsValidation;
 import static com.proofpoint.testing.Assertions.assertInstanceOf;
 import static com.proofpoint.testing.Assertions.assertNotEquals;
 import static com.proofpoint.testing.EquivalenceTester.equivalenceTester;
@@ -24,34 +20,32 @@ import static org.testng.Assert.assertEquals;
 
 public class TestStaticAnnouncement
 {
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-
     @Test
     public void testValidatesNullEnvironment()
     {
         StaticAnnouncement announcement = new StaticAnnouncement(null, "type", "pool", "location", Collections.<String, String>emptyMap());
-        assertFailedValidation(announcement, "environment", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "environment", "may not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullType()
     {
         StaticAnnouncement announcement = new StaticAnnouncement("environment", null, "pool", "location", Collections.<String, String>emptyMap());
-        assertFailedValidation(announcement, "type", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "type", "may not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullPool()
     {
         StaticAnnouncement announcement = new StaticAnnouncement("environment", "type", null, "location", Collections.<String, String>emptyMap());
-        assertFailedValidation(announcement, "pool", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "pool", "may not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullProperties()
     {
         StaticAnnouncement announcement = new StaticAnnouncement("environment", "type", "pool", "location", null);
-        assertFailedValidation(announcement, "properties", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "properties", "may not be null", NotNull.class);
     }
 
     @Test
@@ -127,16 +121,5 @@ public class TestStaticAnnouncement
         catch (UnsupportedOperationException e) {
             // an exception is ok, too
         }
-    }
-
-    private void assertFailedValidation(StaticAnnouncement announcement, String field, String message, Class<? extends Annotation> annotation)
-    {
-        Set<ConstraintViolation<StaticAnnouncement>> violations = VALIDATOR.validate(announcement);
-        assertEquals(violations.size(), 1);
-
-        ConstraintViolation<StaticAnnouncement> violation = violations.iterator().next();
-        assertInstanceOf(violation.getConstraintDescriptor().getAnnotation(), annotation);
-        assertEquals(violation.getPropertyPath().toString(), field);
-        assertEquals(violation.getMessage(), message);
     }
 }
