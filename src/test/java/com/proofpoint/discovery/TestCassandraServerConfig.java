@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.util.Map;
 
-import static com.proofpoint.discovery.ValidationAssertions.assertFailedValidation;
+import static com.proofpoint.discovery.ValidationAssertions.assertFailsValidation;
 
 public class TestCassandraServerConfig
 {
@@ -52,7 +52,7 @@ public class TestCassandraServerConfig
         CassandraServerConfig config = new CassandraServerConfig()
                 .setRpcPort(65537);
 
-        assertFailedValidation(config, "rpcPort", "must be less than or equal to 65535", Max.class);
+        assertFailsValidation(config, "rpcPort", "must be less than or equal to 65535", Max.class);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class TestCassandraServerConfig
         CassandraServerConfig config = new CassandraServerConfig()
                 .setStoragePort(65537);
 
-        assertFailedValidation(config, "storagePort", "must be less than or equal to 65535", Max.class);
+        assertFailsValidation(config, "storagePort", "must be less than or equal to 65535", Max.class);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class TestCassandraServerConfig
         CassandraServerConfig config = new CassandraServerConfig()
                 .setRpcPort(0);
 
-        assertFailedValidation(config, "rpcPort", "must be greater than or equal to 1", Min.class);
+        assertFailsValidation(config, "rpcPort", "must be greater than or equal to 1", Min.class);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TestCassandraServerConfig
         CassandraServerConfig config = new CassandraServerConfig()
                 .setStoragePort(0);
 
-        assertFailedValidation(config, "storagePort", "must be greater than or equal to 1", Min.class);
+        assertFailsValidation(config, "storagePort", "must be greater than or equal to 1", Min.class);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class TestCassandraServerConfig
         CassandraServerConfig config = new CassandraServerConfig()
                 .setDirectory(null);
 
-        assertFailedValidation(config, "directory", "may not be null", NotNull.class);
+        assertFailsValidation(config, "directory", "may not be null", NotNull.class);
     }
 
     @Test
@@ -97,6 +97,6 @@ public class TestCassandraServerConfig
         CassandraServerConfig config = new CassandraServerConfig()
                 .setSeeds(null);
 
-        assertFailedValidation(config, "seeds", "may not be null", NotNull.class);
+        assertFailsValidation(config, "seeds", "may not be null", NotNull.class);
     }
 }

@@ -13,7 +13,7 @@ public class ValidationAssertions
 {
     private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
-    public static <T> void assertFailedValidation(T object, String field, String message, Class<? extends Annotation> annotation)
+    public static <T> void assertFailsValidation(T object, String field, String message, Class<? extends Annotation> annotation)
     {
         Set<ConstraintViolation<T>> violations = VALIDATOR.validate(object);
 

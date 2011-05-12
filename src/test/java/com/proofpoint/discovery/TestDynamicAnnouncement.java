@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.proofpoint.discovery.ValidationAssertions.assertFailedValidation;
+import static com.proofpoint.discovery.ValidationAssertions.assertFailsValidation;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -28,7 +28,7 @@ public class TestDynamicAnnouncement
     public void testRejectsNullEnvironment()
     {
         DynamicAnnouncement announcement = new DynamicAnnouncement(null, "pool", "/location", Collections.<DynamicServiceAnnouncement>emptySet());
-        assertFailedValidation(announcement, "environment", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "environment", "may not be null", NotNull.class);
     }
 
     @Test
@@ -44,14 +44,14 @@ public class TestDynamicAnnouncement
     public void testRejectsNullPool()
     {
         DynamicAnnouncement announcement = new DynamicAnnouncement("testing", null, "/location", Collections.<DynamicServiceAnnouncement>emptySet());
-        assertFailedValidation(announcement, "pool", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "pool", "may not be null", NotNull.class);
     }
 
     @Test
     public void testRejectsNullServiceAnnouncements()
     {
         DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", "/location", null);
-        assertFailedValidation(announcement, "serviceAnnouncements", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "serviceAnnouncements", "may not be null", NotNull.class);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class TestDynamicAnnouncement
                 new DynamicServiceAnnouncement(null, "type", Collections.<String, String>emptyMap()))
         );
 
-        assertFailedValidation(announcement, "serviceAnnouncements[].id", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "serviceAnnouncements[].id", "may not be null", NotNull.class);
     }
 
     @Test

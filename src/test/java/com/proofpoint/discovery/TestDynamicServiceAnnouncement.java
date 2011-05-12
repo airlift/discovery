@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import static com.proofpoint.discovery.ValidationAssertions.assertFailedValidation;
+import static com.proofpoint.discovery.ValidationAssertions.assertFailsValidation;
 import static com.proofpoint.testing.Assertions.assertNotEquals;
 import static com.proofpoint.testing.EquivalenceTester.equivalenceTester;
 import static org.testng.Assert.assertEquals;
@@ -24,21 +24,21 @@ public class TestDynamicServiceAnnouncement
     public void testValidatesNullId()
     {
         DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(null, "type", Collections.<String, String>emptyMap());
-        assertFailedValidation(announcement, "id", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "id", "may not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullType()
     {
         DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(Id.<Service>random(), null, Collections.<String, String>emptyMap());
-        assertFailedValidation(announcement, "type", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "type", "may not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullProperties()
     {
         DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(Id.<Service>random(), "type", null);
-        assertFailedValidation(announcement, "properties", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "properties", "may not be null", NotNull.class);
     }
 
     @Test

@@ -39,6 +39,6 @@ public class TestDiscoveryConfig
     {
         DiscoveryConfig config = new DiscoveryConfig().setMaxAge(null);
 
-        assertFailedValidation(config, "maxAge", "may not be null", NotNull.class);
+        assertFailsValidation(config, "maxAge", "may not be null", NotNull.class);
     }
 }
