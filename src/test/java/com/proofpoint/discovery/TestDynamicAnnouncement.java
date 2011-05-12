@@ -7,23 +7,18 @@ import com.google.common.io.Resources;
 import com.proofpoint.json.JsonCodec;
 import org.testng.annotations.Test;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Set;
 
 import static com.proofpoint.discovery.ValidationAssertions.assertFailsValidation;
+import static com.proofpoint.discovery.ValidationAssertions.assertPassesValidation;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 public class TestDynamicAnnouncement
 {
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-
     @Test
     public void testRejectsNullEnvironment()
     {
@@ -36,8 +31,7 @@ public class TestDynamicAnnouncement
     {
         DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", null, Collections.<DynamicServiceAnnouncement>emptySet());
 
-        Set<ConstraintViolation<DynamicAnnouncement>> violations = VALIDATOR.validate(announcement);
-        assertTrue(violations.isEmpty());
+        assertPassesValidation(announcement);
     }
 
     @Test
