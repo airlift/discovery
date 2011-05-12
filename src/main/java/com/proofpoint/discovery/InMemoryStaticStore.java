@@ -6,10 +6,8 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.google.common.base.Predicates.and;
-import static com.google.common.base.Predicates.isNull;
 import static com.google.common.collect.Iterables.filter;
 import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
@@ -17,7 +15,7 @@ import static com.proofpoint.discovery.Service.matchesType;
 public class InMemoryStaticStore
     implements StaticStore
 {
-    private final Map<UUID, Service> services = Maps.newHashMap();
+    private final Map<Id<Service>, Service> services = Maps.newHashMap();
 
     @Override
     public synchronized void put(Service service)
@@ -29,7 +27,7 @@ public class InMemoryStaticStore
     }
 
     @Override
-    public synchronized void delete(UUID id)
+    public synchronized void delete(Id<Service> id)
     {
         services.remove(id);
     }

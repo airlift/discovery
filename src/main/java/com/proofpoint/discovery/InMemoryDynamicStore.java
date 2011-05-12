@@ -12,10 +12,11 @@ import javax.inject.Provider;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.google.common.base.Predicates.and;
+import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Iterables.filter;
+import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
 
@@ -23,7 +24,7 @@ import static com.proofpoint.discovery.Service.matchesType;
 public class InMemoryDynamicStore
         implements DynamicStore
 {
-    private final Map<UUID, Entry> descriptors = Maps.newHashMap();
+    private final Map<Id<Node>, Entry> descriptors = Maps.newHashMap();
     private final Duration maxAge;
     private final Provider<DateTime> currentTime;
 
@@ -35,19 +36,21 @@ public class InMemoryDynamicStore
     }
 
     @Override
-    public synchronized boolean put(UUID nodeId, Set<Service> services)
+    public synchronized boolean put(Id<Node> nodeId, DynamicAnnouncement announcement)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
-        Preconditions.checkNotNull(services, "descriptors is null");
+        Preconditions.checkNotNull(announcement, "announcement is null");
+
+        Set<Service> services = ImmutableSet.copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
 
         DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
-        Entry old = descriptors.put(nodeId, new Entry(expiration, ImmutableSet.copyOf(services)));
+        Entry old = descriptors.put(nodeId, new Entry(expiration, services));
 
         return old == null || old.getExpiration().isBefore(currentTime.get());
     }
 
     @Override
-    public synchronized boolean delete(UUID nodeId)
+    public synchronized boolean delete(Id<Node> nodeId)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
 

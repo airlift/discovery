@@ -7,8 +7,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
-import java.util.UUID;
 
+import static com.google.common.collect.ImmutableSet.of;
+import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static org.testng.Assert.assertEquals;
 
 public class TestServiceResource
@@ -28,36 +29,60 @@ public class TestServiceResource
     @Test
     public void testGetByType()
     {
-        UUID redNodeId = UUID.randomUUID();
-        Service red1 = new Service(UUID.randomUUID(), redNodeId, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "1"));
-        Service red2 = new Service(UUID.randomUUID(), redNodeId, "data", "alpha", "/a/b/c", ImmutableMap.of("key", "4"));
-        Service green = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "2"));
-        Service yellow = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "beta", "/a/b/c", ImmutableMap.of("key", "3"));
+        Id<Node> redNodeId = Id.random();
+        DynamicServiceAnnouncement redStorage = new DynamicServiceAnnouncement(Id.<Service>random() , "storage", ImmutableMap.of("key", "1"));
+        DynamicServiceAnnouncement redWeb = new DynamicServiceAnnouncement(Id.<Service>random(), "web", ImmutableMap.of("key", "2"));
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "alpha", "/a/b/c", of(redStorage, redWeb));
 
-        dynamicStore.put(redNodeId, ImmutableSet.of(red1, red2));
-        dynamicStore.put(green.getNodeId(), ImmutableSet.of(green));
-        dynamicStore.put(yellow.getNodeId(), ImmutableSet.of(yellow));
+        Id<Node> greenNodeId = Id.random();
+        DynamicServiceAnnouncement greenStorage = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "3"));
+        DynamicAnnouncement green = new DynamicAnnouncement("testing", "alpha", "/x/y/z", of(greenStorage));
 
-        assertEquals(resource.getServices("storage"), new Services("testing", ImmutableSet.of(red1, green, yellow)));
-        assertEquals(resource.getServices("data"), new Services("testing", ImmutableSet.of(red2)));
+        Id<Node> blueNodeId = Id.random();
+        DynamicServiceAnnouncement blueStorage = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "4"));
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "beta", "/a/b/c", of(blueStorage));
+
+        dynamicStore.put(redNodeId, red);
+        dynamicStore.put(greenNodeId, green);
+        dynamicStore.put(blueNodeId, blue);
+
+        assertEquals(resource.getServices("storage"), new Services("testing", of(
+                toServiceWith(redNodeId, red.getLocation(), red.getPool()).apply(redStorage),
+                toServiceWith(greenNodeId, green.getLocation(), green.getPool()).apply(greenStorage),
+                toServiceWith(blueNodeId, blue.getLocation(), blue.getPool()).apply(blueStorage))));
+
+        assertEquals(resource.getServices("web"), new Services("testing", ImmutableSet.of(
+                toServiceWith(redNodeId, red.getLocation(), red.getPool()).apply(redWeb))));
+
         assertEquals(resource.getServices("unknown"), new Services("testing", Collections.<Service>emptySet()));
     }
 
     @Test
     public void testGetByTypeAndPool()
     {
-        UUID redNodeId = UUID.randomUUID();
-        Service red1 = new Service(UUID.randomUUID(), redNodeId, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "1"));
-        Service red2 = new Service(UUID.randomUUID(), redNodeId, "data", "alpha", "/a/b/c", ImmutableMap.of("key", "4"));
-        Service green = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "2"));
-        Service yellow = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "beta", "/a/b/c", ImmutableMap.of("key", "3"));
+        Id<Node> redNodeId = Id.random();
+        DynamicServiceAnnouncement redStorage = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "1"));
+        DynamicServiceAnnouncement redWeb = new DynamicServiceAnnouncement(Id.<Service>random(), "web", ImmutableMap.of("key", "2"));
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "alpha", "/a/b/c", of(redStorage, redWeb));
 
-        dynamicStore.put(redNodeId, ImmutableSet.of(red1, red2));
-        dynamicStore.put(green.getNodeId(), ImmutableSet.of(green));
-        dynamicStore.put(yellow.getNodeId(), ImmutableSet.of(yellow));
+        Id<Node> greenNodeId = Id.random();
+        DynamicServiceAnnouncement greenStorage = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "3"));
+        DynamicAnnouncement green = new DynamicAnnouncement("testing", "alpha", "/x/y/z", of(greenStorage));
 
-        assertEquals(resource.getServices("storage", "alpha"), new Services("testing", ImmutableSet.of(red1, green)));
-        assertEquals(resource.getServices("storage", "beta"), new Services("testing", ImmutableSet.of(yellow)));
+        Id<Node> blueNodeId = Id.random();
+        DynamicServiceAnnouncement blueStorage = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "4"));
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "beta", "/a/b/c", of(blueStorage));
+
+        dynamicStore.put(redNodeId, red);
+        dynamicStore.put(greenNodeId, green);
+        dynamicStore.put(blueNodeId, blue);
+
+        assertEquals(resource.getServices("storage", "alpha"), new Services("testing", ImmutableSet.of(
+                toServiceWith(redNodeId, red.getLocation(), red.getPool()).apply(redStorage),
+                toServiceWith(greenNodeId, green.getLocation(), green.getPool()).apply(greenStorage))));
+
+        assertEquals(resource.getServices("storage", "beta"), new Services("testing", ImmutableSet.of(toServiceWith(blueNodeId, blue.getLocation(), blue.getPool()).apply(blueStorage))));
+
         assertEquals(resource.getServices("storage", "unknown"), new Services("testing", Collections.<Service>emptySet()));
     }
 }

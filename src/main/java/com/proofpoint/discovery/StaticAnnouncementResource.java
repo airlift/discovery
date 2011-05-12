@@ -1,7 +1,6 @@
 package com.proofpoint.discovery;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableSet;
 import com.proofpoint.node.NodeInfo;
 
 import javax.inject.Inject;
@@ -14,8 +13,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.Set;
-import java.util.UUID;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -42,11 +39,11 @@ public class StaticAnnouncementResource
                     .build();
         }
 
-        UUID id = UUID.randomUUID();
-        String location = Objects.firstNonNull(announcement.getLocation(), "/somewhere/" + id.toString());
+        Id<Service> id = Id.random();
+        String location = Objects.firstNonNull(announcement.getLocation(), "/somewhere/" + id);
 
         Service service = Service.copyOf(announcement)
-                    .setId(UUID.randomUUID())
+                    .setId(id)
                     .setLocation(location)
                     .build();
 
@@ -64,7 +61,7 @@ public class StaticAnnouncementResource
 
     @DELETE
     @Path("{id}")
-    public void delete(UUID id)
+    public void delete(Id<Service> id)
     {
         store.delete(id);
     }

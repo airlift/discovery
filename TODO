@@ -1,8 +1,6 @@
 - Tests
-    - DiscoveryConfig
     - CassandraStore
         - background expiration thread
-    - CassandraServerConfig
     - Integration
     - Services
 	- DynamicAnnouncement
@@ -15,8 +13,9 @@
 - CassandraStaticStore
     - Detect new vs replaced
 
-- Factor out assertFailedValidation
 - Factor out keyspace & column family initialization from static/dynamic cassandra stores
+
+- Factor out common stuff from tests -- there's lots of repetition currently, especially around creating data object to use for testing
 
 - CLI
 

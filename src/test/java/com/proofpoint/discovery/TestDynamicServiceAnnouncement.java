@@ -16,7 +16,6 @@ import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.proofpoint.testing.Assertions.assertInstanceOf;
 import static com.proofpoint.testing.Assertions.assertNotEquals;
@@ -31,28 +30,21 @@ public class TestDynamicServiceAnnouncement
     @Test
     public void testValidatesNullId()
     {
-        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(null, "type", "pool", Collections.<String, String>emptyMap());
+        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(null, "type", Collections.<String, String>emptyMap());
         assertFailedValidation(announcement, "id", "may not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullType()
     {
-        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(UUID.randomUUID(), null, "pool", Collections.<String, String>emptyMap());
+        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(Id.<Service>random(), null, Collections.<String, String>emptyMap());
         assertFailedValidation(announcement, "type", "may not be null", NotNull.class);
-    }
-
-    @Test
-    public void testValidatesNullPool()
-    {
-        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(UUID.randomUUID(), "type", null, Collections.<String, String>emptyMap());
-        assertFailedValidation(announcement, "pool", "may not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullProperties()
     {
-        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(UUID.randomUUID(), "type", "pool", null);
+        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(Id.<Service>random(), "type", null);
         assertFailedValidation(announcement, "properties", "may not be null", NotNull.class);
     }
 
@@ -62,8 +54,8 @@ public class TestDynamicServiceAnnouncement
     {
         JsonCodec<DynamicServiceAnnouncement> codec = JsonCodec.jsonCodec(DynamicServiceAnnouncement.class);
 
-        DynamicServiceAnnouncement parsed = codec.fromJson(Resources.toString(Resources.getResource("service-announcement.json"), Charsets.UTF_8));
-        DynamicServiceAnnouncement expected = new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueA"));
+        DynamicServiceAnnouncement parsed = codec.fromJson(Resources.toString(Resources.getResource("dynamic-announcement.json"), Charsets.UTF_8));
+        DynamicServiceAnnouncement expected = new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", ImmutableMap.of("key", "valueA"));
 
         assertEquals(parsed, expected);
     }
@@ -73,29 +65,25 @@ public class TestDynamicServiceAnnouncement
     {
         equivalenceTester()
                 // vary fields, one by one
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueA")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueB")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueB")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolB", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolB", ImmutableMap.of("key", "valueA")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "red", "poolA", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "red", "poolA", ImmutableMap.of("key", "valueA")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("4960d071-67b0-4552-8b12-b7abd869aa83"), "blue", "poolA", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("4960d071-67b0-4552-8b12-b7abd869aa83"), "blue", "poolA", ImmutableMap.of("key", "valueA")))
-                        // null fields
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", null),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", null))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", null, ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", null, ImmutableMap.of("key", "valueA")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), null, "poolA", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), null, "poolA", ImmutableMap.of("key", "valueA")))
-                .addEquivalentGroup(new DynamicServiceAnnouncement(null, "blue", "poolA", ImmutableMap.of("key", "valueA")),
-                                    new DynamicServiceAnnouncement(null, "blue", "poolA", ImmutableMap.of("key", "valueA")))
+                .addEquivalentGroup(new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", ImmutableMap.of("key", "valueA")),
+                                    new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", ImmutableMap.of("key", "valueA")))
+                .addEquivalentGroup(new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", ImmutableMap.of("key", "valueB")),
+                                    new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", ImmutableMap.of("key", "valueB")))
+                .addEquivalentGroup(new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "red", ImmutableMap.of("key", "valueA")),
+                                    new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "red", ImmutableMap.of("key", "valueA")))
+                .addEquivalentGroup(new DynamicServiceAnnouncement(Id.<Service>valueOf("4960d071-67b0-4552-8b12-b7abd869aa83"), "blue", ImmutableMap.of("key", "valueA")),
+                                    new DynamicServiceAnnouncement(Id.<Service>valueOf("4960d071-67b0-4552-8b12-b7abd869aa83"), "blue", ImmutableMap.of("key", "valueA")))
+                // null fields
+                .addEquivalentGroup(new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", null),
+                                    new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", null))
+                .addEquivalentGroup(new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), null, ImmutableMap.of("key", "valueA")),
+                                    new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), null, ImmutableMap.of("key", "valueA")))
+                .addEquivalentGroup(new DynamicServiceAnnouncement(null, "blue", ImmutableMap.of("key", "valueA")),
+                                    new DynamicServiceAnnouncement(null, "blue", ImmutableMap.of("key", "valueA")))
 
-                        // empty properties
-                .addEquivalentGroup(new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", Collections.<String, String>emptyMap()),
-                                    new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", Collections.<String, String>emptyMap()))
+                // empty properties
+                .addEquivalentGroup(new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", Collections.<String, String>emptyMap()),
+                                    new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", Collections.<String, String>emptyMap()))
                 .check();
     }
 
@@ -104,7 +92,7 @@ public class TestDynamicServiceAnnouncement
     {
         Map<String, String> properties = Maps.newHashMap();
         properties.put("key", "value");
-        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(UUID.randomUUID(), "type", "pool", properties);
+        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(Id.<Service>random(), "type", properties);
 
         assertEquals(announcement.getProperties(), properties);
         properties.put("key2", "value2");
@@ -114,7 +102,7 @@ public class TestDynamicServiceAnnouncement
     @Test
     public void testImmutableProperties()
     {
-        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement (UUID.randomUUID(), "type", "pool", ImmutableMap.of("key", "value"));
+        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement (Id.<Service>random(), "type", ImmutableMap.of("key", "value"));
 
         try {
             announcement.getProperties().put("key2", "value2");
@@ -130,7 +118,7 @@ public class TestDynamicServiceAnnouncement
     @Test
     public void testToString()
     {
-        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(UUID.fromString("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", "poolA", ImmutableMap.of("key", "valueA"));
+        DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(Id.<Service>valueOf("ff824508-b6a6-4dfc-8f0b-85028465534d"), "blue", ImmutableMap.of("key", "valueA"));
 
         assertNotNull(announcement.toString());
     }

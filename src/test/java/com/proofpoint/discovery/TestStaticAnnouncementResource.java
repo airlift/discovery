@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.UUID;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -31,7 +30,7 @@ public class TestStaticAnnouncementResource
     @Test
     public void testPost()
     {
-        StaticAnnouncement announcement = new StaticAnnouncement("testing", "/a/b", "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
+        StaticAnnouncement announcement = new StaticAnnouncement("testing", "storage", "alpha", "/a/b", ImmutableMap.of("http", "http://localhost:1111"));
 
         Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/static")));
 
@@ -52,7 +51,7 @@ public class TestStaticAnnouncementResource
     @Test
     public void testEnvironmentConflict()
     {
-        StaticAnnouncement announcement = new StaticAnnouncement("production", "/a/b/c", "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
+        StaticAnnouncement announcement = new StaticAnnouncement("production", "storage", "alpha", "/a/b/c", ImmutableMap.of("http", "http://localhost:1111"));
 
         Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/static")));
 
@@ -65,8 +64,8 @@ public class TestStaticAnnouncementResource
     @Test
     public void testDelete()
     {
-        Service blue = new Service(UUID.randomUUID(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueBlue"));
-        Service red = new Service(UUID.randomUUID(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueRed"));
+        Service blue = new Service(Id.<Service>random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueBlue"));
+        Service red = new Service(Id.<Service>random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueRed"));
 
         store.put(red);
         store.put(blue);
@@ -78,7 +77,7 @@ public class TestStaticAnnouncementResource
     @Test
     public void testMakesUpLocation()
     {
-        StaticAnnouncement announcement = new StaticAnnouncement("testing", null, "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
+        StaticAnnouncement announcement = new StaticAnnouncement("testing", "storage", "alpha", null, ImmutableMap.of("http", "http://localhost:1111"));
 
         Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/")));
 
@@ -94,8 +93,8 @@ public class TestStaticAnnouncementResource
     @Test
     public void testGet()
     {
-        Service blue = new Service(UUID.randomUUID(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueBlue"));
-        Service red = new Service(UUID.randomUUID(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueRed"));
+        Service blue = new Service(Id.<Service>random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueBlue"));
+        Service red = new Service(Id.<Service>random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueRed"));
 
         store.put(red);
         store.put(blue);

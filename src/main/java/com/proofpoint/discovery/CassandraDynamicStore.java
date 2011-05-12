@@ -1,7 +1,6 @@
 package com.proofpoint.discovery;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.InetAddresses;
 import com.proofpoint.json.JsonCodec;
@@ -32,14 +31,16 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.google.common.base.Predicates.and;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
+import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
 import static java.lang.String.format;
@@ -128,12 +129,13 @@ public class CassandraDynamicStore
     }
 
     @Override
-    public boolean put(UUID nodeId, Set<Service> descriptors)
+    public boolean put(Id<Node> nodeId, DynamicAnnouncement announcement)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
-        Preconditions.checkNotNull(descriptors, "descriptors is null");
+        Preconditions.checkNotNull(announcement, "announcement is null");
 
-        String value = codec.toJson(ImmutableList.copyOf(descriptors));
+        List<Service> services = copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
+        String value = codec.toJson(services);
 
         DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
         DateTime now = currentTime.get();
@@ -165,7 +167,7 @@ public class CassandraDynamicStore
     }
 
     @Override
-    public boolean delete(UUID nodeId)
+    public boolean delete(Id<Node> nodeId)
     {
         boolean exists = exists(nodeId);
 
@@ -217,7 +219,7 @@ public class CassandraDynamicStore
         return ImmutableSet.copyOf(filter(getAll(), and(matchesType(type), matchesPool(pool))));
     }
 
-    private boolean exists(UUID nodeId)
+    private boolean exists(Id<Node> nodeId)
     {
         ColumnSlice<Long, String> slice = HFactory.createSliceQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)

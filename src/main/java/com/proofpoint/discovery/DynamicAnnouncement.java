@@ -14,16 +14,19 @@ public class DynamicAnnouncement
 {
     private final String environment;
     private final String location;
+    private final String pool;
     private final Set<DynamicServiceAnnouncement> services;
 
     @JsonCreator
     public DynamicAnnouncement(
             @JsonProperty("environment") String environment,
+            @JsonProperty("pool") String pool,
             @JsonProperty("location") String location,
             @JsonProperty("services") Set<DynamicServiceAnnouncement> services)
     {
         this.environment = environment;
         this.location = location;
+        this.pool = pool;
 
         if (services != null) {
             this.services = ImmutableSet.copyOf(services);
@@ -45,8 +48,14 @@ public class DynamicAnnouncement
     }
 
     @NotNull
+    public String getPool()
+    {
+        return pool;
+    }
+
+    @NotNull
     @Valid
-    public Set<DynamicServiceAnnouncement> getServices()
+    public Set<DynamicServiceAnnouncement> getServiceAnnouncements()
     {
         return services;
     }
@@ -69,6 +78,9 @@ public class DynamicAnnouncement
         if (location != null ? !location.equals(that.location) : that.location != null) {
             return false;
         }
+        if (pool != null ? !pool.equals(that.pool) : that.pool != null) {
+            return false;
+        }
         if (services != null ? !services.equals(that.services) : that.services != null) {
             return false;
         }
@@ -81,6 +93,7 @@ public class DynamicAnnouncement
     {
         int result = environment != null ? environment.hashCode() : 0;
         result = 31 * result + (location != null ? location.hashCode() : 0);
+        result = 31 * result + (pool != null ? pool.hashCode() : 0);
         result = 31 * result + (services != null ? services.hashCode() : 0);
         return result;
     }
@@ -88,10 +101,45 @@ public class DynamicAnnouncement
     @Override
     public String toString()
     {
-        return "Announcement{" +
+        return "DynamicAnnouncement{" +
                 "environment='" + environment + '\'' +
                 ", location='" + location + '\'' +
+                ", pool='" + pool + '\'' +
                 ", services=" + services +
                 '}';
+    }
+
+    public static Builder copyOf(DynamicAnnouncement announcement)
+    {
+        return new Builder().copyOf(announcement);
+    }
+
+    public static class Builder
+    {
+        private String environment;
+        private String location;
+        private String pool;
+        private Set<DynamicServiceAnnouncement> services;
+
+        public Builder copyOf(DynamicAnnouncement announcement)
+        {
+            environment = announcement.getEnvironment();
+            location = announcement.getLocation();
+            services = announcement.getServiceAnnouncements();
+            pool = announcement.getPool();
+
+            return this;
+        }
+
+        public Builder setLocation(String location)
+        {
+            this.location = location;
+            return this;
+        }
+
+        public DynamicAnnouncement build()
+        {
+            return new DynamicAnnouncement(environment, pool, location, services);
+        }
     }
 }

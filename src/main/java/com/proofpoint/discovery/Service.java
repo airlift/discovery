@@ -8,13 +8,12 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Map;
-import java.util.UUID;
 
 @Immutable
 public class Service
 {
-    private final UUID id;
-    private final UUID nodeId;
+    private final Id<Service> id;
+    private final Id<Node> nodeId;
     private final String type;
     private final String pool;
     private final String location;
@@ -22,8 +21,8 @@ public class Service
 
     @JsonCreator
     public Service(
-            @JsonProperty("id") UUID id,
-            @JsonProperty("nodeId") UUID nodeId,
+            @JsonProperty("id") Id<Service> id,
+            @JsonProperty("nodeId") Id<Node> nodeId,
             @JsonProperty("type") String type,
             @JsonProperty("pool") String pool,
             @JsonProperty("location") String location,
@@ -44,13 +43,13 @@ public class Service
     }
 
     @JsonProperty
-    public UUID getId()
+    public Id<Service> getId()
     {
         return id;
     }
 
     @JsonProperty
-    public UUID getNodeId()
+    public Id<Node> getNodeId()
     {
         return nodeId;
     }
@@ -140,11 +139,6 @@ public class Service
                 '}';
     }
 
-    public static Builder copyOf(DynamicServiceAnnouncement announcement)
-    {
-        return new Builder().copyOf(announcement);
-    }
-
     public static Builder copyOf(StaticAnnouncement announcement)
     {
         return new Builder().copyOf(announcement);
@@ -152,22 +146,11 @@ public class Service
 
     public static class Builder
     {
-        private UUID id;
-        private UUID nodeId;
+        private Id<Service> id;
         private String type;
         private String pool;
         private String location;
         private Map<String, String> properties;
-
-        public Builder copyOf(DynamicServiceAnnouncement announcement)
-        {
-            id = announcement.getId();
-            type = announcement.getType();
-            pool = announcement.getPool();
-            properties = ImmutableMap.copyOf(announcement.getProperties());
-
-            return this;
-        }
 
         public Builder copyOf(StaticAnnouncement announcement)
         {
@@ -178,15 +161,9 @@ public class Service
             return this;
         }
 
-        public Builder setId(UUID id)
+        public Builder setId(Id<Service> id)
         {
             this.id = id;
-            return this;
-        }
-
-        public Builder setNodeId(UUID nodeId)
-        {
-            this.nodeId = nodeId;
             return this;
         }
 
@@ -199,7 +176,7 @@ public class Service
         public Service build()
         {
             // TODO: validate state
-            return new Service(id, nodeId, type, pool, location, properties);
+            return new Service(id, null, type, pool, location, properties);
         }
     }
 }

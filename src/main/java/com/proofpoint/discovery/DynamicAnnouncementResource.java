@@ -1,7 +1,6 @@
 package com.proofpoint.discovery;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableSet;
 import com.proofpoint.node.NodeInfo;
 
 import javax.inject.Inject;
@@ -14,7 +13,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.UUID;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -35,7 +33,7 @@ public class DynamicAnnouncementResource
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response put(@PathParam("node_id") UUID nodeId, @Context UriInfo uriInfo, DynamicAnnouncement announcement)
+    public Response put(@PathParam("node_id") Id<Node> nodeId, @Context UriInfo uriInfo, DynamicAnnouncement announcement)
     {
         if (!nodeInfo.getEnvironment().equals(announcement.getEnvironment())) {
             return Response.status(BAD_REQUEST)
@@ -45,16 +43,11 @@ public class DynamicAnnouncementResource
 
         String location = Objects.firstNonNull(announcement.getLocation(), "/somewhere/" + nodeId.toString());
 
-        ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
-        for (DynamicServiceAnnouncement entry : announcement.getServices()) {
-            Service descriptor = Service.copyOf(entry)
-                    .setNodeId(nodeId)
-                    .setLocation(location)
-                    .build();
-            builder.add(descriptor);
-        }
+        DynamicAnnouncement announcementWithLocation = DynamicAnnouncement.copyOf(announcement)
+                .setLocation(location)
+                .build();
 
-        if (dynamicStore.put(nodeId, builder.build())) {
+        if (dynamicStore.put(nodeId, announcementWithLocation)) {
             return Response.created(uriInfo.getRequestUri()).build();
         }
 
@@ -62,7 +55,7 @@ public class DynamicAnnouncementResource
     }
 
     @DELETE
-    public Response delete(@PathParam("node_id") UUID nodeId)
+    public Response delete(@PathParam("node_id") Id<Node> nodeId)
     {
         if (!dynamicStore.delete(nodeId)) {
             return Response.status(NOT_FOUND).build();

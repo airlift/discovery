@@ -1,11 +1,11 @@
 {
     "environment": "testing",
     "location": "/a/b/c",
+    "pool": "poolA",
     "services": [
         {
             "id": "1c001650-7841-11e0-a1f0-0800200c9a66",
             "type": "red",
-            "pool": "poolA",
             "properties": {
                 "key" : "redValue"
             }
@@ -13,7 +13,6 @@
         {
             "id": "2a817750-7841-11e0-a1f0-0800200c9a66",
             "type": "blue",
-            "pool": "poolA",
             "properties": {
                 "key" : "blueValue"
             }

@@ -9,9 +9,11 @@ import org.testng.annotations.Test;
 
 import javax.inject.Provider;
 import java.util.Collections;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Iterables.concat;
+import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -43,21 +45,25 @@ public abstract class TestDynamicStore
     @Test
     public void testPutSingle()
     {
-        UUID nodeId = UUID.randomUUID();
-        Service blue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
+        Id<Node> nodeId = Id.random();
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
+        ));
 
-        assertTrue(store.put(nodeId, ImmutableSet.of(blue)));
+        assertTrue(store.put(nodeId, blue));
 
-        assertEquals(store.getAll(), ImmutableSet.of(blue));
+        assertEquals(store.getAll(), transform(blue.getServiceAnnouncements(), toServiceWith(nodeId, blue.getLocation(), blue.getPool())));
     }
 
     @Test
     public void testExpires()
     {
-        UUID nodeId = UUID.randomUUID();
-        Service blue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
+        Id<Node> nodeId = Id.random();
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
+        ));
 
-        assertTrue(store.put(nodeId, ImmutableSet.of(blue)));
+        assertTrue(store.put(nodeId, blue));
         advanceTimeBeyondMaxAge();
         assertEquals(store.getAll(), Collections.<Service>emptySet());
     }
@@ -65,110 +71,179 @@ public abstract class TestDynamicStore
     @Test
     public void testPutMultipleForSameNode()
     {
-        UUID nodeId = UUID.randomUUID();
+        Id<Node> nodeId = Id.random();
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")),
+                new DynamicServiceAnnouncement(Id.<Service>random(), "web", ImmutableMap.of("http", "http://localhost:2222")),
+                new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
+        ));
 
-        Service blue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service red = new Service(UUID.randomUUID(), nodeId, "web", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
-        Service green = new Service(UUID.randomUUID(), nodeId, "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:3333"));
+        assertTrue(store.put(nodeId, announcement));
 
-        assertTrue(store.put(nodeId, ImmutableSet.of(blue, red, green)));
-
-        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(blue, red, green));
+        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
     }
 
     @Test
     public void testReplace()
     {
-        UUID nodeId = UUID.randomUUID();
+        Id<Node> nodeId = Id.random();
 
-        Service oldBlue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service newBlue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
+        DynamicAnnouncement oldAnnouncement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
+        ));
 
-        assertTrue(store.put(nodeId, ImmutableSet.of(oldBlue)));
+        DynamicAnnouncement newAnnouncement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
+        ));
+
+        assertTrue(store.put(nodeId, oldAnnouncement));
         currentTime.increment();
-        assertFalse(store.put(nodeId, ImmutableSet.of(newBlue)));
+        assertFalse(store.put(nodeId, newAnnouncement));
 
-        assertEquals(store.getAll(), ImmutableSet.of(newBlue));
+        assertEquals(store.getAll(), transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation(), newAnnouncement.getPool())));
     }
 
     @Test
     public void testReplaceExpired()
     {
-        UUID nodeId = UUID.randomUUID();
+        Id<Node> nodeId = Id.random();
 
-        Service oldBlue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service newBlue = new Service(UUID.randomUUID(), nodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
+        DynamicAnnouncement oldAnnouncement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
+        ));
 
-        assertTrue(store.put(nodeId, ImmutableSet.of(oldBlue)));
+        DynamicAnnouncement newAnnouncement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
+        ));
+
+        assertTrue(store.put(nodeId, oldAnnouncement));
         advanceTimeBeyondMaxAge();
-        assertTrue(store.put(nodeId, ImmutableSet.of(newBlue)));
+        assertTrue(store.put(nodeId, newAnnouncement));
 
-        assertEquals(store.getAll(), ImmutableSet.of(newBlue));
+        assertEqualsIgnoreOrder(store.getAll(), transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation(), newAnnouncement.getPool())));
     }
 
     @Test
     public void testPutMultipleForDifferentNodes()
     {
-        Service blue = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service red = new Service(UUID.randomUUID(), UUID.randomUUID(), "web", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
-        Service green = new Service(UUID.randomUUID(), UUID.randomUUID(), "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:3333"));
+        Id<Node> blueNodeId = Id.random();
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
+        ));
 
-        assertTrue(store.put(blue.getNodeId(), ImmutableSet.of(blue)));
-        assertTrue(store.put(red.getNodeId(), ImmutableSet.of(red)));
-        assertTrue(store.put(green.getNodeId(), ImmutableSet.of(green)));
+        Id<Node> redNodeId = Id.random();
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "web", ImmutableMap.of("http", "http://localhost:2222"))
+        ));
 
-        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(blue, red, green));
+        Id<Node> greenNodeId = Id.random();
+        DynamicAnnouncement green = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
+        ));
+
+        assertTrue(store.put(blueNodeId, blue));
+        assertTrue(store.put(redNodeId, red));
+        assertTrue(store.put(greenNodeId, green));
+
+        assertEqualsIgnoreOrder(store.getAll(), concat(
+                transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
+                transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())),
+                transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, green.getLocation(), green.getPool()))));
     }
 
     @Test
     public void testGetByType()
     {
-        Service blue = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service red = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
-        Service green = new Service(UUID.randomUUID(), UUID.randomUUID(), "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:3333"));
+        Id<Node> blueNodeId = Id.random();
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
+        ));
 
-        store.put(blue.getNodeId(), ImmutableSet.of(blue));
-        store.put(red.getNodeId(), ImmutableSet.of(red));
-        store.put(green.getNodeId(), ImmutableSet.of(green));
+        Id<Node> redNodeId = Id.random();
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
+        ));
 
-        assertEqualsIgnoreOrder(store.get("storage"), ImmutableSet.of(blue, red));
-        assertEqualsIgnoreOrder(store.get("monitoring"), ImmutableSet.of(green));
+        Id<Node> greenNodeId = Id.random();
+        DynamicAnnouncement green = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
+        ));
+
+        assertTrue(store.put(blueNodeId, blue));
+        assertTrue(store.put(redNodeId, red));
+        assertTrue(store.put(greenNodeId, green));
+
+        assertEqualsIgnoreOrder(store.get("storage"), concat(
+                transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
+                transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
+
+        assertEqualsIgnoreOrder(store.get("monitoring"), transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, green.getLocation(), green.getPool())));
     }
 
     @Test
     public void testGetByTypeAndPool()
     {
-        Service blue = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service red = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
-        Service green = new Service(UUID.randomUUID(), UUID.randomUUID(), "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:3333"));
-        Service yellow = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:3333"));
+        Id<Node> blueNodeId = Id.random();
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
+        ));
 
-        store.put(blue.getNodeId(), ImmutableSet.of(blue));
-        store.put(red.getNodeId(), ImmutableSet.of(red));
-        store.put(green.getNodeId(), ImmutableSet.of(green));
-        store.put(yellow.getNodeId(), ImmutableSet.of(yellow));
+        Id<Node> redNodeId = Id.random();
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
+        ));
 
-        assertEqualsIgnoreOrder(store.get("storage", "poolA"), ImmutableSet.of(blue, red));
-        assertEqualsIgnoreOrder(store.get("monitoring", "poolA"), ImmutableSet.of(green));
-        assertEqualsIgnoreOrder(store.get("storage", "poolB"), ImmutableSet.of(yellow));
+        Id<Node> greenNodeId = Id.random();
+        DynamicAnnouncement green = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
+        ));
+
+        Id<Node> yellowNodeId = Id.random();
+        DynamicAnnouncement yellow = new DynamicAnnouncement("testing", "poolB", "/US/West/SC4/rack1/host1/vm1/slot4", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:4444"))
+        ));
+
+        assertTrue(store.put(blueNodeId, blue));
+        assertTrue(store.put(redNodeId, red));
+        assertTrue(store.put(greenNodeId, green));
+        assertTrue(store.put(yellowNodeId, yellow));
+
+        assertEqualsIgnoreOrder(store.get("storage", "poolA"), concat(
+                transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
+                transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
+
+        assertEqualsIgnoreOrder(store.get("monitoring", "poolA"), concat(
+                transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, red.getLocation(), red.getPool()))));
+
+        assertEqualsIgnoreOrder(store.get("storage", "poolB"), concat(
+                transform(yellow.getServiceAnnouncements(), toServiceWith(yellowNodeId, red.getLocation(), red.getPool()))));
     }
 
     @Test
     public void testDelete()
     {
-        UUID blueNodeId = UUID.randomUUID();
-        Service blue1 = new Service(UUID.randomUUID(), blueNodeId, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service blue2 = new Service(UUID.randomUUID(), blueNodeId, "web", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:2222"));
-        Service red = new Service(UUID.randomUUID(), UUID.randomUUID(), "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:3333"));
+        Id<Node> blueNodeId = Id.random();
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")),
+                new DynamicServiceAnnouncement(Id.<Service>random(), "web", ImmutableMap.of("http", "http://localhost:2222"))
+        ));
 
-        store.put(blueNodeId, ImmutableSet.of(blue1, blue2));
-        store.put(red.getNodeId(), ImmutableSet.of(red));
+        Id<Node> redNodeId = Id.random();
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:2222"))
+        ));
 
-        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(blue1, blue2, red));
+        assertTrue(store.put(blueNodeId, blue));
+        assertTrue(store.put(redNodeId, red));
+
+        assertEqualsIgnoreOrder(store.getAll(), concat(
+                transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
+                transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
 
         assertTrue(store.delete(blueNodeId));
 
-        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(red));
+        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
+
         assertTrue(store.get("storage").isEmpty());
         assertTrue(store.get("web", "poolA").isEmpty());
     }
