@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import static com.proofpoint.discovery.ValidationAssertions.assertFailedValidation;
 import static com.proofpoint.testing.Assertions.assertInstanceOf;
 import static com.proofpoint.testing.Assertions.assertNotEquals;
 import static com.proofpoint.testing.EquivalenceTester.equivalenceTester;
@@ -24,8 +25,6 @@ import static org.testng.Assert.assertEquals;
 
 public class TestStaticAnnouncement
 {
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-
     @Test
     public void testValidatesNullEnvironment()
     {
@@ -127,16 +126,5 @@ public class TestStaticAnnouncement
         catch (UnsupportedOperationException e) {
             // an exception is ok, too
         }
-    }
-
-    private void assertFailedValidation(StaticAnnouncement announcement, String field, String message, Class<? extends Annotation> annotation)
-    {
-        Set<ConstraintViolation<StaticAnnouncement>> violations = VALIDATOR.validate(announcement);
-        assertEquals(violations.size(), 1);
-
-        ConstraintViolation<StaticAnnouncement> violation = violations.iterator().next();
-        assertInstanceOf(violation.getConstraintDescriptor().getAnnotation(), annotation);
-        assertEquals(violation.getPropertyPath().toString(), field);
-        assertEquals(violation.getMessage(), message);
     }
 }

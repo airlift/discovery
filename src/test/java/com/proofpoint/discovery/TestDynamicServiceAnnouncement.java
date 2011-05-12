@@ -7,17 +7,12 @@ import com.google.common.io.Resources;
 import com.proofpoint.json.JsonCodec;
 import org.testng.annotations.Test;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
-import static com.proofpoint.testing.Assertions.assertInstanceOf;
+import static com.proofpoint.discovery.ValidationAssertions.assertFailedValidation;
 import static com.proofpoint.testing.Assertions.assertNotEquals;
 import static com.proofpoint.testing.EquivalenceTester.equivalenceTester;
 import static org.testng.Assert.assertEquals;
@@ -25,8 +20,6 @@ import static org.testng.Assert.assertNotNull;
 
 public class TestDynamicServiceAnnouncement
 {
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-
     @Test
     public void testValidatesNullId()
     {
@@ -122,16 +115,4 @@ public class TestDynamicServiceAnnouncement
 
         assertNotNull(announcement.toString());
     }
-
-    private void assertFailedValidation(DynamicServiceAnnouncement announcement, String field, String message, Class<? extends Annotation> annotation)
-    {
-        Set<ConstraintViolation<DynamicServiceAnnouncement>> violations = VALIDATOR.validate(announcement);
-        assertEquals(violations.size(), 1);
-
-        ConstraintViolation<DynamicServiceAnnouncement> violation = violations.iterator().next();
-        assertInstanceOf(violation.getConstraintDescriptor().getAnnotation(), annotation);
-        assertEquals(violation.getPropertyPath().toString(), field);
-        assertEquals(violation.getMessage(), message);
-    }
-
 }

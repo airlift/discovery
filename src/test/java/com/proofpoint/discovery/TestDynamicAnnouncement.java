@@ -12,11 +12,10 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.proofpoint.testing.Assertions.assertInstanceOf;
+import static com.proofpoint.discovery.ValidationAssertions.assertFailedValidation;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -89,16 +88,4 @@ public class TestDynamicAnnouncement
 
         assertNotNull(announcement.toString());
     }
-
-    private <T> void assertFailedValidation(T bean, String field, String message, Class<? extends Annotation> annotation)
-    {
-        Set<ConstraintViolation<T>> violations = VALIDATOR.validate(bean);
-        assertEquals(violations.size(), 1);
-
-        ConstraintViolation<T> violation = violations.iterator().next();
-        assertInstanceOf(violation.getConstraintDescriptor().getAnnotation(), annotation);
-        assertEquals(violation.getPropertyPath().toString(), field);
-        assertEquals(violation.getMessage(), message);
-    }
-
 }
