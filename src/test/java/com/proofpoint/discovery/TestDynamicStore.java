@@ -46,7 +46,7 @@ public abstract class TestDynamicStore
     public void testPutSingle()
     {
         Id<Node> nodeId = Id.random();
-        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot1", "poolA", ImmutableSet.of(
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
         ));
 
@@ -59,7 +59,7 @@ public abstract class TestDynamicStore
     public void testExpires()
     {
         Id<Node> nodeId = Id.random();
-        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot1", "poolA", ImmutableSet.of(
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
         ));
 
@@ -72,7 +72,7 @@ public abstract class TestDynamicStore
     public void testPutMultipleForSameNode()
     {
         Id<Node> nodeId = Id.random();
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot1", "poolA", ImmutableSet.of(
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")),
                 new DynamicServiceAnnouncement(Id.<Service>random(), "web", ImmutableMap.of("http", "http://localhost:2222")),
                 new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
@@ -88,11 +88,11 @@ public abstract class TestDynamicStore
     {
         Id<Node> nodeId = Id.random();
 
-        DynamicAnnouncement oldAnnouncement = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot1", "poolA", ImmutableSet.of(
+        DynamicAnnouncement oldAnnouncement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
         ));
 
-        DynamicAnnouncement newAnnouncement = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot2", "poolA", ImmutableSet.of(
+        DynamicAnnouncement newAnnouncement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
@@ -108,11 +108,11 @@ public abstract class TestDynamicStore
     {
         Id<Node> nodeId = Id.random();
 
-        DynamicAnnouncement oldAnnouncement = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot1", "poolA", ImmutableSet.of(
+        DynamicAnnouncement oldAnnouncement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
         ));
 
-        DynamicAnnouncement newAnnouncement = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot2", "poolA", ImmutableSet.of(
+        DynamicAnnouncement newAnnouncement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
@@ -127,17 +127,17 @@ public abstract class TestDynamicStore
     public void testPutMultipleForDifferentNodes()
     {
         Id<Node> blueNodeId = Id.random();
-        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot1", "poolA", ImmutableSet.of(
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
         ));
 
         Id<Node> redNodeId = Id.random();
-        DynamicAnnouncement red = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot2", "poolA", ImmutableSet.of(
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "web", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
         Id<Node> greenNodeId = Id.random();
-        DynamicAnnouncement green = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot3", "poolA", ImmutableSet.of(
+        DynamicAnnouncement green = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
         ));
 
@@ -155,17 +155,17 @@ public abstract class TestDynamicStore
     public void testGetByType()
     {
         Id<Node> blueNodeId = Id.random();
-        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot1", "poolA", ImmutableSet.of(
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
         ));
 
         Id<Node> redNodeId = Id.random();
-        DynamicAnnouncement red = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot2", "poolA", ImmutableSet.of(
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
         Id<Node> greenNodeId = Id.random();
-        DynamicAnnouncement green = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot3", "poolA", ImmutableSet.of(
+        DynamicAnnouncement green = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
         ));
 
@@ -184,22 +184,22 @@ public abstract class TestDynamicStore
     public void testGetByTypeAndPool()
     {
         Id<Node> blueNodeId = Id.random();
-        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot1", "poolA", ImmutableSet.of(
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
         ));
 
         Id<Node> redNodeId = Id.random();
-        DynamicAnnouncement red = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot2", "poolA", ImmutableSet.of(
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
         Id<Node> greenNodeId = Id.random();
-        DynamicAnnouncement green = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot3", "poolA", ImmutableSet.of(
+        DynamicAnnouncement green = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
         ));
 
         Id<Node> yellowNodeId = Id.random();
-        DynamicAnnouncement yellow = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot4", "poolB", ImmutableSet.of(
+        DynamicAnnouncement yellow = new DynamicAnnouncement("testing", "poolB", "/US/West/SC4/rack1/host1/vm1/slot4", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:4444"))
         ));
 
@@ -223,13 +223,13 @@ public abstract class TestDynamicStore
     public void testDelete()
     {
         Id<Node> blueNodeId = Id.random();
-        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot1", "poolA", ImmutableSet.of(
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")),
                 new DynamicServiceAnnouncement(Id.<Service>random(), "web", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
         Id<Node> redNodeId = Id.random();
-        DynamicAnnouncement red = new DynamicAnnouncement("testing", "/US/West/SC4/rack1/host1/vm1/slot2", "poolA", ImmutableSet.of(
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 

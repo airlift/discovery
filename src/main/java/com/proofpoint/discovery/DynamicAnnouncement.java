@@ -20,8 +20,8 @@ public class DynamicAnnouncement
     @JsonCreator
     public DynamicAnnouncement(
             @JsonProperty("environment") String environment,
-            @JsonProperty("location") String location,
             @JsonProperty("pool") String pool,
+            @JsonProperty("location") String location,
             @JsonProperty("services") Set<DynamicServiceAnnouncement> services)
     {
         this.environment = environment;
@@ -139,7 +139,7 @@ public class DynamicAnnouncement
 
         public DynamicAnnouncement build()
         {
-            return new DynamicAnnouncement(environment, location, pool, services);
+            return new DynamicAnnouncement(environment, pool, location, services);
         }
     }
 }

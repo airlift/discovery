@@ -30,7 +30,7 @@ public class TestStaticAnnouncementResource
     @Test
     public void testPost()
     {
-        StaticAnnouncement announcement = new StaticAnnouncement("testing", "/a/b", "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
+        StaticAnnouncement announcement = new StaticAnnouncement("testing", "storage", "alpha", "/a/b", ImmutableMap.of("http", "http://localhost:1111"));
 
         Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/static")));
 
@@ -51,7 +51,7 @@ public class TestStaticAnnouncementResource
     @Test
     public void testEnvironmentConflict()
     {
-        StaticAnnouncement announcement = new StaticAnnouncement("production", "/a/b/c", "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
+        StaticAnnouncement announcement = new StaticAnnouncement("production", "storage", "alpha", "/a/b/c", ImmutableMap.of("http", "http://localhost:1111"));
 
         Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/static")));
 
@@ -77,7 +77,7 @@ public class TestStaticAnnouncementResource
     @Test
     public void testMakesUpLocation()
     {
-        StaticAnnouncement announcement = new StaticAnnouncement("testing", null, "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
+        StaticAnnouncement announcement = new StaticAnnouncement("testing", "storage", "alpha", null, ImmutableMap.of("http", "http://localhost:1111"));
 
         Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/")));
 

@@ -32,7 +32,7 @@ public class TestDynamicAnnouncementResource
     @Test
     public void testPutNew()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", "alpha", ImmutableSet.of(
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "alpha", "/a/b/c", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")))
         );
 
@@ -49,13 +49,13 @@ public class TestDynamicAnnouncementResource
     public void testReplace()
     {
         Id<Node> nodeId = Id.random();
-        DynamicAnnouncement previous = new DynamicAnnouncement("testing", "/a/b/c", "alpha", ImmutableSet.of(
+        DynamicAnnouncement previous = new DynamicAnnouncement("testing", "alpha", "/a/b/c", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "existing"))
         ));
 
         store.put(nodeId, previous);
 
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", "alpha", ImmutableSet.of(
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "alpha", "/a/b/c", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "new")))
         );
 
@@ -70,7 +70,7 @@ public class TestDynamicAnnouncementResource
     @Test
     public void testEnvironmentConflict()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("production", "/a/b/c", "alpha", ImmutableSet.of(
+        DynamicAnnouncement announcement = new DynamicAnnouncement("production", "alpha", "/a/b/c", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")))
         );
 
@@ -87,12 +87,12 @@ public class TestDynamicAnnouncementResource
     public void testDeleteExisting()
     {
         Id<Node> blueNodeId = Id.random();
-        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "/a/b/c", "alpha", ImmutableSet.of(
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "alpha", "/a/b/c", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "valueBlue"))
         ));
 
         Id<Node> redNodeId = Id.random();
-        DynamicAnnouncement red = new DynamicAnnouncement("testing", "/a/b/c", "alpha", ImmutableSet.of(
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "alpha", "/a/b/c", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "valueBlue"))
         ));
 
@@ -121,7 +121,7 @@ public class TestDynamicAnnouncementResource
     @Test
     public void testMakesUpLocation()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", null, "alpha", ImmutableSet.of(
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "alpha", null, ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")))
         );
 

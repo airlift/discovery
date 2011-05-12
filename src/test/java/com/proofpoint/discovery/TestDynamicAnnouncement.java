@@ -28,14 +28,14 @@ public class TestDynamicAnnouncement
     @Test
     public void testRejectsNullEnvironment()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement(null, "/location", "pool", Collections.<DynamicServiceAnnouncement>emptySet());
+        DynamicAnnouncement announcement = new DynamicAnnouncement(null, "pool", "/location", Collections.<DynamicServiceAnnouncement>emptySet());
         assertFailedValidation(announcement, "environment", "may not be null", NotNull.class);
     }
 
     @Test
     public void testAllowsNullLocation()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", null, "pool", Collections.<DynamicServiceAnnouncement>emptySet());
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", null, Collections.<DynamicServiceAnnouncement>emptySet());
 
         Set<ConstraintViolation<DynamicAnnouncement>> violations = VALIDATOR.validate(announcement);
         assertTrue(violations.isEmpty());
@@ -44,21 +44,21 @@ public class TestDynamicAnnouncement
     @Test
     public void testRejectsNullPool()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/location", null, Collections.<DynamicServiceAnnouncement>emptySet());
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", null, "/location", Collections.<DynamicServiceAnnouncement>emptySet());
         assertFailedValidation(announcement, "pool", "may not be null", NotNull.class);
     }
 
     @Test
     public void testRejectsNullServiceAnnouncements()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/location", "pool", null);
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", "/location", null);
         assertFailedValidation(announcement, "serviceAnnouncements", "may not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNestedServiceAnnouncements()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/location", "pool", ImmutableSet.of(
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", "/location", ImmutableSet.of(
                 new DynamicServiceAnnouncement(null, "type", Collections.<String, String>emptyMap()))
         );
 
@@ -75,7 +75,7 @@ public class TestDynamicAnnouncement
 
         DynamicServiceAnnouncement red = new DynamicServiceAnnouncement(Id.<Service>valueOf("1c001650-7841-11e0-a1f0-0800200c9a66"), "red", ImmutableMap.of("key", "redValue"));
         DynamicServiceAnnouncement blue = new DynamicServiceAnnouncement(Id.<Service>valueOf("2a817750-7841-11e0-a1f0-0800200c9a66"), "blue", ImmutableMap.of("key", "blueValue"));
-        DynamicAnnouncement expected = new DynamicAnnouncement("testing", "/a/b/c", "poolA", ImmutableSet.of(red, blue));
+        DynamicAnnouncement expected = new DynamicAnnouncement("testing", "poolA", "/a/b/c", ImmutableSet.of(red, blue));
 
         assertEquals(parsed, expected);
     }
@@ -83,7 +83,7 @@ public class TestDynamicAnnouncement
     @Test
     public void testToString()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/location", "pool", ImmutableSet.of(
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", "/location", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "type", Collections.<String, String>emptyMap()))
         );
 

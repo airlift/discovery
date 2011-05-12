@@ -18,9 +18,9 @@ public class StaticAnnouncement
     @JsonCreator
     public StaticAnnouncement(
             @JsonProperty("environment") String environment,
-            @JsonProperty("location") String location,
             @JsonProperty("type") String type,
             @JsonProperty("pool") String pool,
+            @JsonProperty("location") String location,
             @JsonProperty("properties") Map<String, String> properties)
     {
         this.environment = environment;
