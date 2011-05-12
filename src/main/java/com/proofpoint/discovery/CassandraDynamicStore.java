@@ -134,7 +134,7 @@ public class CassandraDynamicStore
         Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(announcement, "announcement is null");
 
-        List<Service> services = copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation())));
+        List<Service> services = copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
         String value = codec.toJson(services);
 
         DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());

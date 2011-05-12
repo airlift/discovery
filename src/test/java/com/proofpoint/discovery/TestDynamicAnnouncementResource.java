@@ -32,8 +32,8 @@ public class TestDynamicAnnouncementResource
     @Test
     public void testPutNew()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(
-                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111")))
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", "alpha", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")))
         );
 
         Id<Node> nodeId = Id.random();
@@ -42,21 +42,21 @@ public class TestDynamicAnnouncementResource
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.CREATED.getStatusCode());
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation())));
+        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
     }
 
     @Test
     public void testReplace()
     {
         Id<Node> nodeId = Id.random();
-        DynamicAnnouncement previous = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(
-                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", "alpha", ImmutableMap.of("key", "existing"))
+        DynamicAnnouncement previous = new DynamicAnnouncement("testing", "/a/b/c", "alpha", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "existing"))
         ));
 
         store.put(nodeId, previous);
 
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(
-                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", "alpha", ImmutableMap.of("key", "new")))
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", "alpha", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "new")))
         );
 
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
@@ -64,14 +64,15 @@ public class TestDynamicAnnouncementResource
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.NO_CONTENT.getStatusCode());
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation())));
+        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
     }
 
     @Test
     public void testEnvironmentConflict()
     {
-        DynamicServiceAnnouncement serviceAnnouncement = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
-        DynamicAnnouncement announcement = new DynamicAnnouncement("production", "/a/b/c", ImmutableSet.of(serviceAnnouncement));
+        DynamicAnnouncement announcement = new DynamicAnnouncement("production", "/a/b/c", "alpha", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")))
+        );
 
         Id<Node> nodeId = Id.random();
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
@@ -86,13 +87,13 @@ public class TestDynamicAnnouncementResource
     public void testDeleteExisting()
     {
         Id<Node> blueNodeId = Id.random();
-        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(
-                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", "alpha", ImmutableMap.of("key", "valueBlue"))
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "/a/b/c", "alpha", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "valueBlue"))
         ));
 
         Id<Node> redNodeId = Id.random();
-        DynamicAnnouncement red = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(
-                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", "alpha", ImmutableMap.of("key", "valueBlue"))
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "/a/b/c", "alpha", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "valueBlue"))
         ));
 
         store.put(redNodeId, red);
@@ -103,7 +104,7 @@ public class TestDynamicAnnouncementResource
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.NO_CONTENT.getStatusCode());
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation())));
+        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
     }
 
     @Test
@@ -120,8 +121,9 @@ public class TestDynamicAnnouncementResource
     @Test
     public void testMakesUpLocation()
     {
-        DynamicServiceAnnouncement serviceAnnouncement = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", null, ImmutableSet.of(serviceAnnouncement));
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", null, "alpha", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")))
+        );
 
         Id<Node> nodeId = Id.random();
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);

@@ -12,19 +12,16 @@ public class DynamicServiceAnnouncement
 {
     private final Id<Service> id;
     private final String type;
-    private final String pool;
     private final Map<String, String> properties;
 
     @JsonCreator
     public DynamicServiceAnnouncement(
             @JsonProperty("id") Id<Service> id,
             @JsonProperty("type") String type,
-            @JsonProperty("pool") String pool,
             @JsonProperty("properties") Map<String, String> properties)
     {
         this.id = id;
         this.type = type;
-        this.pool = pool;
 
         if (properties != null) {
             this.properties = ImmutableMap.copyOf(properties);
@@ -44,12 +41,6 @@ public class DynamicServiceAnnouncement
     public String getType()
     {
         return type;
-    }
-
-    @NotNull
-    public String getPool()
-    {
-        return pool;
     }
 
     @NotNull
@@ -73,9 +64,6 @@ public class DynamicServiceAnnouncement
         if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
-        if (pool != null ? !pool.equals(that.pool) : that.pool != null) {
-            return false;
-        }
         if (properties != null ? !properties.equals(that.properties) : that.properties != null) {
             return false;
         }
@@ -91,7 +79,6 @@ public class DynamicServiceAnnouncement
     {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (pool != null ? pool.hashCode() : 0);
         result = 31 * result + (properties != null ? properties.hashCode() : 0);
         return result;
     }
@@ -106,14 +93,14 @@ public class DynamicServiceAnnouncement
                 '}';
     }
 
-    public static Function<DynamicServiceAnnouncement, Service> toServiceWith(final Id<Node> nodeId, final String location)
+    public static Function<DynamicServiceAnnouncement, Service> toServiceWith(final Id<Node> nodeId, final String location, final String pool)
     {
         return new Function<DynamicServiceAnnouncement, Service>()
         {
             @Override
             public Service apply(DynamicServiceAnnouncement announcement)
             {
-                return new Service(announcement.getId(), nodeId, announcement.getType(), announcement.getPool(), location, announcement.getProperties());
+                return new Service(announcement.getId(), nodeId, announcement.getType(), pool, location, announcement.getProperties());
             }
         };
     }

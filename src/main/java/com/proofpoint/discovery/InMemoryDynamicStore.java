@@ -41,7 +41,7 @@ public class InMemoryDynamicStore
         Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(announcement, "announcement is null");
 
-        Set<Service> services = ImmutableSet.copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation())));
+        Set<Service> services = ImmutableSet.copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
 
         DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
         Entry old = descriptors.put(nodeId, new Entry(expiration, services));

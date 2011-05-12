@@ -81,6 +81,7 @@ public class TestDiscoveryServer
         // publish announcement
         Map<String, String> announcerProperties = ImmutableMap.<String, String>builder()
             .put("node.environment", "testing")
+            .put("node.pool", "red")
             .put("discovery.uri", server.getBaseUrl().toString())
             .build();
 
@@ -100,7 +101,6 @@ public class TestDiscoveryServer
         );
 
         ServiceAnnouncement announcement = ServiceAnnouncement.serviceAnnouncement("apple")
-                .setPool("red")
                 .addProperties(ImmutableMap.of("key", "value"))
                 .build();
 
@@ -141,7 +141,7 @@ public class TestDiscoveryServer
         assertNotNull(service.getId());
         assertEquals(service.getNodeId(), announcerNodeInfo.getNodeId());
         assertEquals(service.getLocation(), announcerNodeInfo.getLocation());
-        assertEquals(service.getPool(), announcement.getPool());
+        assertEquals(service.getPool(), announcerNodeInfo.getPool());
         assertEquals(service.getProperties(), announcement.getProperties());
 
 
