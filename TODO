@@ -5,8 +5,6 @@
     - Services
 	- DynamicAnnouncement
 	    - equivalence test
-	- DynamicServiceAnnouncement
-	    - toString
 	- EmbeddedCassandraServer
 	    - creates directory if missing or throws error if it can't
 
