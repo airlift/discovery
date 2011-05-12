@@ -7,6 +7,7 @@
 	    - equivalence test
 	- EmbeddedCassandraServer
 	    - creates directory if missing or throws error if it can't
+	- ValidationAssertions
 
 - CassandraStaticStore
     - Detect new vs replaced
