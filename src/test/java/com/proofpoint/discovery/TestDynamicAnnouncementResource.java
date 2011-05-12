@@ -11,6 +11,10 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.UUID;
 
+import static com.google.common.collect.Iterables.transform;
+import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
+import static com.proofpoint.testing.Assertions.assertEqualsIgnoreCase;
+import static com.proofpoint.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -30,8 +34,9 @@ public class TestDynamicAnnouncementResource
     @Test
     public void testPutNew()
     {
-        DynamicServiceAnnouncement serviceAnnouncement = new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111"));
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(serviceAnnouncement));
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(
+                new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("http", "http://localhost:1111")))
+        );
 
         UUID nodeId = UUID.randomUUID();
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
@@ -39,37 +44,29 @@ public class TestDynamicAnnouncementResource
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.CREATED.getStatusCode());
 
-        Service expected = Service.copyOf(serviceAnnouncement)
-                .setLocation(announcement.getLocation())
-                .setNodeId(nodeId)
-                .build();
-
-        assertEquals(store.getAll(), ImmutableSet.of(expected));
+        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServices(), toServiceWith(nodeId, announcement.getLocation())));
     }
 
     @Test
     public void testReplace()
     {
         UUID nodeId = UUID.randomUUID();
-        Service existing = new Service(UUID.randomUUID(), nodeId, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "existing"));
+        DynamicAnnouncement previous = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(
+                new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("key", "existing"))
+        ));
 
-        store.put(nodeId, ImmutableSet.of(existing));
+        store.put(nodeId, previous);
 
-
-        DynamicServiceAnnouncement serviceAnnouncement = new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("key", "new"));
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(serviceAnnouncement));
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(
+                new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("key", "new")))
+        );
 
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
 
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.NO_CONTENT.getStatusCode());
 
-        Service expected = Service.copyOf(serviceAnnouncement)
-                .setLocation(announcement.getLocation())
-                .setNodeId(nodeId)
-                .build();
-
-        assertEquals(store.getAll(), ImmutableSet.of(expected));
+        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServices(), toServiceWith(nodeId, announcement.getLocation())));
     }
 
     @Test
@@ -90,18 +87,25 @@ public class TestDynamicAnnouncementResource
     @Test
     public void testDeleteExisting()
     {
-        Service blue = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueBlue"));
-        Service red = new Service(UUID.randomUUID(), UUID.randomUUID(), "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueRed"));
+        UUID blueNodeId = UUID.randomUUID();
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(
+                new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("key", "valueBlue"))
+        ));
 
-        store.put(red.getNodeId(), ImmutableSet.of(red));
-        store.put(blue.getNodeId(), ImmutableSet.of(blue));
+        UUID redNodeId = UUID.randomUUID();
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "/a/b/c", ImmutableSet.of(
+                new DynamicServiceAnnouncement(UUID.randomUUID(), "storage", "alpha", ImmutableMap.of("key", "valueBlue"))
+        ));
 
-        Response response = resource.delete(blue.getNodeId());
+        store.put(redNodeId, red);
+        store.put(blueNodeId, blue);
+
+        Response response = resource.delete(blueNodeId);
 
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.NO_CONTENT.getStatusCode());
 
-        assertEquals(store.getAll(), ImmutableSet.of(red));
+        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServices(), toServiceWith(redNodeId, red.getLocation())));
     }
 
     @Test

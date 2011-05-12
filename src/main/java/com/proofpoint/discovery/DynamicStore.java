@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public interface DynamicStore
 {
-    boolean put(UUID nodeId, Set<Service> descriptors);
+    boolean put(UUID nodeId, DynamicAnnouncement announcement);
     boolean delete(UUID nodeId);
     Set<Service> getAll();
     Set<Service> get(String type);

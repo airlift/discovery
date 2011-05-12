@@ -1,5 +1,6 @@
 package com.proofpoint.discovery;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -101,8 +102,21 @@ public class DynamicServiceAnnouncement
         return "ServiceAnnouncement{" +
                 "id=" + id +
                 ", type='" + type + '\'' +
-                ", pool='" + pool + '\'' +
                 ", properties=" + properties +
                 '}';
     }
+
+    public static Function<DynamicServiceAnnouncement, Service> toServiceWith(final UUID nodeId, final String location)
+    {
+        return new Function<DynamicServiceAnnouncement, Service>()
+        {
+            @Override
+            public Service apply(DynamicServiceAnnouncement announcement)
+            {
+                return new Service(announcement.getId(), nodeId, announcement.getType(), announcement.getPool(), location, announcement.getProperties());
+            }
+        };
+    }
+
+
 }

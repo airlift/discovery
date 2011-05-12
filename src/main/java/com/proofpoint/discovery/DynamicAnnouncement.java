@@ -94,4 +94,36 @@ public class DynamicAnnouncement
                 ", services=" + services +
                 '}';
     }
+
+    public static Builder copyOf(DynamicAnnouncement announcement)
+    {
+        return new Builder().copyOf(announcement);
+    }
+
+    public static class Builder
+    {
+        private String environment;
+        private String location;
+        private Set<DynamicServiceAnnouncement> services;
+
+        public Builder copyOf(DynamicAnnouncement announcement)
+        {
+            environment = announcement.getEnvironment();
+            location = announcement.getLocation();
+            services = announcement.getServices();
+
+            return this;
+        }
+
+        public Builder setLocation(String location)
+        {
+            this.location = location;
+            return this;
+        }
+
+        public DynamicAnnouncement build()
+        {
+            return new DynamicAnnouncement(environment, location, services);
+        }
+    }
 }

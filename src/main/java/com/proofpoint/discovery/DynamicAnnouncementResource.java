@@ -45,16 +45,11 @@ public class DynamicAnnouncementResource
 
         String location = Objects.firstNonNull(announcement.getLocation(), "/somewhere/" + nodeId.toString());
 
-        ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
-        for (DynamicServiceAnnouncement entry : announcement.getServices()) {
-            Service descriptor = Service.copyOf(entry)
-                    .setNodeId(nodeId)
-                    .setLocation(location)
-                    .build();
-            builder.add(descriptor);
-        }
+        DynamicAnnouncement announcementWithLocation = DynamicAnnouncement.copyOf(announcement)
+                .setLocation(location)
+                .build();
 
-        if (dynamicStore.put(nodeId, builder.build())) {
+        if (dynamicStore.put(nodeId, announcementWithLocation)) {
             return Response.created(uriInfo.getRequestUri()).build();
         }
 

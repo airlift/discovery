@@ -10,12 +10,16 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.google.common.base.Predicates.and;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
+import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
 
@@ -35,13 +39,15 @@ public class InMemoryDynamicStore
     }
 
     @Override
-    public synchronized boolean put(UUID nodeId, Set<Service> services)
+    public synchronized boolean put(UUID nodeId, DynamicAnnouncement announcement)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
-        Preconditions.checkNotNull(services, "descriptors is null");
+        Preconditions.checkNotNull(announcement, "announcement is null");
+
+        Set<Service> services = ImmutableSet.copyOf(transform(announcement.getServices(), toServiceWith(nodeId, announcement.getLocation())));
 
         DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
-        Entry old = descriptors.put(nodeId, new Entry(expiration, ImmutableSet.copyOf(services)));
+        Entry old = descriptors.put(nodeId, new Entry(expiration, services));
 
         return old == null || old.getExpiration().isBefore(currentTime.get());
     }

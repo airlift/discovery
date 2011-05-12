@@ -39,7 +39,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.google.common.base.Predicates.and;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
+import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
 import static java.lang.String.format;
@@ -128,12 +131,13 @@ public class CassandraDynamicStore
     }
 
     @Override
-    public boolean put(UUID nodeId, Set<Service> descriptors)
+    public boolean put(UUID nodeId, DynamicAnnouncement announcement)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
-        Preconditions.checkNotNull(descriptors, "descriptors is null");
+        Preconditions.checkNotNull(announcement, "announcement is null");
 
-        String value = codec.toJson(ImmutableList.copyOf(descriptors));
+        List<Service> services = copyOf(transform(announcement.getServices(), toServiceWith(nodeId, announcement.getLocation())));
+        String value = codec.toJson(services);
 
         DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
         DateTime now = currentTime.get();
