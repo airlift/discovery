@@ -16,7 +16,8 @@ public class DynamicServiceAnnouncement
     private final Map<String, String> properties;
 
     @JsonCreator
-    public DynamicServiceAnnouncement(@JsonProperty("id") Id<Service> id,
+    public DynamicServiceAnnouncement(
+            @JsonProperty("id") Id<Service> id,
             @JsonProperty("type") String type,
             @JsonProperty("pool") String pool,
             @JsonProperty("properties") Map<String, String> properties)
