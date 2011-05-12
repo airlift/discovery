@@ -21,7 +21,6 @@ import me.prettyprint.hector.api.mutation.Mutator;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Iterables.filter;
@@ -80,10 +79,10 @@ public class CassandraStaticStore
     }
 
     @Override
-    public void delete(UUID nodeId)
+    public void delete(Id<Service> id)
     {
         Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-        mutator.addDeletion(nodeId.toString(), COLUMN_FAMILY);
+        mutator.addDeletion(id.toString(), COLUMN_FAMILY);
         mutator.execute();
     }
 

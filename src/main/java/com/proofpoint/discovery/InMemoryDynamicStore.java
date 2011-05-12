@@ -12,11 +12,9 @@ import javax.inject.Provider;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
 import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.discovery.Service.matchesPool;
@@ -26,7 +24,7 @@ import static com.proofpoint.discovery.Service.matchesType;
 public class InMemoryDynamicStore
         implements DynamicStore
 {
-    private final Map<UUID, Entry> descriptors = Maps.newHashMap();
+    private final Map<Id<Node>, Entry> descriptors = Maps.newHashMap();
     private final Duration maxAge;
     private final Provider<DateTime> currentTime;
 
@@ -38,7 +36,7 @@ public class InMemoryDynamicStore
     }
 
     @Override
-    public synchronized boolean put(UUID nodeId, DynamicAnnouncement announcement)
+    public synchronized boolean put(Id<Node> nodeId, DynamicAnnouncement announcement)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(announcement, "announcement is null");
@@ -52,7 +50,7 @@ public class InMemoryDynamicStore
     }
 
     @Override
-    public synchronized boolean delete(UUID nodeId)
+    public synchronized boolean delete(Id<Node> nodeId)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
 

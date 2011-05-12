@@ -7,17 +7,16 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
-import java.util.UUID;
 
 public class DynamicServiceAnnouncement
 {
-    private final UUID id;
+    private final Id<Service> id;
     private final String type;
     private final String pool;
     private final Map<String, String> properties;
 
     @JsonCreator
-    public DynamicServiceAnnouncement(@JsonProperty("id") UUID id,
+    public DynamicServiceAnnouncement(@JsonProperty("id") Id<Service> id,
             @JsonProperty("type") String type,
             @JsonProperty("pool") String pool,
             @JsonProperty("properties") Map<String, String> properties)
@@ -35,7 +34,7 @@ public class DynamicServiceAnnouncement
     }
 
     @NotNull
-    public UUID getId()
+    public Id<Service> getId()
     {
         return id;
     }
@@ -106,7 +105,7 @@ public class DynamicServiceAnnouncement
                 '}';
     }
 
-    public static Function<DynamicServiceAnnouncement, Service> toServiceWith(final UUID nodeId, final String location)
+    public static Function<DynamicServiceAnnouncement, Service> toServiceWith(final Id<Node> nodeId, final String location)
     {
         return new Function<DynamicServiceAnnouncement, Service>()
         {

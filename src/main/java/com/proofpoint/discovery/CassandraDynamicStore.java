@@ -31,7 +31,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -130,7 +129,7 @@ public class CassandraDynamicStore
     }
 
     @Override
-    public boolean put(UUID nodeId, DynamicAnnouncement announcement)
+    public boolean put(Id<Node> nodeId, DynamicAnnouncement announcement)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(announcement, "announcement is null");
@@ -168,7 +167,7 @@ public class CassandraDynamicStore
     }
 
     @Override
-    public boolean delete(UUID nodeId)
+    public boolean delete(Id<Node> nodeId)
     {
         boolean exists = exists(nodeId);
 
@@ -220,7 +219,7 @@ public class CassandraDynamicStore
         return ImmutableSet.copyOf(filter(getAll(), and(matchesType(type), matchesPool(pool))));
     }
 
-    private boolean exists(UUID nodeId)
+    private boolean exists(Id<Node> nodeId)
     {
         ColumnSlice<Long, String> slice = HFactory.createSliceQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
