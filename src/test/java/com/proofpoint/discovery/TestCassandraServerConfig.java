@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.util.Map;
 
-import static com.proofpoint.discovery.ValidationAssertions.assertFailsValidation;
+import static com.proofpoint.experimental.testing.ValidationAssertions.assertFailsValidation;
 
 public class TestCassandraServerConfig
 {
