@@ -7,6 +7,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.proofpoint.cassandra.testing.CassandraServerSetup;
+import com.proofpoint.cassandra.testing.TestingCassandraModule;
 import com.proofpoint.configuration.ConfigurationFactory;
 import com.proofpoint.configuration.ConfigurationModule;
 import com.proofpoint.discovery.client.DiscoveryBinder;
