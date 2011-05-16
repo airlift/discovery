@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.proofpoint.discovery.ValidationAssertions.*;
+import static com.proofpoint.experimental.testing.ValidationAssertions.assertFailsValidation;
 
 public class TestDiscoveryConfig
 {

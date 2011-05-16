@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.proofpoint.platform</groupId>
         <artifactId>rest-server-base</artifactId>
-        <version>0.41-SNAPSHOT</version>
+        <version>0.42-SNAPSHOT</version>
     </parent>
     <properties>
         <main-class>com.proofpoint.discovery.Main</main-class>
@@ -19,6 +19,18 @@
 
 
     <dependencies>
+        <dependency>
+            <groupId>com.proofpoint.platform</groupId>
+            <artifactId>experimental</artifactId>
+            <version>0.42-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.proofpoint.platform</groupId>
+            <artifactId>cassandra-experimental</artifactId>
+            <version>0.42-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
@@ -69,17 +81,6 @@
             <groupId>me.prettyprint</groupId>
             <artifactId>hector-core</artifactId>
             <version>0.7.0-28</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cassandra</groupId>
-            <artifactId>cassandra-all</artifactId>
-            <version>0.7.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.8</version>
         </dependency>
 
         <!-- for packaging -->

@@ -1,5 +1,7 @@
 package com.proofpoint.discovery;
 
+import com.proofpoint.cassandra.CassandraServerInfo;
+import com.proofpoint.cassandra.testing.CassandraServerSetup;
 import com.proofpoint.node.NodeInfo;
 import org.apache.cassandra.config.ConfigurationException;
 import org.apache.thrift.transport.TTransportException;

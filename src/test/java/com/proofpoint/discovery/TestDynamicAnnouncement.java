@@ -11,11 +11,10 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Collections;
 
-import static com.proofpoint.discovery.ValidationAssertions.assertFailsValidation;
-import static com.proofpoint.discovery.ValidationAssertions.assertPassesValidation;
+import static com.proofpoint.experimental.testing.ValidationAssertions.assertFailsValidation;
+import static com.proofpoint.experimental.testing.ValidationAssertions.assertValidates;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
 
 public class TestDynamicAnnouncement
 {
@@ -31,7 +30,7 @@ public class TestDynamicAnnouncement
     {
         DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", null, Collections.<DynamicServiceAnnouncement>emptySet());
 
-        assertPassesValidation(announcement);
+        assertValidates(announcement);
     }
 
     @Test

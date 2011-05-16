@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 
-import static com.proofpoint.discovery.ValidationAssertions.*;
+import static com.proofpoint.experimental.testing.ValidationAssertions.assertFailsValidation;
 
 public class TestCassandraStoreConfig
 {
