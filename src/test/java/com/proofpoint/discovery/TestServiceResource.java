@@ -85,4 +85,31 @@ public class TestServiceResource
 
         assertEquals(resource.getServices("storage", "unknown"), new Services("testing", Collections.<Service>emptySet()));
     }
+
+    @Test
+    public void testGetAll()
+    {
+        Id<Node> redNodeId = Id.random();
+        DynamicServiceAnnouncement redStorage = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "1"));
+        DynamicServiceAnnouncement redWeb = new DynamicServiceAnnouncement(Id.<Service>random(), "web", ImmutableMap.of("key", "2"));
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "alpha", "/a/b/c", of(redStorage, redWeb));
+
+        Id<Node> greenNodeId = Id.random();
+        DynamicServiceAnnouncement greenStorage = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "3"));
+        DynamicAnnouncement green = new DynamicAnnouncement("testing", "alpha", "/x/y/z", of(greenStorage));
+
+        Id<Node> blueNodeId = Id.random();
+        DynamicServiceAnnouncement blueStorage = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "4"));
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "beta", "/a/b/c", of(blueStorage));
+
+        dynamicStore.put(redNodeId, red);
+        dynamicStore.put(greenNodeId, green);
+        dynamicStore.put(blueNodeId, blue);
+
+        assertEquals(resource.getServices(), new Services("testing", ImmutableSet.of(
+                toServiceWith(redNodeId, red.getLocation(), red.getPool()).apply(redStorage),
+                toServiceWith(redNodeId, red.getLocation(), red.getPool()).apply(redWeb),
+                toServiceWith(greenNodeId, green.getLocation(), green.getPool()).apply(greenStorage),
+                toServiceWith(blueNodeId, blue.getLocation(), blue.getPool()).apply(blueStorage))));
+    }
 }
