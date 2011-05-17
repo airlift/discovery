@@ -8,6 +8,7 @@
 	- EmbeddedCassandraServer
 	    - creates directory if missing or throws error if it can't
 	- ValidationAssertions
+	- ServiceResource tests that also check for static services
 
 - CassandraStaticStore
     - Detect new vs replaced
