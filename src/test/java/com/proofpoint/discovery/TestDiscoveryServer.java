@@ -27,7 +27,9 @@ import com.proofpoint.node.NodeInfo;
 import com.proofpoint.node.NodeModule;
 import org.apache.cassandra.config.ConfigurationException;
 import org.apache.thrift.transport.TTransportException;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
@@ -41,6 +43,8 @@ import static org.testng.Assert.assertTrue;
 
 public class TestDiscoveryServer
 {
+    private TestingHttpServer server;
+
     @BeforeSuite
     public void setupCassandra()
             throws IOException, TTransportException, ConfigurationException, InterruptedException
@@ -55,8 +59,8 @@ public class TestDiscoveryServer
         CassandraServerSetup.tryShutdown();
     }
 
-    @Test
-    public void test()
+    @BeforeMethod
+    public void setup()
             throws Exception
     {
         // start server
@@ -77,9 +81,21 @@ public class TestDiscoveryServer
         CassandraDynamicStore store = serverInjector.getInstance(CassandraDynamicStore.class);
         store.initialize();
 
-        TestingHttpServer server = serverInjector.getInstance(TestingHttpServer.class);
+        server = serverInjector.getInstance(TestingHttpServer.class);
         server.start();
+    }
 
+    @AfterMethod
+    public void teardown()
+            throws Exception
+    {
+        server.stop();
+    }
+
+    @Test
+    public void testDynamicAnnouncement()
+            throws Exception
+    {
         // publish announcement
         Map<String, String> announcerProperties = ImmutableMap.<String, String>builder()
             .put("node.environment", "testing")
