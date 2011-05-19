@@ -214,19 +214,11 @@ public class TestDiscoveryServer
                 new NodeModule(),
                 new JsonModule(),
                 new ConfigurationModule(new ConfigurationFactory(clientProperties)),
-                new com.proofpoint.discovery.client.DiscoveryModule(),
-                new Module()
-                {
-                    @Override
-                    public void configure(Binder binder)
-                    {
-                        DiscoveryBinder.discoveryBinder(binder).bindSelector("apple");
-                    }
-                }
+                new com.proofpoint.discovery.client.DiscoveryModule()
         );
 
         DiscoveryClient client = clientInjector.getInstance(DiscoveryClient.class);
-        ServiceSelector selector = clientInjector.getInstance(Key.get(ServiceSelector.class, ServiceTypes.serviceType("apple")));
+        ServiceSelector selector = new SimpleServiceSelector("apple", new ServiceSelectorConfig().setPool("red"), client);
 
         List<ServiceDescriptor> services = selector.selectAllServices();
         assertEquals(services.size(), 1);
@@ -246,7 +238,7 @@ public class TestDiscoveryServer
         assertEquals(response.getStatusCode(), Status.NO_CONTENT.getStatusCode());
 
         // ensure announcement is gone
-        ServiceSelector freshSelector = new SimpleServiceSelector("apple", new ServiceSelectorConfig().setPool("red"), client);
-        assertTrue(freshSelector.selectAllServices().isEmpty());
+        selector = new SimpleServiceSelector("apple", new ServiceSelectorConfig().setPool("red"), client);
+        assertTrue(selector.selectAllServices().isEmpty());
     }
 }
