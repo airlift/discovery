@@ -54,7 +54,6 @@ public class CassandraDynamicStore
 {
     private final static Logger log = Logger.get(CassandraDynamicStore.class);
 
-    private static final String CLUSTER = "discovery";
     private final static String COLUMN_FAMILY = "dynamic_announcements";
 
     private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
@@ -70,20 +69,12 @@ public class CassandraDynamicStore
     @Inject
     public CassandraDynamicStore(
             CassandraStoreConfig config,
-            CassandraServerInfo cassandraInfo,
             DiscoveryConfig discoveryConfig,
-            NodeInfo nodeInfo,
-            Provider<DateTime> currentTime)
+            Provider<DateTime> currentTime,
+            Cluster cluster)
     {
         this.currentTime = currentTime;
         maxAge = discoveryConfig.getMaxAge();
-
-        CassandraHostConfigurator configurator = new CassandraHostConfigurator(format("%s:%s",
-                                                                                      InetAddresses.toUriString(nodeInfo.getPublicIp()),
-                                                                                      cassandraInfo.getRpcPort()));
-        configurator.setClockResolution(new MillisecondsClockResolution());
-
-        Cluster cluster = HFactory.getOrCreateCluster(CLUSTER, configurator);
 
         String keyspaceName = config.getKeyspace();
         KeyspaceDefinition definition = cluster.describeKeyspace(keyspaceName);

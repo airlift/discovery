@@ -2,10 +2,7 @@ package com.proofpoint.discovery;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.net.InetAddresses;
-import com.proofpoint.cassandra.CassandraServerInfo;
 import com.proofpoint.json.JsonCodec;
-import com.proofpoint.node.NodeInfo;
 import me.prettyprint.cassandra.model.QuorumAllConsistencyLevelPolicy;
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.cassandra.service.ThriftCfDef;
@@ -27,12 +24,10 @@ import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Iterables.filter;
 import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
-import static java.lang.String.format;
 
 public class CassandraStaticStore
     implements StaticStore
 {
-    private static final String CLUSTER = "discovery";
     private final static String COLUMN_FAMILY = "static_announcements";
     private static final String COLUMN_NAME = "static";
 
@@ -41,12 +36,8 @@ public class CassandraStaticStore
     private final Keyspace keyspace;
 
     @Inject
-    public CassandraStaticStore(CassandraStoreConfig config, CassandraServerInfo cassandraInfo, NodeInfo nodeInfo)
+    public CassandraStaticStore(CassandraStoreConfig config, Cluster cluster)
     {
-        Cluster cluster = HFactory.getOrCreateCluster(CLUSTER, format("%s:%s",
-                                                                      InetAddresses.toUriString(nodeInfo.getPublicIp()),
-                                                                      cassandraInfo.getRpcPort()));
-
         String keyspaceName = config.getKeyspace();
         KeyspaceDefinition definition = cluster.describeKeyspace(keyspaceName);
         if (definition == null) {

@@ -2,6 +2,7 @@ package com.proofpoint.discovery;
 
 import com.proofpoint.cassandra.testing.CassandraServerSetup;
 import com.proofpoint.node.NodeInfo;
+import me.prettyprint.hector.api.Cluster;
 import org.apache.cassandra.config.ConfigurationException;
 import org.apache.thrift.transport.TTransportException;
 import org.testng.annotations.AfterSuite;
@@ -21,7 +22,8 @@ public class TestCassandraStaticStore
         CassandraStoreConfig storeConfig = new CassandraStoreConfig()
                 .setKeyspace("test_cassandra_static_store" + counter.incrementAndGet());
 
-        return new CassandraStaticStore(storeConfig, CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
+        Cluster cluster = new DiscoveryModule().getCluster(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
+        return new CassandraStaticStore(storeConfig, cluster);
     }
 
     @BeforeSuite
