@@ -248,6 +248,28 @@ public abstract class TestDynamicStore
         assertTrue(store.get("web", "poolA").isEmpty());
     }
 
+    @Test
+    public void testDeleteThenReInsert()
+    {
+        Id<Node> redNodeId = Id.random();
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:2222"))
+        ));
+
+        assertTrue(store.put(redNodeId, red));
+        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
+
+        currentTime.increment();
+
+        assertTrue(store.delete(redNodeId));
+
+        currentTime.increment();
+
+        assertTrue(store.put(redNodeId, red));
+
+        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
+    }
+
     private void advanceTimeBeyondMaxAge()
     {
         currentTime.add(new Duration(MAX_AGE.toMillis() * 2, TimeUnit.MILLISECONDS));

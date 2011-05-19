@@ -11,8 +11,11 @@ import com.proofpoint.units.Duration;
 import me.prettyprint.cassandra.model.AllOneConsistencyLevelPolicy;
 import me.prettyprint.cassandra.serializers.LongSerializer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
+import me.prettyprint.cassandra.service.CassandraHostConfigurator;
 import me.prettyprint.cassandra.service.ThriftCfDef;
 import me.prettyprint.cassandra.service.ThriftKsDef;
+import me.prettyprint.cassandra.service.clock.MillisecondsClockResolution;
+import me.prettyprint.hector.api.ClockResolution;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.beans.ColumnSlice;
@@ -75,9 +78,12 @@ public class CassandraDynamicStore
         this.currentTime = currentTime;
         maxAge = discoveryConfig.getMaxAge();
 
-        Cluster cluster = HFactory.getOrCreateCluster(CLUSTER, format("%s:%s",
-                                                                      InetAddresses.toUriString(nodeInfo.getPublicIp()),
-                                                                      cassandraInfo.getRpcPort()));
+        CassandraHostConfigurator configurator = new CassandraHostConfigurator(format("%s:%s",
+                                                                                      InetAddresses.toUriString(nodeInfo.getPublicIp()),
+                                                                                      cassandraInfo.getRpcPort()));
+        configurator.setClockResolution(new MillisecondsClockResolution());
+
+        Cluster cluster = HFactory.getOrCreateCluster(CLUSTER, configurator);
 
         String keyspaceName = config.getKeyspace();
         KeyspaceDefinition definition = cluster.describeKeyspace(keyspaceName);
@@ -175,7 +181,7 @@ public class CassandraDynamicStore
         // TODO: race condition here....
 
         Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-        mutator.addDeletion(nodeId.toString(), COLUMN_FAMILY);
+        mutator.addDeletion(nodeId.toString(), COLUMN_FAMILY, currentTime.get().getMillis());
         mutator.execute();
 
         return exists;
@@ -244,7 +250,7 @@ public class CassandraDynamicStore
         Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
         for (Row<String, Long, String> row : rows) {
             for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
-                mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName());
+                mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName(), LongSerializer.get(), currentTime.get().getMillis());
             }
         }
         mutator.execute();
