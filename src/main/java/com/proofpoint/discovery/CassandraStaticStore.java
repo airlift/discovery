@@ -15,8 +15,10 @@ import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.List;
 import java.util.Set;
 
@@ -34,10 +36,13 @@ public class CassandraStaticStore
     private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
 
     private final Keyspace keyspace;
+    private final Provider<DateTime> currentTime;
 
     @Inject
-    public CassandraStaticStore(CassandraStoreConfig config, Cluster cluster)
+    public CassandraStaticStore(CassandraStoreConfig config, Cluster cluster, Provider<DateTime> currentTime)
     {
+        this.currentTime = currentTime;
+
         String keyspaceName = config.getKeyspace();
         KeyspaceDefinition definition = cluster.describeKeyspace(keyspaceName);
         if (definition == null) {
@@ -66,7 +71,7 @@ public class CassandraStaticStore
         String value = codec.toJson(ImmutableList.of(service));
 
         HFactory.createMutator(keyspace, StringSerializer.get())
-                .addInsertion(service.getId().toString(), COLUMN_FAMILY, HFactory.createColumn(COLUMN_NAME, value, StringSerializer.get(), StringSerializer.get()))
+                .addInsertion(service.getId().toString(), COLUMN_FAMILY, HFactory.createColumn(COLUMN_NAME, value, currentTime.get().getMillis(), StringSerializer.get(), StringSerializer.get()))
                 .execute();
     }
 
@@ -74,7 +79,7 @@ public class CassandraStaticStore
     public void delete(Id<Service> id)
     {
         Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-        mutator.addDeletion(id.toString(), COLUMN_FAMILY);
+        mutator.addDeletion(id.toString(), COLUMN_FAMILY, currentTime.get().getMillis());
         mutator.execute();
     }
 

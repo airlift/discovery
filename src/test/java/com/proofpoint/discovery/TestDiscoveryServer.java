@@ -232,7 +232,7 @@ public class TestDiscoveryServer
         assertEquals(services.size(), 1);
 
         ServiceDescriptor service = services.get(0);
-        assertEquals(service.getId(), id);
+        assertEquals(service.getId().toString(), id);
         assertNull(service.getNodeId());
         assertEquals(service.getLocation(), announcement.get("location"));
         assertEquals(service.getPool(), announcement.get("pool"));

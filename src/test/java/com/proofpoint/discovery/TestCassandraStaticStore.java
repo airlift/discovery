@@ -23,7 +23,7 @@ public class TestCassandraStaticStore
                 .setKeyspace("test_cassandra_static_store" + counter.incrementAndGet());
 
         Cluster cluster = new DiscoveryModule().getCluster(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
-        return new CassandraStaticStore(storeConfig, cluster);
+        return new CassandraStaticStore(storeConfig, cluster, new TestingTimeProvider());
     }
 
     @BeforeSuite
