@@ -7,6 +7,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.Response;
 import com.proofpoint.cassandra.testing.CassandraServerSetup;
 import com.proofpoint.cassandra.testing.TestingCassandraModule;
 import com.proofpoint.configuration.ConfigurationFactory;
@@ -19,6 +21,7 @@ import com.proofpoint.discovery.client.ServiceSelector;
 import com.proofpoint.discovery.client.ServiceSelectorConfig;
 import com.proofpoint.discovery.client.ServiceTypes;
 import com.proofpoint.discovery.client.testing.SimpleServiceSelector;
+import com.proofpoint.json.JsonCodec;
 import com.proofpoint.json.JsonModule;
 import com.proofpoint.http.server.testing.TestingHttpServer;
 import com.proofpoint.http.server.testing.TestingHttpServerModule;
@@ -37,8 +40,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static com.proofpoint.json.JsonCodec.mapJsonCodec;
+import static javax.ws.rs.core.Response.*;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 public class TestDiscoveryServer
@@ -166,6 +172,80 @@ public class TestDiscoveryServer
         // ensure that service is no longer visible
         client.unannounce();
 
+        ServiceSelector freshSelector = new SimpleServiceSelector("apple", new ServiceSelectorConfig().setPool("red"), client);
+        assertTrue(freshSelector.selectAllServices().isEmpty());
+    }
+
+
+    @Test
+    public void testStaticAnnouncement()
+            throws Exception
+    {
+        // create static announcement
+        Map<String, Object> announcement = ImmutableMap.<String, Object>builder()
+                .put("environment", "testing")
+                .put("type", "apple")
+                .put("pool", "red")
+                .put("location", "/a/b/c")
+                .put("properties", ImmutableMap.of("http", "http://host"))
+                .build();
+
+        AsyncHttpClient httpClient = new AsyncHttpClient();
+        Response response = httpClient.preparePost(server.getBaseUrl().resolve("/v1/announcement/static").toString())
+                .addHeader("Content-Type", "application/json")
+                .setBody(JsonCodec.jsonCodec(Object.class).toJson(announcement))
+                .execute()
+                .get();
+
+        assertEquals(response.getStatusCode(), Status.CREATED.getStatusCode());
+        String id = mapJsonCodec(String.class, Object.class)
+                .fromJson(response.getResponseBody())
+                .get("id")
+                .toString();
+
+        // client
+        Map<String, String> clientProperties = ImmutableMap.<String, String>builder()
+                .put("node.environment", "testing")
+                .put("discovery.uri", server.getBaseUrl().toString())
+                .put("discovery.apple.pool", "red")
+                .build();
+
+        Injector clientInjector = Guice.createInjector(
+                new NodeModule(),
+                new JsonModule(),
+                new ConfigurationModule(new ConfigurationFactory(clientProperties)),
+                new com.proofpoint.discovery.client.DiscoveryModule(),
+                new Module()
+                {
+                    @Override
+                    public void configure(Binder binder)
+                    {
+                        DiscoveryBinder.discoveryBinder(binder).bindSelector("apple");
+                    }
+                }
+        );
+
+        DiscoveryClient client = clientInjector.getInstance(DiscoveryClient.class);
+        ServiceSelector selector = clientInjector.getInstance(Key.get(ServiceSelector.class, ServiceTypes.serviceType("apple")));
+
+        List<ServiceDescriptor> services = selector.selectAllServices();
+        assertEquals(services.size(), 1);
+
+        ServiceDescriptor service = services.get(0);
+        assertEquals(service.getId(), id);
+        assertNull(service.getNodeId());
+        assertEquals(service.getLocation(), announcement.get("location"));
+        assertEquals(service.getPool(), announcement.get("pool"));
+        assertEquals(service.getProperties(), announcement.get("properties"));
+
+        // remove announcement
+        response = httpClient.prepareDelete(server.getBaseUrl().resolve("/v1/announcement/static/" + id).toString())
+                .execute()
+                .get();
+
+        assertEquals(response.getStatusCode(), Status.NO_CONTENT.getStatusCode());
+
+        // ensure announcement is gone
         ServiceSelector freshSelector = new SimpleServiceSelector("apple", new ServiceSelectorConfig().setPool("red"), client);
         assertTrue(freshSelector.selectAllServices().isEmpty());
     }
