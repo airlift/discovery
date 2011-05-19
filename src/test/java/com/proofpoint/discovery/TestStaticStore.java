@@ -13,6 +13,11 @@ public abstract class TestStaticStore
 {
     protected StaticStore store;
 
+    private static final Service BLUE = new Service(Id.<Service>random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
+    private static final Service RED = new Service(Id.<Service>random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableMap.of("http", "http://localhost:2222"));
+    private static final Service GREEN = new Service(Id.<Service>random(), null, "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:3333"));
+    private static final Service YELLOW = new Service(Id.<Service>random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:4444"));
+
     protected abstract StaticStore initializeStore();
 
     @BeforeMethod
@@ -20,7 +25,6 @@ public abstract class TestStaticStore
     {
         store = initializeStore();
     }
-
 
     @Test
     public void testEmpty()
@@ -31,75 +35,56 @@ public abstract class TestStaticStore
     @Test
     public void testPutSingle()
     {
-        Service blue = new Service(Id.<Service>random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-
-        store.put(blue);
-        assertEquals(store.getAll(), ImmutableSet.of(blue));
+        store.put(BLUE);
+        assertEquals(store.getAll(), ImmutableSet.of(BLUE));
     }
 
     @Test
     public void testPutMultiple()
     {
-        Service blue = new Service(Id.<Service>random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service red = new Service(Id.<Service>random(), null, "web", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableMap.of("http", "http://localhost:2222"));
-        Service green = new Service(Id.<Service>random(), null, "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:3333"));
+        store.put(BLUE);
+        store.put(RED);
+        store.put(GREEN);
 
-        store.put(blue);
-        store.put(red);
-        store.put(green);
-
-        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(blue, red, green));
+        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(BLUE, RED, GREEN));
     }
 
     @Test
     public void testGetByType()
     {
-        Service blue = new Service(Id.<Service>random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service red = new Service(Id.<Service>random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableMap.of("http", "http://localhost:2222"));
-        Service green = new Service(Id.<Service>random(), null, "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:3333"));
+        store.put(BLUE);
+        store.put(RED);
+        store.put(GREEN);
 
-        store.put(blue);
-        store.put(red);
-        store.put(green);
-
-        assertEqualsIgnoreOrder(store.get("storage"), ImmutableSet.of(blue, red));
-        assertEqualsIgnoreOrder(store.get("monitoring"), ImmutableSet.of(green));
+        assertEqualsIgnoreOrder(store.get("storage"), ImmutableSet.of(BLUE, RED));
+        assertEqualsIgnoreOrder(store.get("monitoring"), ImmutableSet.of(GREEN));
     }
 
     @Test
     public void testGetByTypeAndPool()
     {
-        Service blue = new Service(Id.<Service>random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service red = new Service(Id.<Service>random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableMap.of("http", "http://localhost:2222"));
-        Service green = new Service(Id.<Service>random(), null, "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:3333"));
-        Service yellow = new Service(Id.<Service>random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:4444"));
+        store.put(BLUE);
+        store.put(RED);
+        store.put(GREEN);
+        store.put(YELLOW);
 
-        store.put(blue);
-        store.put(red);
-        store.put(green);
-        store.put(yellow);
-
-        assertEqualsIgnoreOrder(store.get("storage", "poolA"), ImmutableSet.of(blue, red));
-        assertEqualsIgnoreOrder(store.get("monitoring", "poolA"), ImmutableSet.of(green));
-        assertEqualsIgnoreOrder(store.get("storage", "poolB"), ImmutableSet.of(yellow));
+        assertEqualsIgnoreOrder(store.get("storage", "poolA"), ImmutableSet.of(BLUE));
+        assertEqualsIgnoreOrder(store.get("monitoring", "poolA"), ImmutableSet.of(GREEN));
+        assertEqualsIgnoreOrder(store.get("storage", "poolB"), ImmutableSet.of(RED, YELLOW));
     }
 
     @Test
     public void testDelete()
     {
-        Service blue = new Service(Id.<Service>random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-        Service red = new Service(Id.<Service>random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableMap.of("http", "http://localhost:2222"));
-        Service green = new Service(Id.<Service>random(), null, "web", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:3333"));
+        store.put(BLUE);
+        store.put(RED);
+        store.put(GREEN);
 
-        store.put(blue);
-        store.put(red);
-        store.put(green);
+        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(BLUE, RED, GREEN));
 
-        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(blue, red, green));
+        store.delete(GREEN.getId());
 
-        store.delete(green.getId());
-
-        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(blue, red));
+        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(BLUE, RED));
         assertTrue(store.get("web").isEmpty());
         assertTrue(store.get("web", "poolA").isEmpty());
     }
