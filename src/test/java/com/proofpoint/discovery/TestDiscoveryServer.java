@@ -113,15 +113,7 @@ public class TestDiscoveryServer
                 new NodeModule(),
                 new JsonModule(),
                 new ConfigurationModule(new ConfigurationFactory(announcerProperties)),
-                new com.proofpoint.discovery.client.DiscoveryModule(),
-                new Module()
-                {
-                    @Override
-                    public void configure(Binder binder)
-                    {
-                        DiscoveryBinder.discoveryBinder(binder).bindSelector("apple");
-                    }
-                }
+                new com.proofpoint.discovery.client.DiscoveryModule()
         );
 
         ServiceAnnouncement announcement = ServiceAnnouncement.serviceAnnouncement("apple")
@@ -133,32 +125,7 @@ public class TestDiscoveryServer
 
         NodeInfo announcerNodeInfo = announcerInjector.getInstance(NodeInfo.class);
 
-        // client
-        Map<String, String> clientProperties = ImmutableMap.<String, String>builder()
-            .put("node.environment", "testing")
-            .put("discovery.uri", server.getBaseUrl().toString())
-            .put("discovery.apple.pool", "red")
-            .build();
-
-        Injector clientInjector = Guice.createInjector(
-                new NodeModule(),
-                new JsonModule(),
-                new ConfigurationModule(new ConfigurationFactory(clientProperties)),
-                new com.proofpoint.discovery.client.DiscoveryModule(),
-                new Module()
-                {
-                    @Override
-                    public void configure(Binder binder)
-                    {
-                        DiscoveryBinder.discoveryBinder(binder).bindSelector("apple");
-                    }
-                }
-        );
-
-
-        ServiceSelector selector = clientInjector.getInstance(Key.get(ServiceSelector.class, ServiceTypes.serviceType("apple")));
-
-        List<ServiceDescriptor> services = selector.selectAllServices();
+        List<ServiceDescriptor> services = selectorFor("apple", "red").selectAllServices();
         assertEquals(services.size(), 1);
 
         ServiceDescriptor service = services.get(0);
@@ -172,8 +139,7 @@ public class TestDiscoveryServer
         // ensure that service is no longer visible
         client.unannounce();
 
-        ServiceSelector freshSelector = new SimpleServiceSelector("apple", new ServiceSelectorConfig().setPool("red"), client);
-        assertTrue(freshSelector.selectAllServices().isEmpty());
+        assertTrue(selectorFor("apple", "red").selectAllServices().isEmpty());
     }
 
 
@@ -203,24 +169,7 @@ public class TestDiscoveryServer
                 .get("id")
                 .toString();
 
-        // client
-        Map<String, String> clientProperties = ImmutableMap.<String, String>builder()
-                .put("node.environment", "testing")
-                .put("discovery.uri", server.getBaseUrl().toString())
-                .put("discovery.apple.pool", "red")
-                .build();
-
-        Injector clientInjector = Guice.createInjector(
-                new NodeModule(),
-                new JsonModule(),
-                new ConfigurationModule(new ConfigurationFactory(clientProperties)),
-                new com.proofpoint.discovery.client.DiscoveryModule()
-        );
-
-        DiscoveryClient client = clientInjector.getInstance(DiscoveryClient.class);
-        ServiceSelector selector = new SimpleServiceSelector("apple", new ServiceSelectorConfig().setPool("red"), client);
-
-        List<ServiceDescriptor> services = selector.selectAllServices();
+        List<ServiceDescriptor> services = selectorFor("apple", "red").selectAllServices();
         assertEquals(services.size(), 1);
 
         ServiceDescriptor service = services.get(0);
@@ -238,7 +187,25 @@ public class TestDiscoveryServer
         assertEquals(response.getStatusCode(), Status.NO_CONTENT.getStatusCode());
 
         // ensure announcement is gone
-        selector = new SimpleServiceSelector("apple", new ServiceSelectorConfig().setPool("red"), client);
-        assertTrue(selector.selectAllServices().isEmpty());
+        assertTrue(selectorFor("apple", "red").selectAllServices().isEmpty());
+    }
+
+    private ServiceSelector selectorFor(String type, String pool)
+    {
+        Map<String, String> clientProperties = ImmutableMap.<String, String>builder()
+            .put("node.environment", "testing")
+            .put("discovery.uri", server.getBaseUrl().toString())
+            .put("discovery.apple.pool", "red")
+            .build();
+
+        Injector clientInjector = Guice.createInjector(
+                new NodeModule(),
+                new JsonModule(),
+                new ConfigurationModule(new ConfigurationFactory(clientProperties)),
+                new com.proofpoint.discovery.client.DiscoveryModule()
+        );
+
+        DiscoveryClient client = clientInjector.getInstance(DiscoveryClient.class);
+        return new SimpleServiceSelector(type, new ServiceSelectorConfig().setPool(pool), client);
     }
 }
