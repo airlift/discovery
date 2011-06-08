@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableSet;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.Set;
+
 import static com.proofpoint.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -87,5 +89,21 @@ public abstract class TestStaticStore
         assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(BLUE, RED));
         assertTrue(store.get("web").isEmpty());
         assertTrue(store.get("web", "poolA").isEmpty());
+    }
+
+    @Test
+    public void testCanHandleLotsOfServices()
+    {
+        ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
+        for (int i = 0; i < 5000; ++i) {
+            builder.add(new Service(Id.<Service>random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111")));
+        }
+        Set<Service> services = builder.build();
+
+        for (Service service : services) {
+            store.put(service);
+        }
+
+        assertEquals(store.getAll(), services);
     }
 }

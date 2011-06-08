@@ -1,5 +1,6 @@
 package com.proofpoint.discovery;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.proofpoint.units.Duration;
@@ -7,8 +8,11 @@ import org.joda.time.DateTime;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Collections2.transform;
@@ -269,6 +273,28 @@ public abstract class TestDynamicStore
 
         assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
     }
+
+    @Test
+    public void testCanHandleLotsOfAnnouncements()
+    {
+        ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
+        for (int i = 0; i < 5000; ++i) {
+            Id<Node> id = Id.random();
+            DynamicServiceAnnouncement serviceAnnouncement = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"));
+            DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(serviceAnnouncement));
+
+            store.put(id, announcement);
+            builder.add(new Service(serviceAnnouncement.getId(),
+                                    id,
+                                    serviceAnnouncement.getType(),
+                                    announcement.getPool(),
+                                    announcement.getLocation(),
+                                    serviceAnnouncement.getProperties()));
+        }
+
+        assertEqualsIgnoreOrder(store.getAll(), builder.build());
+    }
+
 
     private void advanceTimeBeyondMaxAge()
     {

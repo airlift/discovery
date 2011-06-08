@@ -10,6 +10,7 @@ import me.prettyprint.cassandra.service.ThriftKsDef;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.beans.HColumn;
+import me.prettyprint.hector.api.beans.OrderedRows;
 import me.prettyprint.hector.api.beans.Row;
 import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
@@ -32,6 +33,7 @@ public class CassandraStaticStore
 {
     private final static String COLUMN_FAMILY = "static_announcements";
     private static final String COLUMN_NAME = "static";
+    private static final int PAGE_SIZE = 1000;
 
     private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
 
@@ -86,21 +88,30 @@ public class CassandraStaticStore
     @Override
     public Set<Service> getAll()
     {
-        List<Row<String, String, String>> result = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
-                .setColumnFamily(COLUMN_FAMILY)
-                .setKeys("", "")
-                .setColumnNames(COLUMN_NAME)
-                .execute()
-                .get()
-                .getList();
-
         ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
-        for (Row<String, String, String> row : result) {
-            HColumn<String, String> column = row.getColumnSlice().getColumnByName(COLUMN_NAME);
-            if (column != null) {
-                builder.addAll(codec.fromJson(column.getValue()));
+
+        OrderedRows<String, String, String> rows;
+        String start = null;
+        do {
+            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
+                    .setColumnFamily(COLUMN_FAMILY)
+                    .setKeys(start, null)
+                    .setColumnNames(COLUMN_NAME)
+                    .setRowCount(PAGE_SIZE)
+                    .execute()
+                    .get();
+
+            for (Row<String, String, String> row : rows) {
+                HColumn<String, String> column = row.getColumnSlice().getColumnByName(COLUMN_NAME);
+                if (column != null) {
+                    builder.addAll(codec.fromJson(column.getValue()));
+                }
+            }
+            if (rows.getCount() > 0) {
+                start = rows.peekLast().getKey();
             }
         }
+        while (rows.getCount() == PAGE_SIZE);
 
         return builder.build();
     }

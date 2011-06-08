@@ -55,6 +55,7 @@ public class CassandraDynamicStore
     private final static Logger log = Logger.get(CassandraDynamicStore.class);
 
     private final static String COLUMN_FAMILY = "dynamic_announcements";
+    private static final int PAGE_SIZE = 1000;
 
     private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
     private final ScheduledExecutorService reaper = new ScheduledThreadPoolExecutor(1);
@@ -180,27 +181,38 @@ public class CassandraDynamicStore
 
     public Set<Service> getAll()
     {
-        List<Row<String, Long, String>> result = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
-                .setColumnFamily(COLUMN_FAMILY)
-                .setKeys("", "")
-                .setRange(null, currentTime.get().getMillis(), true, Integer.MAX_VALUE)
-                .execute()
-                .get()
-                .getList();
-
         ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
-        for (Row<String, Long, String> row : result) {
-            // select the newest column
-            HColumn<Long, String> chosen = null;
-            for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
-                if (chosen == null || column.getClock() > chosen.getClock()) {
-                    chosen = column;
+
+        String start = null;
+        OrderedRows<String, Long, String> rows;
+
+        do {
+            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
+                    .setColumnFamily(COLUMN_FAMILY)
+                    .setKeys(start, null)
+                    .setRange(null, currentTime.get().getMillis(), true, Integer.MAX_VALUE)
+                    .setRowCount(PAGE_SIZE)
+                    .execute()
+                    .get();
+
+            for (Row<String, Long, String> row : rows) {
+                // select the newest column
+                HColumn<Long, String> chosen = null;
+                for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
+                    if (chosen == null || column.getClock() > chosen.getClock()) {
+                        chosen = column;
+                    }
+                }
+                if (chosen != null) {
+                    builder.addAll(codec.fromJson(chosen.getValue()));
                 }
             }
-            if (chosen != null) {
-                builder.addAll(codec.fromJson(chosen.getValue()));
+
+            if (rows.getCount() > 0) {
+                start = rows.peekLast().getKey();
             }
         }
+        while (rows.getCount() == PAGE_SIZE);
 
         return builder.build();
     }
@@ -231,20 +243,31 @@ public class CassandraDynamicStore
 
     private void removeExpired()
     {
-        OrderedRows<String, Long, String> rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
-                .setColumnFamily(COLUMN_FAMILY)
-                .setKeys("", "")
-                .setRange(null, currentTime.get().getMillis(), false, Integer.MAX_VALUE)
-                .execute()
-                .get();
+        int count = 1000;
+        OrderedRows<String, Long, String> rows;
+        String start = null;
+        do {
+            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
+                    .setColumnFamily(COLUMN_FAMILY)
+                    .setKeys(start, null)
+                    .setRange(null, currentTime.get().getMillis(), false, Integer.MAX_VALUE)
+                    .setRowCount(count)
+                    .execute()
+                    .get();
 
-        Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-        for (Row<String, Long, String> row : rows) {
-            for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
-                mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName(), LongSerializer.get(), currentTime.get().getMillis());
+            Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
+            for (Row<String, Long, String> row : rows) {
+                for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
+                    mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName(), LongSerializer.get(), currentTime.get().getMillis());
+                }
+            }
+            mutator.execute();
+
+            if (rows.getCount() > 0) {
+                start = rows.peekLast().getKey();
             }
         }
-        mutator.execute();
+        while (rows.getCount() == count);
     }
 
     private DateTime expirationCutoff()
