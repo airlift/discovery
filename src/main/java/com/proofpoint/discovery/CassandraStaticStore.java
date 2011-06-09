@@ -25,6 +25,8 @@ import java.util.Set;
 
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.find;
+import static com.proofpoint.discovery.ColumnFamilies.named;
 import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
 
@@ -51,15 +53,8 @@ public class CassandraStaticStore
             cluster.addKeyspace(new ThriftKsDef(keyspaceName));
         }
 
-        boolean exists = false;
-        for (ColumnFamilyDefinition columnFamily : cluster.describeKeyspace(keyspaceName).getCfDefs()) {
-            if (columnFamily.getName().equals(COLUMN_FAMILY)) {
-                exists = true;
-                break;
-            }
-        }
-
-        if (!exists) {
+        ColumnFamilyDefinition existing = find(cluster.describeKeyspace(keyspaceName).getCfDefs(), named(COLUMN_FAMILY), null);
+        if (existing == null) {
             cluster.addColumnFamily(new ThriftCfDef(keyspaceName, COLUMN_FAMILY));
         }
 
