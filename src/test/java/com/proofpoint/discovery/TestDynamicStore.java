@@ -1,6 +1,5 @@
 package com.proofpoint.discovery;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.proofpoint.units.Duration;
@@ -8,11 +7,8 @@ import org.joda.time.DateTime;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Collections2.transform;
