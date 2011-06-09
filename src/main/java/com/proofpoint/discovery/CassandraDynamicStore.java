@@ -151,7 +151,7 @@ public class CassandraDynamicStore
                 .execute();
 
         // get all unexpired entries
-        Rows<String,Long,String> rows = HFactory.createMultigetSliceQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
+        Rows<String, Long, String> rows = HFactory.createMultigetSliceQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
                 .setColumnFamily(COLUMN_FAMILY)
                 .setKeys(nodeId.toString())
                 .setRange(now.getMillis(), null, false, Integer.MAX_VALUE)
