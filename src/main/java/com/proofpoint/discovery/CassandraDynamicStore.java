@@ -6,17 +6,14 @@ import com.proofpoint.json.JsonCodec;
 import com.proofpoint.log.Logger;
 import com.proofpoint.units.Duration;
 import me.prettyprint.cassandra.model.AllOneConsistencyLevelPolicy;
-import me.prettyprint.cassandra.serializers.LongSerializer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.cassandra.service.ThriftCfDef;
 import me.prettyprint.cassandra.service.ThriftKsDef;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
-import me.prettyprint.hector.api.beans.ColumnSlice;
 import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.OrderedRows;
 import me.prettyprint.hector.api.beans.Row;
-import me.prettyprint.hector.api.beans.Rows;
 import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
@@ -39,11 +36,11 @@ import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Iterables.getFirst;
 import static com.proofpoint.discovery.ColumnFamilies.named;
 import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
-import static java.lang.String.format;
 
 public class CassandraDynamicStore
         implements DynamicStore
@@ -51,6 +48,7 @@ public class CassandraDynamicStore
     private final static Logger log = Logger.get(CassandraDynamicStore.class);
 
     public final static String COLUMN_FAMILY = "dynamic_announcements";
+    private final static String COLUMN = "dynamic_announcement";
     private static final int PAGE_SIZE = 1000;
     private static final int GC_GRACE_SECONDS = 0;  // don't care about columns being brought back from the dead
 
@@ -112,6 +110,8 @@ public class CassandraDynamicStore
             throw new IllegalStateException("Already initialized");
         }
 
+        cleanup();
+
         reaper.scheduleWithFixedDelay(new Runnable()
         {
             @Override
@@ -125,6 +125,34 @@ public class CassandraDynamicStore
                 }
             }
         }, 0, 1, TimeUnit.MINUTES);
+    }
+
+    private void cleanup()
+    {
+        // delete all existing columns. Needed to clean up legacy columns (timestamps as names)
+        int count = 1000;
+        OrderedRows<String, String, String> rows;
+        String start = null;
+        do {
+            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
+                    .setColumnFamily(COLUMN_FAMILY)
+                    .setKeys(start, null)
+                    .setReturnKeysOnly()
+                    .setRowCount(count)
+                    .execute()
+                    .get();
+
+            Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
+            for (Row<String, String, String> row : rows) {
+                mutator.addDeletion(row.getKey(), COLUMN_FAMILY, currentTime.get().getMillis());
+            }
+            mutator.execute();
+
+            if (rows.getCount() > 0) {
+                start = rows.peekLast().getKey();
+            }
+        }
+        while (rows.getCount() == count);
     }
 
     @PreDestroy
@@ -142,31 +170,12 @@ public class CassandraDynamicStore
         List<Service> services = copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
         String value = codec.toJson(services);
 
-        DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
         DateTime now = currentTime.get();
 
         // insert our record
         HFactory.createMutator(keyspace, StringSerializer.get())
-                .addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createColumn(expiration.getMillis(), value, now.getMillis(), LongSerializer.get(), StringSerializer.get()))
+                .addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createColumn(COLUMN, value, now.getMillis(), StringSerializer.get(), StringSerializer.get()))
                 .execute();
-
-        // get all unexpired entries
-        Rows<String, Long, String> rows = HFactory.createMultigetSliceQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
-                .setColumnFamily(COLUMN_FAMILY)
-                .setKeys(nodeId.toString())
-                .setRange(now.getMillis(), null, false, Integer.MAX_VALUE)
-                .execute()
-                .get();
-
-        for (Row<String, Long, String> row : rows) {
-            // there should be only one row since we queried for one key
-            for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
-                // if column is not yet expired but it's older (timestamp-wise) than ours, assume an entry already existed
-                if (column.getClock() < now.getMillis()) {
-                    return false;
-                }
-            }
-        }
 
         return true;
     }
@@ -174,13 +183,20 @@ public class CassandraDynamicStore
     @Override
     public boolean delete(Id<Node> nodeId)
     {
-        boolean exists = exists(nodeId);
+        HColumn<String, String> column = HFactory.createColumnQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
+                .setColumnFamily(COLUMN_FAMILY)
+                .setKey(nodeId.toString())
+                .setName(COLUMN)
+                .execute()
+                .get();
+
+        boolean exists = column != null && column.getClock() > expirationCutoff().getMillis();
 
         // TODO: race condition here....
 
-        Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-        mutator.addDeletion(nodeId.toString(), COLUMN_FAMILY, currentTime.get().getMillis());
-        mutator.execute();
+        HFactory.createMutator(keyspace, StringSerializer.get())
+                .addDeletion(nodeId.toString(), COLUMN_FAMILY, currentTime.get().getMillis())
+                .execute();
 
         return exists;
     }
@@ -190,27 +206,21 @@ public class CassandraDynamicStore
         ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
 
         String start = null;
-        OrderedRows<String, Long, String> rows;
+        OrderedRows<String, String, String> rows;
 
         do {
-            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
+            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
                     .setColumnFamily(COLUMN_FAMILY)
                     .setKeys(start, null)
-                    .setRange(null, currentTime.get().getMillis(), true, Integer.MAX_VALUE)
+                    .setRange(COLUMN, COLUMN, false, 1)
                     .setRowCount(PAGE_SIZE)
                     .execute()
                     .get();
 
-            for (Row<String, Long, String> row : rows) {
-                // select the newest column
-                HColumn<Long, String> chosen = null;
-                for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
-                    if (chosen == null || column.getClock() > chosen.getClock()) {
-                        chosen = column;
-                    }
-                }
-                if (chosen != null) {
-                    builder.addAll(codec.fromJson(chosen.getValue()));
+            for (Row<String, String, String> row : rows) {
+                HColumn<String, String> column = getFirst(row.getColumnSlice().getColumns(), null);
+                if (column != null && column.getClock() > expirationCutoff().getMillis()) {
+                    builder.addAll(codec.fromJson(column.getValue()));
                 }
             }
 
@@ -235,36 +245,26 @@ public class CassandraDynamicStore
         return ImmutableSet.copyOf(filter(getAll(), and(matchesType(type), matchesPool(pool))));
     }
 
-    private boolean exists(Id<Node> nodeId)
-    {
-        ColumnSlice<Long, String> slice = HFactory.createSliceQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
-                .setColumnFamily(COLUMN_FAMILY)
-                .setKey(nodeId.toString())
-                .setRange(expirationCutoff().getMillis(), null, false, 1)
-                .execute()
-                .get();
-
-        return !slice.getColumns().isEmpty();
-    }
-
     private void removeExpired()
     {
         int count = 1000;
-        OrderedRows<String, Long, String> rows;
+        OrderedRows<String, String, String> rows;
         String start = null;
         do {
-            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), LongSerializer.get(), StringSerializer.get())
+            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
                     .setColumnFamily(COLUMN_FAMILY)
                     .setKeys(start, null)
-                    .setRange(null, currentTime.get().getMillis(), false, Integer.MAX_VALUE)
+                    .setRange(COLUMN, COLUMN, false, 1)
                     .setRowCount(count)
                     .execute()
                     .get();
 
             Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-            for (Row<String, Long, String> row : rows) {
-                for (HColumn<Long, String> column : row.getColumnSlice().getColumns()) {
-                    mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName(), LongSerializer.get(), currentTime.get().getMillis());
+            for (Row<String, String, String> row : rows) {
+                for (HColumn<String, String> column : row.getColumnSlice().getColumns()) {
+                    if (column.getClock() < expirationCutoff().getMillis()) {
+                        mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName(), StringSerializer.get(), currentTime.get().getMillis());
+                    }
                 }
             }
             mutator.execute();

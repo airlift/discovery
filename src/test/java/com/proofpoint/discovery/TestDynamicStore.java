@@ -20,7 +20,6 @@ import static com.google.common.collect.Iterables.concat;
 import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 public abstract class TestDynamicStore
@@ -100,9 +99,9 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
-        assertTrue(store.put(nodeId, oldAnnouncement));
+        store.put(nodeId, oldAnnouncement);
         currentTime.increment();
-        assertFalse(store.put(nodeId, newAnnouncement));
+        store.put(nodeId, newAnnouncement);
 
         assertEquals(store.getAll(), transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation(), newAnnouncement.getPool())));
     }
