@@ -44,6 +44,8 @@ import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.find;
+import static com.proofpoint.discovery.ColumnFamilies.named;
 import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
@@ -54,8 +56,10 @@ public class CassandraDynamicStore
 {
     private final static Logger log = Logger.get(CassandraDynamicStore.class);
 
-    private final static String COLUMN_FAMILY = "dynamic_announcements";
+    public final static String COLUMN_FAMILY = "dynamic_announcements";
     private static final int PAGE_SIZE = 1000;
+    private static final int GC_GRACE_SECONDS = 0;  // don't care about columns being brought back from the dead
+
 
     private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
     private final ScheduledExecutorService reaper = new ScheduledThreadPoolExecutor(1);
@@ -83,20 +87,28 @@ public class CassandraDynamicStore
             cluster.addKeyspace(new ThriftKsDef(keyspaceName));
         }
 
-        boolean exists = false;
-        for (ColumnFamilyDefinition columnFamily : cluster.describeKeyspace(keyspaceName).getCfDefs()) {
-            if (columnFamily.getName().equals(COLUMN_FAMILY)) {
-                exists = true;
-                break;
-            }
+        ColumnFamilyDefinition existing = find(cluster.describeKeyspace(keyspaceName).getCfDefs(), named(COLUMN_FAMILY), null);
+        if (existing == null) {
+            cluster.addColumnFamily(withDefaults(new ThriftCfDef(keyspaceName, COLUMN_FAMILY)));
         }
-
-        if (!exists) {
-            cluster.addColumnFamily(new ThriftCfDef(keyspaceName, COLUMN_FAMILY));
+        else if (needsUpdate(existing)) {
+            cluster.updateColumnFamily(withDefaults(existing));
         }
 
         keyspace = HFactory.createKeyspace(keyspaceName, cluster);
         keyspace.setConsistencyLevelPolicy(new AllOneConsistencyLevelPolicy());
+    }
+
+    private boolean needsUpdate(ColumnFamilyDefinition definition)
+    {
+        return definition.getGcGraceSeconds() != GC_GRACE_SECONDS;
+    }
+
+    private ColumnFamilyDefinition withDefaults(ColumnFamilyDefinition original)
+    {
+        ThriftCfDef updated = new ThriftCfDef(original);
+        updated.setGcGraceSeconds(GC_GRACE_SECONDS);
+        return updated;
     }
 
     @PostConstruct
