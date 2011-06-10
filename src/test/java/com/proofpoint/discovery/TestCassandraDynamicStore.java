@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import javax.inject.Provider;
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class TestCassandraDynamicStore
@@ -30,7 +31,42 @@ public class TestCassandraDynamicStore
         Cluster cluster = new DiscoveryModule().getCluster(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
         cassandraStore = new CassandraDynamicStore(storeConfig, config, timeProvider, cluster);
         cassandraStore.initialize();
-        return cassandraStore;
+
+        return new DynamicStore()
+        {
+            @Override
+            public boolean put(Id<Node> nodeId, DynamicAnnouncement announcement)
+            {
+                return cassandraStore.put(nodeId, announcement);
+            }
+
+            @Override
+            public boolean delete(Id<Node> nodeId)
+            {
+                return cassandraStore.delete(nodeId);
+            }
+
+            @Override
+            public Set<Service> getAll()
+            {
+                cassandraStore.reloadAndExpire();
+                return cassandraStore.getAll();
+            }
+
+            @Override
+            public Set<Service> get(String type)
+            {
+                cassandraStore.reloadAndExpire();
+                return cassandraStore.get(type);
+            }
+
+            @Override
+            public Set<Service> get(String type, String pool)
+            {
+                cassandraStore.reloadAndExpire();
+                return cassandraStore.get(type, pool);
+            }
+        };
     }
 
     @BeforeSuite

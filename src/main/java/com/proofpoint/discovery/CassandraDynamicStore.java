@@ -1,5 +1,6 @@
 package com.proofpoint.discovery;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.proofpoint.json.JsonCodec;
@@ -30,6 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Collections2.transform;
@@ -53,9 +55,8 @@ public class CassandraDynamicStore
     private static final int PAGE_SIZE = 1000;
     private static final int GC_GRACE_SECONDS = 0;  // don't care about columns being brought back from the dead
 
-
     private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
-    private final ScheduledExecutorService reaper = new ScheduledThreadPoolExecutor(1);
+    private final ScheduledExecutorService loader = new ScheduledThreadPoolExecutor(1);
 
     private final Keyspace keyspace;
 
@@ -63,6 +64,8 @@ public class CassandraDynamicStore
 
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final Provider<DateTime> currentTime;
+
+    private final AtomicReference<Set<Service>> services = new AtomicReference<Set<Service>>(ImmutableSet.<Service>of());
 
     @Inject
     public CassandraDynamicStore(
@@ -113,19 +116,19 @@ public class CassandraDynamicStore
 
         cleanup();
 
-        reaper.scheduleWithFixedDelay(new Runnable()
+        loader.scheduleWithFixedDelay(new Runnable()
                                       {
                                           @Override
                                           public void run()
                                           {
                                               try {
-                                                  removeExpired();
+                                                  reloadAndExpire();
                                               }
                                               catch (Throwable e) {
                                                   log.error(e);
                                               }
                                           }
-                                      }, 0, 1, TimeUnit.MINUTES);
+                                      }, 0, 1, TimeUnit.SECONDS);
     }
 
     private void cleanup()
@@ -156,7 +159,7 @@ public class CassandraDynamicStore
     @PreDestroy
     public void shutdown()
     {
-        reaper.shutdown();
+        loader.shutdown();
     }
 
     @Override
@@ -201,6 +204,24 @@ public class CassandraDynamicStore
 
     public Set<Service> getAll()
     {
+        return services.get();
+    }
+
+    @Override
+    public Set<Service> get(String type)
+    {
+        return ImmutableSet.copyOf(filter(getAll(), matchesType(type)));
+    }
+
+    @Override
+    public Set<Service> get(String type, String pool)
+    {
+        return ImmutableSet.copyOf(filter(getAll(), and(matchesType(type), matchesPool(pool))));
+    }
+
+    @VisibleForTesting
+    void reloadAndExpire()
+    {
         ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
 
         CassandraPaginator.PageQuery<String, String, String> query = new CassandraPaginator.PageQuery<String, String, String>()
@@ -217,54 +238,20 @@ public class CassandraDynamicStore
             }
         };
 
-        for (Row<String, String, String> row : paginate(query, null, PAGE_SIZE)) {
-            HColumn<String, String> column = getFirst(row.getColumnSlice().getColumns(), null);
-            if (column != null && column.getClock() > expirationCutoff().getMillis()) {
-                builder.addAll(codec.fromJson(column.getValue()));
-            }
-        }
-
-        return builder.build();
-    }
-
-    @Override
-    public Set<Service> get(String type)
-    {
-        return ImmutableSet.copyOf(filter(getAll(), matchesType(type)));
-    }
-
-    @Override
-    public Set<Service> get(String type, String pool)
-    {
-        return ImmutableSet.copyOf(filter(getAll(), and(matchesType(type), matchesPool(pool))));
-    }
-
-    private void removeExpired()
-    {
-        CassandraPaginator.PageQuery<String, String, String> query = new CassandraPaginator.PageQuery<String, String, String>()
-        {
-            @Override
-            public Iterable<Row<String, String, String>> query(String start, int count)
-            {
-                return HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
-                        .setColumnFamily(COLUMN_FAMILY)
-                        .setKeys(start, null)
-                        .setRange(COLUMN, COLUMN, false, 1)
-                        .setRowCount(count)
-                        .execute()
-                        .get();
-            }
-        };
-
         Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
         for (Row<String, String, String> row : paginate(query, null, PAGE_SIZE)) {
-            for (HColumn<String, String> column : row.getColumnSlice().getColumns()) {
-                if (column.getClock() < expirationCutoff().getMillis()) {
+            HColumn<String, String> column = getFirst(row.getColumnSlice().getColumns(), null);
+            if (column != null) {
+                if(column.getClock() > expirationCutoff().getMillis()) {
+                    builder.addAll(codec.fromJson(column.getValue()));
+                }
+                else {
                     mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName(), StringSerializer.get(), currentTime.get().getMillis());
                 }
             }
         }
         mutator.execute();
+        services.set(builder.build());
     }
 
 

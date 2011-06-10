@@ -50,6 +50,7 @@ import static org.testng.Assert.assertTrue;
 public class TestDiscoveryServer
 {
     private TestingHttpServer server;
+    private CassandraDynamicStore store;
 
     @BeforeSuite
     public void setupCassandra()
@@ -84,7 +85,7 @@ public class TestDiscoveryServer
                 new ConfigurationModule(new ConfigurationFactory(serverProperties)));
 
         // TODO: wrap this in a testing bootstrap that handles PostConstruct & PreDestroy
-        CassandraDynamicStore store = serverInjector.getInstance(CassandraDynamicStore.class);
+        store = serverInjector.getInstance(CassandraDynamicStore.class);
         store.initialize();
 
         server = serverInjector.getInstance(TestingHttpServer.class);
@@ -121,7 +122,9 @@ public class TestDiscoveryServer
                 .build();
 
         DiscoveryClient client = announcerInjector.getInstance(DiscoveryClient.class);
-        client.announce(ImmutableSet.of(announcement));
+        client.announce(ImmutableSet.of(announcement)).get();
+
+        store.reloadAndExpire();
 
         NodeInfo announcerNodeInfo = announcerInjector.getInstance(NodeInfo.class);
 
@@ -137,7 +140,9 @@ public class TestDiscoveryServer
 
 
         // ensure that service is no longer visible
-        client.unannounce();
+        client.unannounce().get();
+
+        store.reloadAndExpire();
 
         assertTrue(selectorFor("apple", "red").selectAllServices().isEmpty());
     }
