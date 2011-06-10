@@ -20,6 +20,7 @@ import me.prettyprint.hector.api.mutation.Mutator;
 import org.joda.time.DateTime;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
@@ -97,6 +98,12 @@ public class CassandraStaticStore
                                           }
                                       }, 0, 5, TimeUnit.SECONDS);
 
+    }
+
+    @PreDestroy
+    public void shutdown()
+    {
+        loader.shutdown();
     }
 
     @Override
