@@ -37,6 +37,7 @@ import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.getFirst;
+import static com.proofpoint.discovery.CassandraPaginator.paginate;
 import static com.proofpoint.discovery.ColumnFamilies.named;
 import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.discovery.Service.matchesPool;
@@ -113,46 +114,43 @@ public class CassandraDynamicStore
         cleanup();
 
         reaper.scheduleWithFixedDelay(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    removeExpired();
-                }
-                catch (Throwable e) {
-                    log.error(e);
-                }
-            }
-        }, 0, 1, TimeUnit.MINUTES);
+                                      {
+                                          @Override
+                                          public void run()
+                                          {
+                                              try {
+                                                  removeExpired();
+                                              }
+                                              catch (Throwable e) {
+                                                  log.error(e);
+                                              }
+                                          }
+                                      }, 0, 1, TimeUnit.MINUTES);
     }
 
     private void cleanup()
     {
         // delete all existing columns. Needed to clean up legacy columns (timestamps as names)
-        int count = 1000;
-        OrderedRows<String, String, String> rows;
-        String start = null;
-        do {
-            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
-                    .setColumnFamily(COLUMN_FAMILY)
-                    .setKeys(start, null)
-                    .setReturnKeysOnly()
-                    .setRowCount(count)
-                    .execute()
-                    .get();
-
-            Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-            for (Row<String, String, String> row : rows) {
-                mutator.addDeletion(row.getKey(), COLUMN_FAMILY, currentTime.get().getMillis());
+        CassandraPaginator.PageQuery<String, String, String> query = new CassandraPaginator.PageQuery<String, String, String>()
+        {
+            @Override
+            public Iterable<Row<String, String, String>> query(String start, int count)
+            {
+                return HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
+                        .setColumnFamily(COLUMN_FAMILY)
+                        .setKeys(start, null)
+                        .setReturnKeysOnly()
+                        .setRowCount(count)
+                        .execute()
+                        .get();
             }
-            mutator.execute();
+        };
 
-            if (rows.getCount() > 0) {
-                start = rows.peekLast().getKey();
-            }
+        Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
+        for (Row<String, String, String> row : paginate(query, null, PAGE_SIZE)) {
+            mutator.addDeletion(row.getKey(), COLUMN_FAMILY, currentTime.get().getMillis());
         }
-        while (rows.getCount() == count);
+        mutator.execute();
     }
 
     @PreDestroy
@@ -205,30 +203,26 @@ public class CassandraDynamicStore
     {
         ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
 
-        String start = null;
-        OrderedRows<String, String, String> rows;
-
-        do {
-            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
-                    .setColumnFamily(COLUMN_FAMILY)
-                    .setKeys(start, null)
-                    .setRange(COLUMN, COLUMN, false, 1)
-                    .setRowCount(PAGE_SIZE)
-                    .execute()
-                    .get();
-
-            for (Row<String, String, String> row : rows) {
-                HColumn<String, String> column = getFirst(row.getColumnSlice().getColumns(), null);
-                if (column != null && column.getClock() > expirationCutoff().getMillis()) {
-                    builder.addAll(codec.fromJson(column.getValue()));
-                }
+        CassandraPaginator.PageQuery<String, String, String> query = new CassandraPaginator.PageQuery<String, String, String>()
+        {
+            public Iterable<Row<String, String, String>> query(String start, int count)
+            {
+                return HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
+                        .setColumnFamily(COLUMN_FAMILY)
+                        .setKeys(start, null)
+                        .setRange(COLUMN, COLUMN, false, 1)
+                        .setRowCount(count)
+                        .execute()
+                        .get();
             }
+        };
 
-            if (rows.getCount() > 0) {
-                start = rows.peekLast().getKey();
+        for (Row<String, String, String> row : paginate(query, null, PAGE_SIZE)) {
+            HColumn<String, String> column = getFirst(row.getColumnSlice().getColumns(), null);
+            if (column != null && column.getClock() > expirationCutoff().getMillis()) {
+                builder.addAll(codec.fromJson(column.getValue()));
             }
         }
-        while (rows.getCount() == PAGE_SIZE);
 
         return builder.build();
     }
@@ -247,34 +241,32 @@ public class CassandraDynamicStore
 
     private void removeExpired()
     {
-        int count = 1000;
-        OrderedRows<String, String, String> rows;
-        String start = null;
-        do {
-            rows = HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
-                    .setColumnFamily(COLUMN_FAMILY)
-                    .setKeys(start, null)
-                    .setRange(COLUMN, COLUMN, false, 1)
-                    .setRowCount(count)
-                    .execute()
-                    .get();
+        CassandraPaginator.PageQuery<String, String, String> query = new CassandraPaginator.PageQuery<String, String, String>()
+        {
+            @Override
+            public Iterable<Row<String, String, String>> query(String start, int count)
+            {
+                return HFactory.createRangeSlicesQuery(keyspace, StringSerializer.get(), StringSerializer.get(), StringSerializer.get())
+                        .setColumnFamily(COLUMN_FAMILY)
+                        .setKeys(start, null)
+                        .setRange(COLUMN, COLUMN, false, 1)
+                        .setRowCount(count)
+                        .execute()
+                        .get();
+            }
+        };
 
-            Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
-            for (Row<String, String, String> row : rows) {
-                for (HColumn<String, String> column : row.getColumnSlice().getColumns()) {
-                    if (column.getClock() < expirationCutoff().getMillis()) {
-                        mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName(), StringSerializer.get(), currentTime.get().getMillis());
-                    }
+        Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
+        for (Row<String, String, String> row : paginate(query, null, PAGE_SIZE)) {
+            for (HColumn<String, String> column : row.getColumnSlice().getColumns()) {
+                if (column.getClock() < expirationCutoff().getMillis()) {
+                    mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName(), StringSerializer.get(), currentTime.get().getMillis());
                 }
             }
-            mutator.execute();
-
-            if (rows.getCount() > 0) {
-                start = rows.peekLast().getKey();
-            }
         }
-        while (rows.getCount() == count);
+        mutator.execute();
     }
+
 
     private DateTime expirationCutoff()
     {
