@@ -50,7 +50,8 @@ import static org.testng.Assert.assertTrue;
 public class TestDiscoveryServer
 {
     private TestingHttpServer server;
-    private CassandraDynamicStore store;
+    private CassandraDynamicStore dynamicStore;
+    private CassandraStaticStore staticStore;
 
     @BeforeSuite
     public void setupCassandra()
@@ -85,8 +86,11 @@ public class TestDiscoveryServer
                 new ConfigurationModule(new ConfigurationFactory(serverProperties)));
 
         // TODO: wrap this in a testing bootstrap that handles PostConstruct & PreDestroy
-        store = serverInjector.getInstance(CassandraDynamicStore.class);
-        store.initialize();
+        dynamicStore = serverInjector.getInstance(CassandraDynamicStore.class);
+        dynamicStore.initialize();
+
+        staticStore = serverInjector.getInstance(CassandraStaticStore.class);
+        staticStore.initialize();
 
         server = serverInjector.getInstance(TestingHttpServer.class);
         server.start();
@@ -124,7 +128,7 @@ public class TestDiscoveryServer
         DiscoveryClient client = announcerInjector.getInstance(DiscoveryClient.class);
         client.announce(ImmutableSet.of(announcement)).get();
 
-        store.reloadAndExpire();
+        dynamicStore.reloadAndExpire();
 
         NodeInfo announcerNodeInfo = announcerInjector.getInstance(NodeInfo.class);
 
@@ -142,7 +146,7 @@ public class TestDiscoveryServer
         // ensure that service is no longer visible
         client.unannounce().get();
 
-        store.reloadAndExpire();
+        dynamicStore.reloadAndExpire();
 
         assertTrue(selectorFor("apple", "red").selectAllServices().isEmpty());
     }
@@ -174,6 +178,7 @@ public class TestDiscoveryServer
                 .get("id")
                 .toString();
 
+        staticStore.reload();
         List<ServiceDescriptor> services = selectorFor("apple", "red").selectAllServices();
         assertEquals(services.size(), 1);
 
@@ -192,6 +197,7 @@ public class TestDiscoveryServer
         assertEquals(response.getStatusCode(), Status.NO_CONTENT.getStatusCode());
 
         // ensure announcement is gone
+        staticStore.reload();
         assertTrue(selectorFor("apple", "red").selectAllServices().isEmpty());
     }
 

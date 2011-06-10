@@ -29,6 +29,8 @@ public class DiscoveryModule
         binder.bind(CassandraDynamicStore.class).in(Scopes.SINGLETON);
 
         binder.bind(StaticStore.class).to(CassandraStaticStore.class).in(Scopes.SINGLETON);
+        binder.bind(CassandraStaticStore.class).in(Scopes.SINGLETON);
+
         binder.bind(DateTime.class).toProvider(RealTimeProvider.class);
 
         ConfigurationModule.bindConfig(binder).to(DiscoveryConfig.class);

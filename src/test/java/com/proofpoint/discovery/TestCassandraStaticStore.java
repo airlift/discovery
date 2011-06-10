@@ -9,6 +9,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class TestCassandraStaticStore
@@ -23,7 +24,44 @@ public class TestCassandraStaticStore
                 .setKeyspace("test_cassandra_static_store" + counter.incrementAndGet());
 
         Cluster cluster = new DiscoveryModule().getCluster(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
-        return new CassandraStaticStore(storeConfig, cluster, new TestingTimeProvider());
+
+        final CassandraStaticStore store = new CassandraStaticStore(storeConfig, cluster, new TestingTimeProvider());
+
+        return new StaticStore()
+        {
+            @Override
+            public void put(Service service)
+            {
+                store.put(service);
+            }
+
+            @Override
+            public void delete(Id<Service> nodeId)
+            {
+                store.delete(nodeId);
+            }
+
+            @Override
+            public Set<Service> getAll()
+            {
+                store.reload();
+                return store.getAll();
+            }
+
+            @Override
+            public Set<Service> get(String type)
+            {
+                store.reload();
+                return store.get(type);
+            }
+
+            @Override
+            public Set<Service> get(String type, String pool)
+            {
+                store.reload();
+                return store.get(type, pool);
+            }
+        };
     }
 
     @BeforeSuite
