@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import static java.lang.String.format;
+import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
@@ -47,11 +48,9 @@ public class DynamicAnnouncementResource
                 .setLocation(location)
                 .build();
 
-        if (dynamicStore.put(nodeId, announcementWithLocation)) {
-            return Response.created(uriInfo.getRequestUri()).build();
-        }
+        dynamicStore.put(nodeId, announcementWithLocation);
 
-        return Response.noContent().build();
+        return Response.status(ACCEPTED).build();
     }
 
     @DELETE

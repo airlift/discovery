@@ -1,10 +1,20 @@
 package com.proofpoint.discovery;
 
+import com.google.common.net.InetAddresses;
 import com.google.inject.Binder;
 import com.google.inject.Module;
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
+import com.proofpoint.cassandra.CassandraServerInfo;
 import com.proofpoint.configuration.ConfigurationModule;
+import com.proofpoint.node.NodeInfo;
+import me.prettyprint.cassandra.service.CassandraHostConfigurator;
+import me.prettyprint.cassandra.service.clock.MillisecondsClockResolution;
+import me.prettyprint.hector.api.Cluster;
+import me.prettyprint.hector.api.factory.HFactory;
 import org.joda.time.DateTime;
+
+import static java.lang.String.format;
 
 public class DiscoveryModule
         implements Module
@@ -19,9 +29,22 @@ public class DiscoveryModule
         binder.bind(CassandraDynamicStore.class).in(Scopes.SINGLETON);
 
         binder.bind(StaticStore.class).to(CassandraStaticStore.class).in(Scopes.SINGLETON);
-        binder.bind(DateTime.class).toProvider(RealTimeProvider.class).in(Scopes.SINGLETON);
+        binder.bind(CassandraStaticStore.class).in(Scopes.SINGLETON);
+
+        binder.bind(DateTime.class).toProvider(RealTimeProvider.class);
 
         ConfigurationModule.bindConfig(binder).to(DiscoveryConfig.class);
         ConfigurationModule.bindConfig(binder).to(CassandraStoreConfig.class);
+    }
+
+    @Provides
+    public Cluster getCluster(CassandraServerInfo cassandraInfo, NodeInfo nodeInfo)
+    {
+        CassandraHostConfigurator configurator = new CassandraHostConfigurator(format("%s:%s",
+                                                                                      InetAddresses.toUriString(nodeInfo.getPublicIp()),
+                                                                                      cassandraInfo.getRpcPort()));
+        configurator.setClockResolution(new MillisecondsClockResolution());
+
+        return HFactory.getOrCreateCluster("discovery", configurator);
     }
 }

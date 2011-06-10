@@ -4,10 +4,13 @@ import com.google.common.base.Objects;
 import com.proofpoint.node.NodeInfo;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -31,6 +34,7 @@ public class StaticAnnouncementResource
     }
 
     @POST
+    @Consumes("application/json")
     public Response post(StaticAnnouncement announcement, @Context UriInfo uriInfo)
     {
         if (!nodeInfo.getEnvironment().equals(announcement.getEnvironment())) {
@@ -54,6 +58,7 @@ public class StaticAnnouncementResource
     }
 
     @GET
+    @Produces("application/json")
     public Services get()
     {
         return new Services(nodeInfo.getEnvironment(), store.getAll());
@@ -61,7 +66,7 @@ public class StaticAnnouncementResource
 
     @DELETE
     @Path("{id}")
-    public void delete(Id<Service> id)
+    public void delete(@PathParam("id") Id<Service> id)
     {
         store.delete(id);
     }

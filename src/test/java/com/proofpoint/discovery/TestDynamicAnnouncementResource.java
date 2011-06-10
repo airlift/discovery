@@ -40,7 +40,7 @@ public class TestDynamicAnnouncementResource
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
 
         assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.CREATED.getStatusCode());
+        assertEquals(response.getStatus(), Response.Status.ACCEPTED.getStatusCode());
 
         assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
     }
@@ -62,7 +62,7 @@ public class TestDynamicAnnouncementResource
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
 
         assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.NO_CONTENT.getStatusCode());
+        assertEquals(response.getStatus(), Response.Status.ACCEPTED.getStatusCode());
 
         assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
     }
@@ -129,7 +129,7 @@ public class TestDynamicAnnouncementResource
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
 
         assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.CREATED.getStatusCode());
+        assertEquals(response.getStatus(), Response.Status.ACCEPTED.getStatusCode());
 
         assertEquals(store.getAll().size(), 1);
         Service service = store.getAll().iterator().next();

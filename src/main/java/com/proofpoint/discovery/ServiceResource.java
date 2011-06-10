@@ -42,4 +42,11 @@ public class ServiceResource
     {
         return new Services(node.getEnvironment(), union(dynamicStore.get(type), staticStore.get(type)));
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Services getServices()
+    {
+        return new Services(node.getEnvironment(), union(dynamicStore.getAll(), staticStore.getAll()));
+    }
 }

@@ -2,12 +2,14 @@ package com.proofpoint.discovery;
 
 import com.proofpoint.cassandra.testing.CassandraServerSetup;
 import com.proofpoint.node.NodeInfo;
+import me.prettyprint.hector.api.Cluster;
 import org.apache.cassandra.config.ConfigurationException;
 import org.apache.thrift.transport.TTransportException;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class TestCassandraStaticStore
@@ -21,7 +23,45 @@ public class TestCassandraStaticStore
         CassandraStoreConfig storeConfig = new CassandraStoreConfig()
                 .setKeyspace("test_cassandra_static_store" + counter.incrementAndGet());
 
-        return new CassandraStaticStore(storeConfig, CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
+        Cluster cluster = new DiscoveryModule().getCluster(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
+
+        final CassandraStaticStore store = new CassandraStaticStore(storeConfig, cluster, new TestingTimeProvider());
+
+        return new StaticStore()
+        {
+            @Override
+            public void put(Service service)
+            {
+                store.put(service);
+            }
+
+            @Override
+            public void delete(Id<Service> nodeId)
+            {
+                store.delete(nodeId);
+            }
+
+            @Override
+            public Set<Service> getAll()
+            {
+                store.reload();
+                return store.getAll();
+            }
+
+            @Override
+            public Set<Service> get(String type)
+            {
+                store.reload();
+                return store.get(type);
+            }
+
+            @Override
+            public Set<Service> get(String type, String pool)
+            {
+                store.reload();
+                return store.get(type, pool);
+            }
+        };
     }
 
     @BeforeSuite

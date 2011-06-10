@@ -16,7 +16,6 @@ import static com.google.common.collect.Iterables.concat;
 import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 public abstract class TestDynamicStore
@@ -96,9 +95,9 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
-        assertTrue(store.put(nodeId, oldAnnouncement));
+        store.put(nodeId, oldAnnouncement);
         currentTime.increment();
-        assertFalse(store.put(nodeId, newAnnouncement));
+        store.put(nodeId, newAnnouncement);
 
         assertEquals(store.getAll(), transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation(), newAnnouncement.getPool())));
     }
@@ -247,6 +246,50 @@ public abstract class TestDynamicStore
         assertTrue(store.get("storage").isEmpty());
         assertTrue(store.get("web", "poolA").isEmpty());
     }
+
+    @Test
+    public void testDeleteThenReInsert()
+    {
+        Id<Node> redNodeId = Id.random();
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:2222"))
+        ));
+
+        assertTrue(store.put(redNodeId, red));
+        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
+
+        currentTime.increment();
+
+        assertTrue(store.delete(redNodeId));
+
+        currentTime.increment();
+
+        assertTrue(store.put(redNodeId, red));
+
+        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
+    }
+
+    @Test
+    public void testCanHandleLotsOfAnnouncements()
+    {
+        ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
+        for (int i = 0; i < 5000; ++i) {
+            Id<Node> id = Id.random();
+            DynamicServiceAnnouncement serviceAnnouncement = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"));
+            DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(serviceAnnouncement));
+
+            store.put(id, announcement);
+            builder.add(new Service(serviceAnnouncement.getId(),
+                                    id,
+                                    serviceAnnouncement.getType(),
+                                    announcement.getPool(),
+                                    announcement.getLocation(),
+                                    serviceAnnouncement.getProperties()));
+        }
+
+        assertEqualsIgnoreOrder(store.getAll(), builder.build());
+    }
+
 
     private void advanceTimeBeyondMaxAge()
     {

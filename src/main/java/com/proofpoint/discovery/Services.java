@@ -63,4 +63,13 @@ public class Services
         result = 31 * result + services.hashCode();
         return result;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Services{" +
+                "environment='" + environment + '\'' +
+                ", services=" + services +
+                '}';
+    }
 }

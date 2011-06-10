@@ -8,9 +8,13 @@
 	- EmbeddedCassandraServer
 	    - creates directory if missing or throws error if it can't
 	- ValidationAssertions
+	- ServiceResource tests that also check for static services
+	- More robust tests to ensure operations work properly with expected clock resolution
 
 - CassandraStaticStore
     - Detect new vs replaced
+
+- Time provider should be able to return time at different resolutions. Right now, it's a DateTime (ms), but Hector supports arbitrary resolution.
 
 - Factor out keyspace & column family initialization from static/dynamic cassandra stores
 

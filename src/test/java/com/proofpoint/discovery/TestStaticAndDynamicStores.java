@@ -1,8 +1,8 @@
 package com.proofpoint.discovery;
 
-import com.proofpoint.cassandra.CassandraServerInfo;
 import com.proofpoint.cassandra.testing.CassandraServerSetup;
 import com.proofpoint.node.NodeInfo;
+import me.prettyprint.hector.api.Cluster;
 import org.apache.cassandra.config.ConfigurationException;
 import org.apache.thrift.transport.TTransportException;
 import org.testng.annotations.AfterSuite;
@@ -24,11 +24,10 @@ public class TestStaticAndDynamicStores
         CassandraStoreConfig storeConfig = new CassandraStoreConfig()
                 .setKeyspace("test_static_and_dynamic_stores" + counter.incrementAndGet());
 
-        NodeInfo nodeInfo = new NodeInfo("testing");
-        CassandraServerInfo serverInfo = CassandraServerSetup.getServerInfo();
+        Cluster cluster = new DiscoveryModule().getCluster(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
 
-        CassandraStaticStore staticStore = new CassandraStaticStore(storeConfig, serverInfo, nodeInfo);
-        CassandraDynamicStore dynamicStore = new CassandraDynamicStore(storeConfig, serverInfo, new DiscoveryConfig(), nodeInfo, new TestingTimeProvider());
+        CassandraStaticStore staticStore = new CassandraStaticStore(storeConfig, cluster, new TestingTimeProvider());
+        CassandraDynamicStore dynamicStore = new CassandraDynamicStore(storeConfig, new DiscoveryConfig(), new TestingTimeProvider(), cluster);
         dynamicStore.initialize();
 
         assertTrue(staticStore.getAll().isEmpty());
