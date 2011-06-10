@@ -122,7 +122,7 @@ public class CassandraDynamicStore
                                           public void run()
                                           {
                                               try {
-                                                  reloadAndExpire();
+                                                  reload();
                                               }
                                               catch (Throwable e) {
                                                   log.error(e);
@@ -173,9 +173,11 @@ public class CassandraDynamicStore
 
         DateTime now = currentTime.get();
 
-        // insert our record
+        HColumn<String, String> column = HFactory.createColumn(COLUMN, value, now.getMillis(), StringSerializer.get(), StringSerializer.get())
+                .setTtl((int) maxAge.convertTo(TimeUnit.SECONDS));
+
         HFactory.createMutator(keyspace, StringSerializer.get())
-                .addInsertion(nodeId.toString(), COLUMN_FAMILY, HFactory.createColumn(COLUMN, value, now.getMillis(), StringSerializer.get(), StringSerializer.get()))
+                .addInsertion(nodeId.toString(), COLUMN_FAMILY, column)
                 .execute();
 
         return true;
@@ -220,7 +222,7 @@ public class CassandraDynamicStore
     }
 
     @VisibleForTesting
-    void reloadAndExpire()
+    void reload()
     {
         ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
 
@@ -238,19 +240,15 @@ public class CassandraDynamicStore
             }
         };
 
-        Mutator<String> mutator = HFactory.createMutator(keyspace, StringSerializer.get());
         for (Row<String, String, String> row : paginate(query, null, PAGE_SIZE)) {
             HColumn<String, String> column = getFirst(row.getColumnSlice().getColumns(), null);
             if (column != null) {
                 if(column.getClock() > expirationCutoff().getMillis()) {
                     builder.addAll(codec.fromJson(column.getValue()));
                 }
-                else {
-                    mutator.addDeletion(row.getKey(), COLUMN_FAMILY, column.getName(), StringSerializer.get(), currentTime.get().getMillis());
-                }
             }
         }
-        mutator.execute();
+
         services.set(builder.build());
     }
 

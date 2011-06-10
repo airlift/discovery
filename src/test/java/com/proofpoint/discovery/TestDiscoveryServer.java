@@ -123,7 +123,7 @@ public class TestDiscoveryServer
         DiscoveryClient client = announcerInjector.getInstance(DiscoveryClient.class);
         client.announce(ImmutableSet.of(announcement)).get();
 
-        dynamicStore.reloadAndExpire();
+        dynamicStore.reload();
 
         NodeInfo announcerNodeInfo = announcerInjector.getInstance(NodeInfo.class);
 
@@ -141,7 +141,7 @@ public class TestDiscoveryServer
         // ensure that service is no longer visible
         client.unannounce().get();
 
-        dynamicStore.reloadAndExpire();
+        dynamicStore.reload();
 
         assertTrue(selectorFor("apple", "red").selectAllServices().isEmpty());
     }

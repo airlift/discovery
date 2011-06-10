@@ -49,21 +49,21 @@ public class TestCassandraDynamicStore
             @Override
             public Set<Service> getAll()
             {
-                cassandraStore.reloadAndExpire();
+                cassandraStore.reload();
                 return cassandraStore.getAll();
             }
 
             @Override
             public Set<Service> get(String type)
             {
-                cassandraStore.reloadAndExpire();
+                cassandraStore.reload();
                 return cassandraStore.get(type);
             }
 
             @Override
             public Set<Service> get(String type, String pool)
             {
-                cassandraStore.reloadAndExpire();
+                cassandraStore.reload();
                 return cassandraStore.get(type, pool);
             }
         };
