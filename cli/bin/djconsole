@@ -3,69 +3,24 @@
 require 'rubygems'
 require 'httpclient'
 require 'json'
-
-class Discovery
-
-  def initialize(discoveryrc, environment, client = HTTPClient.new)
-    @client = client
-    
-    environment ||= "default"
-    value = File.readlines(discoveryrc).map { |l| l.strip.split(/\s*=\s*/, 2) }.select { |k, v| k == environment }.map { |k, v| v }.first
-    raise "No such environment '#{environment}'" if value.nil?
-    @discovery_uris = value.split(/\s*,\s*/)
-  end
-
-  def lookup_all(type, pool)
-    service_descriptors = nil
-    @discovery_uris.each do |discovery_uri|
-      begin
-        url = "#{discovery_uri}/v1/service/#{type}/#{pool}"
-        puts "Getting services at \"#{url}\"" if Verbose
-        response = @client.get(url)
-        if response.status == HTTP::Status::OK then
-          body = response.body
-          if body.is_a?(HTTP::Message::Body) then
-            body = body.content
-          end
-          service_descriptors = JSON.parse(body)["services"]
-          break
-        end
-      rescue => e
-        # ignored
-        p "ERROR:: #{e}" if Verbose
-      end
-    end
-
-    if service_descriptors.nil? then
-      return nil
-    end
-
-    return service_descriptors
-  end
-end
+require './lib/discovery/discovery'
 
 begin
   Verbose = !ARGV.delete("--DEBUG").nil? 
 
-  discoveryrc = File.expand_path("~/.discoveryrc")
-  unless File.exist?(discoveryrc) then
-    File.open(discoveryrc, "w"){ |f| f.puts("default = http://localhost:8080") }
-  end
-
-  raise "USAGE: djconsole POOL.TYPE.ENVIRONMENT" if ARGV.empty?
-  md = /^(?:(\w+)\.)*?(\w+)(?:\.(\w+))?$/.match(ARGV[0])
-  raise "USAGE: djconsole POOL.TYPE.ENVIRONMENT" if md.nil?
+  md = /^(?:(\w+)\.)*?(\w+)(?:\.(\w+))?$/.match(ARGV[0] || "")
+  raise "USAGE: djconsole POOL.TYPE.ENVIRONMENT" if ARGV.length != 1 || md.nil?
 
   pool, type, environment = *md[1..-1]
 
   pool ||= "general"
 
   puts "Looking up service '#{type}' in pool '#{pool}' in environment '#{environment}'" if Verbose
-  discovery = Discovery.new(discoveryrc, environment)
+  discovery = Discovery::Discovery.for_environment(environment)
 
-  node_jmx = Hash[ discovery.lookup_all("jmx", pool).map{|sd| [ sd['nodeId'], sd['properties']['jmx'] ] } ]
+  node_jmx = Hash[ discovery.lookup("jmx", pool).map{|sd| [ sd['nodeId'], sd['properties']['jmx'] ] } ]
 
-  service_descriptors = discovery.lookup_all(type, pool)
+  service_descriptors = discovery.lookup(type, pool)
   base_url = service_descriptors.map{ |sd| node_jmx[sd['nodeId']] }.compact.first
 
   if base_url.nil? then
