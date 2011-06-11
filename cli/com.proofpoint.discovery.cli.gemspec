@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.files = Dir['bin/**/*']
   s.files += Dir['lib/**/*']
   s.executables << 'dcurl'
+  s.executables << 'djconsole'
   s.add_dependency 'httpclient', '>=2.2.0'
   s.add_dependency 'json_pure', '>=1.5.1'
 end
