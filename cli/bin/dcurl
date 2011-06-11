@@ -3,7 +3,7 @@
 require 'rubygems'
 require 'httpclient'
 require 'json'
-require './lib/discovery/discovery'
+require 'discovery/discovery'
 
 begin
   Verbose = !ARGV.delete("--DEBUG").nil? 
