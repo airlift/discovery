@@ -5,7 +5,8 @@
     <groupId>com.proofpoint.discovery</groupId>
     <artifactId>server</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>discovery</name>
+    <name>server</name>
+    <description>Discovery server</description>
 
     <parent>
         <groupId>com.proofpoint.platform</groupId>
