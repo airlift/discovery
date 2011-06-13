@@ -8,7 +8,7 @@
     <name>cli</name>
     <description>Discovery command line interface</description>
 
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <distributionManagement>
         <repository>
