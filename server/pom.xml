@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.proofpoint.platform</groupId>
         <artifactId>rest-server-base</artifactId>
-        <version>0.43</version>
+        <version>0.44-SNAPSHOT</version>
     </parent>
     <properties>
         <main-class>com.proofpoint.discovery.Main</main-class>
