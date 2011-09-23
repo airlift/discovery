@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.proofpoint.platform</groupId>
         <artifactId>rest-server-base</artifactId>
-        <version>0.44-SNAPSHOT</version>
+        <version>0.45</version>
     </parent>
     <properties>
         <main-class>com.proofpoint.discovery.Main</main-class>
@@ -35,13 +35,12 @@
         <dependency>
             <groupId>com.proofpoint.platform</groupId>
             <artifactId>experimental</artifactId>
-            <version>0.43</version>
         </dependency>
 
         <dependency>
             <groupId>com.proofpoint.platform</groupId>
             <artifactId>cassandra-experimental</artifactId>
-            <version>0.43</version>
+            <version>0.45</version>
         </dependency>
 
         <dependency>
@@ -93,7 +92,7 @@
         <dependency>
             <groupId>me.prettyprint</groupId>
             <artifactId>hector-core</artifactId>
-            <version>0.7.0-28</version>
+            <version>0.8.0-2</version>
         </dependency>
 
         <!-- for packaging -->
