@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.proofpoint.platform</groupId>
         <artifactId>rest-server-base</artifactId>
-        <version>0.46-SNAPSHOT</version>
+        <version>0.47-SNAPSHOT</version>
     </parent>
     <properties>
         <main-class>com.proofpoint.discovery.Main</main-class>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>com.proofpoint.platform</groupId>
             <artifactId>cassandra-experimental</artifactId>
-            <version>0.46-SNAPSHOT</version>
+            <version>0.47-SNAPSHOT</version>
         </dependency>
 
         <dependency>
