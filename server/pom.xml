@@ -7,16 +7,54 @@
     <version>1.1-SNAPSHOT</version>
     <name>discovery-server</name>
     <description>Discovery server</description>
+    <url>http://github.com/proofpoint/discover/</url>
 
     <parent>
         <groupId>com.proofpoint.platform</groupId>
         <artifactId>rest-server-base</artifactId>
         <version>0.48-SNAPSHOT</version>
     </parent>
+
     <properties>
         <main-class>com.proofpoint.discovery.Main</main-class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <inceptionYear>2010</inceptionYear>
+    <organization>
+        <name>Proofpoint, Inc.</name>
+        <url>http://www.proofpoint.com</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com/proofpoint/discovery.git</connection>
+        <developerConnection>scm:git:git@github.com:proofpoint/discovery.git</developerConnection>
+        <url>http://github.com/proofpoint/discovery/tree/master</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>dain</id>
+            <name>Dain Sundstrom</name>
+            <email>dain@iq80.com</email>
+        </developer>
+        <developer>
+            <id>mtraverso</id>
+            <name>Martin Traverso</name>
+            <email>mtraverso@gmail.com</email>
+        </developer>
+    </developers>
+
+    <prerequisites>
+        <maven>3.0</maven>
+    </prerequisites>
 
     <distributionManagement>
         <snapshotRepository>
