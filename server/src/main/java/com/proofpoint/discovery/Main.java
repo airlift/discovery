@@ -2,6 +2,7 @@ package com.proofpoint.discovery;
 
 import com.proofpoint.bootstrap.Bootstrap;
 import com.proofpoint.cassandra.CassandraModule;
+import com.proofpoint.jmx.http.rpc.JmxHttpRpcModule;
 import com.proofpoint.json.JsonModule;
 import com.proofpoint.http.server.HttpServerModule;
 import com.proofpoint.jaxrs.JaxrsModule;
@@ -22,6 +23,7 @@ public class Main
                                           new JaxrsModule(),
                                           new JsonModule(),
                                           new JmxModule(),
+                                          new JmxHttpRpcModule(),
                                           new DiscoveryModule(),
                                           new CassandraModule());
             app.initialize();

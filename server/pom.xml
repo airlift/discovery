@@ -77,6 +77,11 @@
 
         <dependency>
             <groupId>com.proofpoint.platform</groupId>
+            <artifactId>jmx-http-rpc-experimental</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.proofpoint.platform</groupId>
             <artifactId>cassandra-experimental</artifactId>
             <version>0.48</version>
         </dependency>
