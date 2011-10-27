@@ -10,7 +10,8 @@ import com.proofpoint.cassandra.testing.CassandraServerSetup;
 import com.proofpoint.cassandra.testing.TestingCassandraModule;
 import com.proofpoint.configuration.ConfigurationFactory;
 import com.proofpoint.configuration.ConfigurationModule;
-import com.proofpoint.discovery.client.DiscoveryClient;
+import com.proofpoint.discovery.client.DiscoveryLookupClient;
+import com.proofpoint.discovery.client.DiscoveryAnnouncementClient;
 import com.proofpoint.discovery.client.ServiceAnnouncement;
 import com.proofpoint.discovery.client.ServiceDescriptor;
 import com.proofpoint.discovery.client.ServiceSelector;
@@ -120,7 +121,7 @@ public class TestDiscoveryServer
                 .addProperties(ImmutableMap.of("key", "value"))
                 .build();
 
-        DiscoveryClient client = announcerInjector.getInstance(DiscoveryClient.class);
+        DiscoveryAnnouncementClient client = announcerInjector.getInstance(DiscoveryAnnouncementClient.class);
         client.announce(ImmutableSet.of(announcement)).get();
 
         dynamicStore.reload();
@@ -211,7 +212,7 @@ public class TestDiscoveryServer
                 new com.proofpoint.discovery.client.DiscoveryModule()
         );
 
-        DiscoveryClient client = clientInjector.getInstance(DiscoveryClient.class);
+        DiscoveryLookupClient client = clientInjector.getInstance(DiscoveryLookupClient.class);
         return new SimpleServiceSelector(type, new ServiceSelectorConfig().setPool(pool), client);
     }
 }
