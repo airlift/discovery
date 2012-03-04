@@ -7,7 +7,7 @@
     <packaging>pom</packaging>
     <name>discovery-root</name>
     <description>Discovery</description>
-    <url>http://github.com/proofpoint/discover/</url>
+    <url>https://github.com/proofpoint/discovery</url>
 
     <inceptionYear>2010</inceptionYear>
     <organization>
@@ -25,7 +25,7 @@
     <scm>
         <connection>scm:git:git://github.com/proofpoint/discovery.git</connection>
         <developerConnection>scm:git:git@github.com:proofpoint/discovery.git</developerConnection>
-        <url>http://github.com/proofpoint/discovery/tree/master</url>
+        <url>https://github.com/proofpoint/discovery</url>
     </scm>
 
     <developers>
