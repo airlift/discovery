@@ -41,7 +41,7 @@ public class DiscoveryModule
     public Cluster getCluster(CassandraServerInfo cassandraInfo, NodeInfo nodeInfo)
     {
         CassandraHostConfigurator configurator = new CassandraHostConfigurator(format("%s:%s",
-                                                                                      InetAddresses.toUriString(nodeInfo.getPublicIp()),
+                                                                                      InetAddresses.toUriString(nodeInfo.getInternalIp()),
                                                                                       cassandraInfo.getRpcPort()));
         configurator.setClockResolution(new MillisecondsClockResolution());
 
