@@ -16,6 +16,7 @@ public class TestCassandraStaticStore
     extends TestStaticStore
 {
     private final static AtomicLong counter = new AtomicLong(0);
+    private ClusterProvider clusterProvider;
 
     @Override
     protected StaticStore initializeStore()
@@ -23,7 +24,7 @@ public class TestCassandraStaticStore
         CassandraStoreConfig storeConfig = new CassandraStoreConfig()
                 .setKeyspace("test_cassandra_static_store" + counter.incrementAndGet());
 
-        Cluster cluster = new DiscoveryModule().getCluster(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
+        Cluster cluster = clusterProvider.get();
 
         final CassandraStaticStore store = new CassandraStaticStore(storeConfig, cluster, new TestingTimeProvider());
 
@@ -69,6 +70,7 @@ public class TestCassandraStaticStore
             throws IOException, TTransportException, ConfigurationException, InterruptedException
     {
         CassandraServerSetup.tryInitialize();
+        clusterProvider = new ClusterProvider(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
     }
 
     @AfterSuite
@@ -76,5 +78,6 @@ public class TestCassandraStaticStore
             throws IOException
     {
         CassandraServerSetup.tryShutdown();
+        clusterProvider.stop();
     }
 }

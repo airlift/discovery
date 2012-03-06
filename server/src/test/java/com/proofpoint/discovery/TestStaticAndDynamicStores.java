@@ -17,6 +17,7 @@ import static org.testng.Assert.assertTrue;
 public class TestStaticAndDynamicStores
 {
     private final static AtomicLong counter = new AtomicLong(0);
+    private ClusterProvider clusterProvider;
 
     @Test
     public void testBothInitializeProperly()
@@ -24,7 +25,7 @@ public class TestStaticAndDynamicStores
         CassandraStoreConfig storeConfig = new CassandraStoreConfig()
                 .setKeyspace("test_static_and_dynamic_stores" + counter.incrementAndGet());
 
-        Cluster cluster = new DiscoveryModule().getCluster(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
+        Cluster cluster = clusterProvider.get();
 
         CassandraStaticStore staticStore = new CassandraStaticStore(storeConfig, cluster, new TestingTimeProvider());
         CassandraDynamicStore dynamicStore = new CassandraDynamicStore(storeConfig, new DiscoveryConfig(), new TestingTimeProvider(), cluster);
@@ -39,12 +40,14 @@ public class TestStaticAndDynamicStores
             throws IOException, TTransportException, ConfigurationException, InterruptedException
     {
         CassandraServerSetup.tryInitialize();
+        clusterProvider = new ClusterProvider(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
     }
 
     @AfterSuite
     public void teardownCassandra()
             throws IOException
     {
+        clusterProvider.stop();
         CassandraServerSetup.tryShutdown();
     }
 }

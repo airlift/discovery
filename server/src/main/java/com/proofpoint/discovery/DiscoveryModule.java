@@ -32,19 +32,10 @@ public class DiscoveryModule
         binder.bind(CassandraStaticStore.class).in(Scopes.SINGLETON);
 
         binder.bind(DateTime.class).toProvider(RealTimeProvider.class);
+        
+        binder.bind(Cluster.class).toProvider(ClusterProvider.class);
 
         ConfigurationModule.bindConfig(binder).to(DiscoveryConfig.class);
         ConfigurationModule.bindConfig(binder).to(CassandraStoreConfig.class);
-    }
-
-    @Provides
-    public Cluster getCluster(CassandraServerInfo cassandraInfo, NodeInfo nodeInfo)
-    {
-        CassandraHostConfigurator configurator = new CassandraHostConfigurator(format("%s:%s",
-                                                                                      InetAddresses.toUriString(nodeInfo.getInternalIp()),
-                                                                                      cassandraInfo.getRpcPort()));
-        configurator.setClockResolution(new MillisecondsClockResolution());
-
-        return HFactory.getOrCreateCluster("discovery", configurator);
     }
 }

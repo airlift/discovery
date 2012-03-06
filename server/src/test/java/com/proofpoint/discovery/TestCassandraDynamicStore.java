@@ -21,6 +21,7 @@ public class TestCassandraDynamicStore
 {
     private final static AtomicLong counter = new AtomicLong(0);
     private CassandraDynamicStore cassandraStore;
+    private ClusterProvider clusterProvider;
 
     @Override
     protected DynamicStore initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider)
@@ -28,8 +29,7 @@ public class TestCassandraDynamicStore
         CassandraStoreConfig storeConfig = new CassandraStoreConfig()
                 .setKeyspace("test_cassandra_dynamic_store" + counter.incrementAndGet());
 
-        Cluster cluster = new DiscoveryModule().getCluster(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
-        cassandraStore = new CassandraDynamicStore(storeConfig, config, timeProvider, cluster);
+        cassandraStore = new CassandraDynamicStore(storeConfig, config, timeProvider, clusterProvider.get());
         cassandraStore.initialize();
 
         return new DynamicStore()
@@ -74,12 +74,15 @@ public class TestCassandraDynamicStore
             throws IOException, TTransportException, ConfigurationException, InterruptedException
     {
         CassandraServerSetup.tryInitialize();
+        clusterProvider = new ClusterProvider(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
+
     }
 
     @AfterSuite
     public void teardownCassandra()
             throws IOException
     {
+        clusterProvider.stop();
         CassandraServerSetup.tryShutdown();
     }
 

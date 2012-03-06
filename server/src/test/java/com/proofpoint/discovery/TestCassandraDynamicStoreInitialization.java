@@ -26,18 +26,21 @@ import static org.testng.Assert.assertEquals;
 public class TestCassandraDynamicStoreInitialization
 {
     private final static AtomicLong counter = new AtomicLong(0);
+    private ClusterProvider clusterProvider;
 
     @BeforeSuite
     public void setupCassandra()
             throws IOException, TTransportException, ConfigurationException, InterruptedException
     {
         CassandraServerSetup.tryInitialize();
+        clusterProvider = new ClusterProvider(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
     }
 
     @AfterSuite
     public void teardownCassandra()
             throws IOException
     {
+        clusterProvider.stop();
         CassandraServerSetup.tryShutdown();
     }
 
@@ -46,7 +49,7 @@ public class TestCassandraDynamicStoreInitialization
     {
         String keyspace = "test_cassandra_dynamic_store_initialization" + counter.incrementAndGet();
 
-        Cluster cluster = new DiscoveryModule().getCluster(CassandraServerSetup.getServerInfo(), new NodeInfo("testing"));
+        Cluster cluster = clusterProvider.get();
         cluster.addKeyspace(new ThriftKsDef(keyspace));
 
         ThriftCfDef columnFamily = new ThriftCfDef(keyspace, CassandraDynamicStore.COLUMN_FAMILY);
