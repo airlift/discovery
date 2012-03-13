@@ -17,6 +17,7 @@ public class TestCassandraStoreConfig
         ConfigAssertions.assertRecordedDefaults(ConfigAssertions.recordDefaults(CassandraStoreConfig.class)
                 .setStaticKeyspace("announcements")
                 .setDynamicKeyspace("dynamic_announcements")
+                .setReplicationFactor(3)
         );
     }
 
@@ -26,11 +27,13 @@ public class TestCassandraStoreConfig
         Map<String, String> properties = ImmutableMap.<String, String>builder()
                 .put("static-store.keyspace", "staticKeyspace")
                 .put("dynamic-store.keyspace", "dynamicKeyspace")
+                .put("store.replication-factor", "1")
                 .build();
 
         CassandraStoreConfig expected = new CassandraStoreConfig()
                 .setStaticKeyspace("staticKeyspace")
-                .setDynamicKeyspace("dynamicKeyspace");
+                .setDynamicKeyspace("dynamicKeyspace")
+                .setReplicationFactor(1);
 
         ConfigAssertions.assertFullMapping(properties, expected);
     }

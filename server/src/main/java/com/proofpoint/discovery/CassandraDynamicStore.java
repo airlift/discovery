@@ -2,6 +2,7 @@ package com.proofpoint.discovery;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.proofpoint.json.JsonCodec;
 import com.proofpoint.log.Logger;
@@ -60,6 +61,7 @@ public class CassandraDynamicStore
     private final Keyspace keyspace;
 
     private final Duration maxAge;
+    private final int replicationFactor;
 
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final Provider<DateTime> currentTime;
@@ -75,11 +77,15 @@ public class CassandraDynamicStore
     {
         this.currentTime = currentTime;
         maxAge = discoveryConfig.getMaxAge();
+        replicationFactor = config.getReplicationFactor();
 
         String keyspaceName = config.getDynamicKeyspace();
         KeyspaceDefinition definition = cluster.describeKeyspace(keyspaceName);
         if (definition == null) {
-            cluster.addKeyspace(new ThriftKsDef(keyspaceName));
+            cluster.addKeyspace(withDefaults(new ThriftKsDef(keyspaceName)));
+        }
+        else if (needsUpdate(definition)) {
+            cluster.updateKeyspace(withDefaults(definition));
         }
 
         ColumnFamilyDefinition existing = find(cluster.describeKeyspace(keyspaceName).getCfDefs(), named(COLUMN_FAMILY), null);
@@ -92,6 +98,16 @@ public class CassandraDynamicStore
 
         keyspace = HFactory.createKeyspace(keyspaceName, cluster);
         keyspace.setConsistencyLevelPolicy(new AllOneConsistencyLevelPolicy());
+    }
+
+    private boolean needsUpdate(KeyspaceDefinition definition)
+    {
+        return definition.getReplicationFactor() != replicationFactor;
+    }
+
+    private KeyspaceDefinition withDefaults(KeyspaceDefinition original)
+    {
+        return new ThriftKsDef(original.getName(), original.getStrategyClass(), replicationFactor, ImmutableList.<ColumnFamilyDefinition>of());
     }
 
     private boolean needsUpdate(ColumnFamilyDefinition definition)

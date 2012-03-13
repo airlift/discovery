@@ -70,6 +70,7 @@ public class TestDiscoveryServer
         // start server
         Map<String, String> serverProperties = ImmutableMap.<String, String>builder()
                     .put("node.environment", "testing")
+                    .put("store.replication-factor", "1")
                     .build();
 
         Injector serverInjector = Guice.createInjector(

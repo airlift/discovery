@@ -52,6 +52,8 @@ public class CassandraStaticStore
 
     private final Keyspace keyspace;
     private final Provider<DateTime> currentTime;
+    
+    private final int replicationFactor;
 
     private final AtomicReference<Set<Service>> services = new AtomicReference<Set<Service>>(ImmutableSet.<Service>of());
     private final ScheduledExecutorService loader = new ScheduledThreadPoolExecutor(1);
@@ -61,11 +63,15 @@ public class CassandraStaticStore
     public CassandraStaticStore(CassandraStoreConfig config, Cluster cluster, Provider<DateTime> currentTime)
     {
         this.currentTime = currentTime;
+        this.replicationFactor = config.getReplicationFactor();
 
         String keyspaceName = config.getStaticKeyspace();
         KeyspaceDefinition definition = cluster.describeKeyspace(keyspaceName);
         if (definition == null) {
-            cluster.addKeyspace(new ThriftKsDef(keyspaceName));
+            cluster.addKeyspace(withDefaults(new ThriftKsDef(keyspaceName)));
+        }
+        else if (needsUpdate(definition)) {
+            cluster.updateKeyspace(withDefaults(definition));
         }
 
         ColumnFamilyDefinition existing = find(cluster.describeKeyspace(keyspaceName).getCfDefs(), named(COLUMN_FAMILY), null);
@@ -75,6 +81,16 @@ public class CassandraStaticStore
 
         keyspace = HFactory.createKeyspace(keyspaceName, cluster);
         keyspace.setConsistencyLevelPolicy(new QuorumAllConsistencyLevelPolicy());
+    }
+
+    private boolean needsUpdate(KeyspaceDefinition definition)
+    {
+        return definition.getReplicationFactor() != replicationFactor;
+    }
+
+    private KeyspaceDefinition withDefaults(KeyspaceDefinition original)
+    {
+        return new ThriftKsDef(original.getName(), original.getStrategyClass(), replicationFactor, ImmutableList.<ColumnFamilyDefinition>of());
     }
 
     @PostConstruct

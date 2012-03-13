@@ -22,7 +22,8 @@ public class TestCassandraStaticStore
     protected StaticStore initializeStore()
     {
         CassandraStoreConfig storeConfig = new CassandraStoreConfig()
-                .setStaticKeyspace("test_cassandra_static_store" + counter.incrementAndGet());
+                .setStaticKeyspace("test_cassandra_static_store" + counter.incrementAndGet())
+                .setReplicationFactor(1);
 
         Cluster cluster = clusterProvider.get();
 

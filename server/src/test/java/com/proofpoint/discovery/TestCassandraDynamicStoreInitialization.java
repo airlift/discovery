@@ -66,4 +66,26 @@ public class TestCassandraDynamicStoreInitialization
         ColumnFamilyDefinition columnFamilyDefinition = find(cluster.describeKeyspace(keyspace).getCfDefs(), named(CassandraDynamicStore.COLUMN_FAMILY));
         assertEquals(columnFamilyDefinition.getGcGraceSeconds(), 0);
     }
+    
+    @Test
+    public void testUpdateReplicationFactor()
+    {
+        String keyspace = "test_cassandra_dynamic_store_initialization" + counter.incrementAndGet();
+
+        CassandraDynamicStore store = new CassandraDynamicStore(new CassandraStoreConfig().setDynamicKeyspace(keyspace).setReplicationFactor(1),
+                new DiscoveryConfig().setMaxAge(new Duration(1, TimeUnit.MINUTES)),
+                new TestingTimeProvider(),
+                clusterProvider.get());
+        store.initialize();
+        store.shutdown();
+
+        CassandraDynamicStore store2 = new CassandraDynamicStore(new CassandraStoreConfig().setDynamicKeyspace(keyspace).setReplicationFactor(2),
+                new DiscoveryConfig().setMaxAge(new Duration(1, TimeUnit.MINUTES)),
+                new TestingTimeProvider(),
+                clusterProvider.get());
+        store2.initialize();
+        store2.shutdown();
+
+        assertEquals(clusterProvider.get().describeKeyspace(keyspace).getReplicationFactor(), 2);
+    }
 }
