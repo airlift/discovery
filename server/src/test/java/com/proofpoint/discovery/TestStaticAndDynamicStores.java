@@ -23,7 +23,8 @@ public class TestStaticAndDynamicStores
     public void testBothInitializeProperly()
     {
         CassandraStoreConfig storeConfig = new CassandraStoreConfig()
-                .setKeyspace("test_static_and_dynamic_stores" + counter.incrementAndGet());
+                .setStaticKeyspace("test_static_and_dynamic_stores" + counter.incrementAndGet())
+                .setDynamicKeyspace("test_static_and_dynamic_stores" + counter.incrementAndGet());
 
         Cluster cluster = clusterProvider.get();
 

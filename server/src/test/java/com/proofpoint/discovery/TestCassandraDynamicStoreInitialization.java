@@ -56,7 +56,7 @@ public class TestCassandraDynamicStoreInitialization
         columnFamily.setGcGraceSeconds(100);
         cluster.addColumnFamily(columnFamily);
 
-        CassandraDynamicStore store = new CassandraDynamicStore(new CassandraStoreConfig().setKeyspace(keyspace),
+        CassandraDynamicStore store = new CassandraDynamicStore(new CassandraStoreConfig().setDynamicKeyspace(keyspace),
                                                                 new DiscoveryConfig().setMaxAge(new Duration(1, TimeUnit.MINUTES)),
                                                                 new TestingTimeProvider(),
                                                                 cluster);

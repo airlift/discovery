@@ -1,23 +1,39 @@
 package com.proofpoint.discovery;
 
 import com.proofpoint.configuration.Config;
+import com.proofpoint.configuration.LegacyConfig;
 
 import javax.validation.constraints.NotNull;
 
 public class CassandraStoreConfig
 {
-    private String keyspace = "announcements";
+    private String staticKeyspace = "announcements"; // keep old value for backward compatibility
+    private String dynamicKeyspace = "dynamic_announcements";
 
     @NotNull
-    public String getKeyspace()
+    public String getStaticKeyspace()
     {
-        return keyspace;
+        return staticKeyspace;
     }
 
-    @Config("store.cassandra.keyspace")
-    public CassandraStoreConfig setKeyspace(String keyspace)
+    @Config("static-store.keyspace")
+    @LegacyConfig("store.cassandra.keyspace")
+    public CassandraStoreConfig setStaticKeyspace(String keyspace)
     {
-        this.keyspace = keyspace;
+        this.staticKeyspace = keyspace;
+        return this;
+    }
+
+    @NotNull
+    public String getDynamicKeyspace()
+    {
+        return dynamicKeyspace;
+    }
+
+    @Config("dynamic-store.keyspace")
+    public CassandraStoreConfig setDynamicKeyspace(String dynamicKeyspace)
+    {
+        this.dynamicKeyspace = dynamicKeyspace;
         return this;
     }
 }

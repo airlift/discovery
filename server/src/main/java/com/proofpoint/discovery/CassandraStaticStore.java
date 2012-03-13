@@ -62,7 +62,7 @@ public class CassandraStaticStore
     {
         this.currentTime = currentTime;
 
-        String keyspaceName = config.getKeyspace();
+        String keyspaceName = config.getStaticKeyspace();
         KeyspaceDefinition definition = cluster.describeKeyspace(keyspaceName);
         if (definition == null) {
             cluster.addKeyspace(new ThriftKsDef(keyspaceName));

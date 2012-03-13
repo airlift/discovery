@@ -27,7 +27,7 @@ public class TestCassandraDynamicStore
     protected DynamicStore initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider)
     {
         CassandraStoreConfig storeConfig = new CassandraStoreConfig()
-                .setKeyspace("test_cassandra_dynamic_store" + counter.incrementAndGet());
+                .setDynamicKeyspace("test_cassandra_dynamic_store" + counter.incrementAndGet());
 
         cassandraStore = new CassandraDynamicStore(storeConfig, config, timeProvider, clusterProvider.get());
         cassandraStore.initialize();

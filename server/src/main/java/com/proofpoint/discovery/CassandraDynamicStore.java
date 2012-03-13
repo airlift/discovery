@@ -76,7 +76,7 @@ public class CassandraDynamicStore
         this.currentTime = currentTime;
         maxAge = discoveryConfig.getMaxAge();
 
-        String keyspaceName = config.getKeyspace();
+        String keyspaceName = config.getDynamicKeyspace();
         KeyspaceDefinition definition = cluster.describeKeyspace(keyspaceName);
         if (definition == null) {
             cluster.addKeyspace(new ThriftKsDef(keyspaceName));

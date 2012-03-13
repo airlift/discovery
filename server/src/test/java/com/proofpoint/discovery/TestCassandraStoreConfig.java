@@ -15,18 +15,22 @@ public class TestCassandraStoreConfig
     public void testDefaults()
     {
         ConfigAssertions.assertRecordedDefaults(ConfigAssertions.recordDefaults(CassandraStoreConfig.class)
-                                                        .setKeyspace("announcements"));
+                .setStaticKeyspace("announcements")
+                .setDynamicKeyspace("dynamic_announcements")
+        );
     }
 
     @Test
     public void testExplicitPropertyMappings()
     {
         Map<String, String> properties = ImmutableMap.<String, String>builder()
-                .put("store.cassandra.keyspace", "keyspace")
+                .put("static-store.keyspace", "staticKeyspace")
+                .put("dynamic-store.keyspace", "dynamicKeyspace")
                 .build();
 
         CassandraStoreConfig expected = new CassandraStoreConfig()
-                .setKeyspace("keyspace");
+                .setStaticKeyspace("staticKeyspace")
+                .setDynamicKeyspace("dynamicKeyspace");
 
         ConfigAssertions.assertFullMapping(properties, expected);
     }
@@ -34,8 +38,11 @@ public class TestCassandraStoreConfig
     @Test
     public void testValidatesNotNullKeyspace()
     {
-        CassandraStoreConfig config = new CassandraStoreConfig().setKeyspace(null);
+        CassandraStoreConfig config = new CassandraStoreConfig()
+                .setStaticKeyspace(null)
+                .setDynamicKeyspace(null);
 
-        assertFailsValidation(config, "keyspace", "may not be null", NotNull.class);
+        assertFailsValidation(config, "staticKeyspace", "may not be null", NotNull.class);
+        assertFailsValidation(config, "dynamicKeyspace", "may not be null", NotNull.class);
     }
 }
