@@ -76,7 +76,8 @@
                         <pushChanges>false</pushChanges>
                         <localCheckout>true</localCheckout>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
-                </configuration>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
+            </configuration>
             </plugin>
         </plugins>
     </build>
