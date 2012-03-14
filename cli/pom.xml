@@ -4,7 +4,7 @@
 
     <groupId>com.proofpoint.discovery</groupId>
     <artifactId>cli</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <packaging>pom</packaging>
     <name>cli</name>
     <description>Discovery command line interface</description>
