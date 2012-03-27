@@ -82,6 +82,7 @@ public class Replicator
     public synchronized void stop()
     {
         future.cancel(true);
+        executor.shutdownNow();
     }
 
     private void synchronize()
