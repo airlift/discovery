@@ -109,7 +109,7 @@ public class DistributedStore
         Entry entry = localStore.get(key);
         
         byte[] result = null;
-        if (entry != null) {
+        if (entry != null && entry.getValue() != null && !isExpired(entry)) {
             result = entry.getValue();
         }
 
