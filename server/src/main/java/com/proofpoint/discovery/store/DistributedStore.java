@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +111,7 @@ public class DistributedStore
         
         byte[] result = null;
         if (entry != null && entry.getValue() != null && !isExpired(entry)) {
-            result = entry.getValue();
+            result = Arrays.copyOf(entry.getValue(), entry.getValue().length);
         }
 
         return result;
