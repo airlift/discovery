@@ -12,6 +12,7 @@ import com.proofpoint.http.client.Response;
 import com.proofpoint.http.client.ResponseHandler;
 import com.proofpoint.log.Logger;
 import com.proofpoint.node.NodeInfo;
+import com.proofpoint.units.Duration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.type.TypeReference;
@@ -39,6 +40,8 @@ public class Replicator
     private final HttpClient httpClient;
     private final ScheduledExecutorService executor;
     private final InMemoryStore localStore;
+    private final Duration replicationInterval;
+
     private ScheduledFuture<?> future;
     
     private final ObjectMapper mapper = new ObjectMapper(new SmileFactory());
@@ -47,12 +50,15 @@ public class Replicator
     public Replicator(NodeInfo node,
             ServiceSelector selector,
             @ForRemoteStoreClient HttpClient httpClient,
-            InMemoryStore localStore)
+            InMemoryStore localStore,
+            StoreConfig config)
     {
         this.node = node;
         this.selector = selector;
         this.httpClient = httpClient;
         this.localStore = localStore;
+
+        this.replicationInterval = config.getReplicationInterval();
 
         this.executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("replicator-%d").setDaemon(true).build());
     }
@@ -67,7 +73,7 @@ public class Replicator
             {
                 synchronize();
             }
-        }, 0, 10, TimeUnit.SECONDS);
+        }, 0, (long) replicationInterval.toMillis(), TimeUnit.MILLISECONDS);
 
         // TODO: need failsafe recurrent scheduler with variable delay
     }

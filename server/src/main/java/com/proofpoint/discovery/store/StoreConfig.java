@@ -15,6 +15,7 @@ public class StoreConfig
     private int maxBatchSize = 1000;
     private int queueSize = 1000;
     private Duration remoteUpdateInterval = new Duration(1, TimeUnit.SECONDS);
+    private Duration replicationInterval = new Duration(1, TimeUnit.MINUTES);
 
     @NotNull
     public Duration getTombstoneMaxAge()
@@ -79,6 +80,19 @@ public class StoreConfig
     public StoreConfig setRemoteUpdateInterval(Duration remoteUpdateInterval)
     {
         this.remoteUpdateInterval = remoteUpdateInterval;
+        return this;
+    }
+
+    @MinDuration("1ms")
+    public Duration getReplicationInterval()
+    {
+        return replicationInterval;
+    }
+
+    @Config("store.remote.replication-interval")
+    public StoreConfig setReplicationInterval(Duration replicationInterval)
+    {
+        this.replicationInterval = replicationInterval;
         return this;
     }
 }
