@@ -64,7 +64,7 @@ public class Replicator
     }
 
     @PostConstruct
-    public void start()
+    public synchronized void start()
     {
         future = executor.scheduleAtFixedRate(new Runnable()
         {
@@ -79,7 +79,7 @@ public class Replicator
     }
 
     @PreDestroy
-    public void stop()
+    public synchronized void stop()
     {
         future.cancel(true);
     }
