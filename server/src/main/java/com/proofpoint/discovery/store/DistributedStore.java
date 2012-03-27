@@ -25,7 +25,8 @@ public class DistributedStore
     private final RemoteStore remoteStore;
     private final Provider<DateTime> timeProvider;
     private final Duration tombstoneMaxAge;
-    
+    private final Duration garbageCollectionInterval;
+
     private final ScheduledExecutorService garbageCollector;
 
     @Inject
@@ -36,6 +37,7 @@ public class DistributedStore
         this.timeProvider = timeProvider;
 
         tombstoneMaxAge = config.getTombstoneMaxAge();
+        garbageCollectionInterval = config.getGarbageCollectionInterval();
         
         garbageCollector = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("distributed-store-gc-%d").setDaemon(true).build());
     }
@@ -50,7 +52,7 @@ public class DistributedStore
             {
                 removeExpiredEntries();
             }
-        }, 0, 10, TimeUnit.SECONDS); // TODO: make configurable
+        }, 0, (long) garbageCollectionInterval.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     private void removeExpiredEntries()
