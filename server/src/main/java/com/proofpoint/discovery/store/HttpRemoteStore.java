@@ -42,8 +42,8 @@ import static com.google.common.collect.Iterables.filter;
 public class HttpRemoteStore
         implements RemoteStore
 {
-    private final int maxBatchSize = 1000; // TODO: make configurable
-    private final int queueSize = 1000; // TODO: make configurable
+    private final int maxBatchSize;
+    private final int queueSize;
 
     private final ConcurrentMap<String, BatchProcessor<Entry>> processors = new ConcurrentHashMap<String, BatchProcessor<Entry>>();
     private final ScheduledExecutorService executor;
@@ -54,11 +54,15 @@ public class HttpRemoteStore
     @Inject
     public HttpRemoteStore(NodeInfo node,
             ServiceSelector selector,
+            StoreConfig config,
             @ForRemoteStoreClient HttpClient httpClient)
     {
         this.node = node;
         this.selector = selector;
         this.httpClient = httpClient;
+
+        maxBatchSize = config.getMaxBatchSize();
+        queueSize = config.getQueueSize();
 
         executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("remote-store-%d").setDaemon(true).build());
     }
