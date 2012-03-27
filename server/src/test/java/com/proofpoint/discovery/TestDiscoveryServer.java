@@ -6,38 +6,33 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
-import com.proofpoint.cassandra.testing.CassandraServerSetup;
-import com.proofpoint.cassandra.testing.TestingCassandraModule;
 import com.proofpoint.configuration.ConfigurationFactory;
 import com.proofpoint.configuration.ConfigurationModule;
-import com.proofpoint.discovery.client.DiscoveryLookupClient;
 import com.proofpoint.discovery.client.DiscoveryAnnouncementClient;
+import com.proofpoint.discovery.client.DiscoveryLookupClient;
+import com.proofpoint.discovery.client.DiscoveryModule;
 import com.proofpoint.discovery.client.ServiceAnnouncement;
 import com.proofpoint.discovery.client.ServiceDescriptor;
 import com.proofpoint.discovery.client.ServiceSelector;
 import com.proofpoint.discovery.client.ServiceSelectorConfig;
 import com.proofpoint.discovery.client.testing.SimpleServiceSelector;
-import com.proofpoint.json.JsonCodec;
-import com.proofpoint.json.JsonModule;
+import com.proofpoint.discovery.store.ReplicatedStoreModule;
 import com.proofpoint.http.server.testing.TestingHttpServer;
 import com.proofpoint.http.server.testing.TestingHttpServerModule;
 import com.proofpoint.jaxrs.JaxrsModule;
+import com.proofpoint.json.JsonCodec;
+import com.proofpoint.json.JsonModule;
 import com.proofpoint.node.NodeInfo;
 import com.proofpoint.node.NodeModule;
-import org.apache.cassandra.config.ConfigurationException;
-import org.apache.thrift.transport.TTransportException;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import static com.proofpoint.json.JsonCodec.mapJsonCodec;
-import static javax.ws.rs.core.Response.*;
+import static javax.ws.rs.core.Response.Status;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -46,22 +41,6 @@ import static org.testng.Assert.assertTrue;
 public class TestDiscoveryServer
 {
     private TestingHttpServer server;
-    private CassandraDynamicStore dynamicStore;
-    private CassandraStaticStore staticStore;
-
-    @BeforeSuite
-    public void setupCassandra()
-            throws IOException, TTransportException, ConfigurationException, InterruptedException
-    {
-        CassandraServerSetup.tryInitialize();
-    }
-
-    @AfterSuite
-    public void teardownCassandra()
-            throws IOException
-    {
-        CassandraServerSetup.tryShutdown();
-    }
 
     @BeforeMethod
     public void setup()
@@ -78,16 +57,10 @@ public class TestDiscoveryServer
                 new TestingHttpServerModule(),
                 new JsonModule(),
                 new JaxrsModule(),
+                new DiscoveryServerModule(),
+                new ReplicatedStoreModule(),
                 new DiscoveryModule(),
-                new TestingCassandraModule(),
                 new ConfigurationModule(new ConfigurationFactory(serverProperties)));
-
-        // TODO: wrap this in a testing bootstrap that handles PostConstruct & PreDestroy
-        dynamicStore = serverInjector.getInstance(CassandraDynamicStore.class);
-        dynamicStore.initialize();
-
-        staticStore = serverInjector.getInstance(CassandraStaticStore.class);
-        staticStore.initialize();
 
         server = serverInjector.getInstance(TestingHttpServer.class);
         server.start();
@@ -125,8 +98,6 @@ public class TestDiscoveryServer
         DiscoveryAnnouncementClient client = announcerInjector.getInstance(DiscoveryAnnouncementClient.class);
         client.announce(ImmutableSet.of(announcement)).get();
 
-        dynamicStore.reload();
-
         NodeInfo announcerNodeInfo = announcerInjector.getInstance(NodeInfo.class);
 
         List<ServiceDescriptor> services = selectorFor("apple", "red").selectAllServices();
@@ -142,8 +113,6 @@ public class TestDiscoveryServer
 
         // ensure that service is no longer visible
         client.unannounce().get();
-
-        dynamicStore.reload();
 
         assertTrue(selectorFor("apple", "red").selectAllServices().isEmpty());
     }
@@ -175,7 +144,6 @@ public class TestDiscoveryServer
                 .get("id")
                 .toString();
 
-        staticStore.reload();
         List<ServiceDescriptor> services = selectorFor("apple", "red").selectAllServices();
         assertEquals(services.size(), 1);
 
@@ -194,7 +162,6 @@ public class TestDiscoveryServer
         assertEquals(response.getStatusCode(), Status.NO_CONTENT.getStatusCode());
 
         // ensure announcement is gone
-        staticStore.reload();
         assertTrue(selectorFor("apple", "red").selectAllServices().isEmpty());
     }
 
