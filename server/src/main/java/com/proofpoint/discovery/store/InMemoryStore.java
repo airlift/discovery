@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static com.proofpoint.discovery.store.Version.Occurs.AFTER;
 import static com.proofpoint.discovery.store.Version.Occurs.SAME;
@@ -33,8 +32,6 @@ public class InMemoryStore
             if (old != null) {
                 entry = resolver.resolve(old, entry);
             }
-
-            ConcurrentMap x;
 
             map.put(key, entry);
         }
