@@ -13,6 +13,7 @@ import com.proofpoint.http.client.RequestBuilder;
 import com.proofpoint.http.client.Response;
 import com.proofpoint.http.client.ResponseHandler;
 import com.proofpoint.node.NodeInfo;
+import com.proofpoint.units.Duration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.smile.SmileFactory;
 
@@ -44,6 +45,7 @@ public class HttpRemoteStore
 {
     private final int maxBatchSize;
     private final int queueSize;
+    private final Duration updateInterval;
 
     private final ConcurrentMap<String, BatchProcessor<Entry>> processors = new ConcurrentHashMap<String, BatchProcessor<Entry>>();
     private final ScheduledExecutorService executor;
@@ -63,6 +65,7 @@ public class HttpRemoteStore
 
         maxBatchSize = config.getMaxBatchSize();
         queueSize = config.getQueueSize();
+        updateInterval = config.getRemoteUpdateInterval();
 
         executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("remote-store-%d").setDaemon(true).build());
     }
@@ -77,7 +80,7 @@ public class HttpRemoteStore
             {
                 updateProcessors(selector.selectAllServices());
             }
-        }, 0, 5, TimeUnit.SECONDS); // TODO: make configurable
+        }, 0, (long) updateInterval.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     @PreDestroy

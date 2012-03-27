@@ -2,6 +2,7 @@ package com.proofpoint.discovery.store;
 
 import com.proofpoint.configuration.Config;
 import com.proofpoint.units.Duration;
+import com.proofpoint.units.MinDuration;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -13,6 +14,7 @@ public class StoreConfig
     private Duration garbageCollectionInterval = new Duration(1, TimeUnit.HOURS);
     private int maxBatchSize = 1000;
     private int queueSize = 1000;
+    private Duration remoteUpdateInterval = new Duration(1, TimeUnit.SECONDS);
 
     @NotNull
     public Duration getTombstoneMaxAge()
@@ -63,6 +65,20 @@ public class StoreConfig
     public StoreConfig setQueueSize(int queueSize)
     {
         this.queueSize = queueSize;
+        return this;
+    }
+
+    @MinDuration("1ms")
+    @NotNull
+    public Duration getRemoteUpdateInterval()
+    {
+        return remoteUpdateInterval;
+    }
+
+    @Config("store.remote.update-interval")
+    public StoreConfig setRemoteUpdateInterval(Duration remoteUpdateInterval)
+    {
+        this.remoteUpdateInterval = remoteUpdateInterval;
         return this;
     }
 }
