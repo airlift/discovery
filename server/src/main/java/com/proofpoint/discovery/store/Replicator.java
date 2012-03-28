@@ -81,7 +81,7 @@ public class Replicator
     }
 
     @PreDestroy
-    public synchronized void stop()
+    public synchronized void shutdown()
     {
         if (future != null) {
             future.cancel(true);

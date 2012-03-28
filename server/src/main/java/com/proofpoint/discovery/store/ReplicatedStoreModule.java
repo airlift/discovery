@@ -12,6 +12,7 @@ import com.proofpoint.http.client.HttpClientModule;
 import com.proofpoint.node.NodeInfo;
 import org.joda.time.DateTime;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 
@@ -72,6 +73,7 @@ public class ReplicatedStoreModule
         private Injector injector;
         private NodeInfo nodeInfo;
         private ServiceSelector serviceSelector;
+        private Replicator replicator;
 
         private ReplicatorProvider(String name, Key<? extends LocalStore> localStoreKey, Key<? extends HttpClient> httpClientKey, Key<StoreConfig> storeConfigKey)
         {
@@ -82,16 +84,26 @@ public class ReplicatedStoreModule
         }
 
         @Override
-        public Replicator get()
+        public synchronized Replicator get()
         {
-            LocalStore localStore = injector.getInstance(localStoreKey);
-            HttpClient httpClient = injector.getInstance(httpClientKey);
-            StoreConfig storeConfig = injector.getInstance(storeConfigKey);
+            if (replicator == null) {
+                LocalStore localStore = injector.getInstance(localStoreKey);
+                HttpClient httpClient = injector.getInstance(httpClientKey);
+                StoreConfig storeConfig = injector.getInstance(storeConfigKey);
 
-            Replicator replicator = new Replicator(name, nodeInfo, serviceSelector, httpClient, localStore, storeConfig);
-            replicator.start();
+                replicator = new Replicator(name, nodeInfo, serviceSelector, httpClient, localStore, storeConfig);
+                replicator.start();
+            }
 
             return replicator;
+        }
+
+        @PreDestroy
+        public synchronized void shutdown()
+        {
+            if (replicator != null) {
+                replicator.shutdown();
+            }
         }
 
         @Inject
@@ -125,6 +137,8 @@ public class ReplicatedStoreModule
         private NodeInfo nodeInfo;
         private ServiceSelector serviceSelector;
         private Provider<DateTime> dateTimeProvider;
+        private DistributedStore store;
+        private HttpRemoteStore remoteStore;
 
         public DistributedStoreProvider(String name, Key<? extends LocalStore> localStoreKey, Key<? extends HttpClient> httpClientKey, Key<StoreConfig> storeConfigKey)
         {
@@ -135,19 +149,30 @@ public class ReplicatedStoreModule
         }
 
         @Override
-        public DistributedStore get()
+        public synchronized DistributedStore get()
         {
-            LocalStore localStore = injector.getInstance(localStoreKey);
-            HttpClient httpClient = injector.getInstance(httpClientKey);
-            StoreConfig storeConfig = injector.getInstance(storeConfigKey);
+            if (store == null) {
+                LocalStore localStore = injector.getInstance(localStoreKey);
+                HttpClient httpClient = injector.getInstance(httpClientKey);
+                StoreConfig storeConfig = injector.getInstance(storeConfigKey);
 
-            HttpRemoteStore remoteStore = new HttpRemoteStore(name, nodeInfo, serviceSelector, storeConfig, httpClient);
-            remoteStore.start();
+                remoteStore = new HttpRemoteStore(name, nodeInfo, serviceSelector, storeConfig, httpClient);
+                remoteStore.start();
 
-            DistributedStore store = new DistributedStore(localStore, remoteStore, storeConfig, dateTimeProvider);
-            store.start();
+                store = new DistributedStore(localStore, remoteStore, storeConfig, dateTimeProvider);
+                store.start();
+            }
 
             return store;
+        }
+
+        @PreDestroy
+        public synchronized void shutdown()
+        {
+            if (store != null) {
+                store.shutdown();
+                remoteStore.shutdown();
+            }
         }
 
         @Inject
