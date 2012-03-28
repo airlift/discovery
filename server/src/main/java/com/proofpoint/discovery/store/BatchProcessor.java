@@ -22,8 +22,10 @@ public class BatchProcessor<T>
     private final BatchHandler<T> handler;
     private final int maxBatchSize;
     private final BlockingQueue<T> queue;
-    private final ExecutorService executor;
-    private final AtomicReference<Future<?>> future = new AtomicReference<Future<?>>();
+    private final String name;
+
+    private ExecutorService executor;
+    private volatile Future<?> future;
 
     public BatchProcessor(String name, BatchHandler<T> handler, int maxBatchSize, int queueSize)
     {
@@ -32,51 +34,54 @@ public class BatchProcessor<T>
         Preconditions.checkArgument(queueSize > 0, "queue size needs to be a positive integer");
         Preconditions.checkArgument(maxBatchSize > 0, "max batch size needs to be a positive integer");
 
+        this.name = name;
         this.handler = handler;
         this.maxBatchSize = maxBatchSize;
         this.queue = new ArrayBlockingQueue<T>(queueSize);
-
-        this.executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat(format("batch-processor-%s", name)).build());
     }
 
     @PostConstruct
-    public void start()
+    public synchronized void start()
     {
-        Future<?> future = executor.submit(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                while (!Thread.interrupted()) {
-                    final List<T> entries = new ArrayList<T>(maxBatchSize);
+        if (future == null) {
+            executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat(format("batch-processor-%s", name)).build());
 
-                    try {
-                        T first = queue.take();
-                        entries.add(first);
-                        queue.drainTo(entries, maxBatchSize - 1);
+            future = executor.submit(new Runnable() {
+                public void run()
+                {
+                    while (!Thread.interrupted()) {
+                        final List<T> entries = new ArrayList<T>(maxBatchSize);
 
-                        handler.processBatch(entries);
-                    }
-                    catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
+                        try {
+                            T first = queue.take();
+                            entries.add(first);
+                            queue.drainTo(entries, maxBatchSize - 1);
+
+                            handler.processBatch(entries);
+                        }
+                        catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
                     }
                 }
-            }
-        });
-
-        this.future.set(future);
+            });
+        }
     }
-    
+
     @PreDestroy
-    public void stop()
+    public synchronized void stop()
     {
-        future.get().cancel(true);
-        executor.shutdownNow();
+        if (future != null) {
+            future.cancel(true);
+            executor.shutdownNow();
+
+            future = null;
+        }
     }
 
     public void put(T entry)
     {
-        Preconditions.checkState(future.get() != null && !future.get().isCancelled(), "Processor is not running");
+        Preconditions.checkState(!future.isCancelled(), "Processor is not running");
         Preconditions.checkNotNull(entry, "entry is null");
 
         while (!queue.offer(entry)) {
