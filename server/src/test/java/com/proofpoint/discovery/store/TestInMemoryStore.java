@@ -1,10 +1,6 @@
 package com.proofpoint.discovery.store;
 
 import com.google.common.base.Charsets;
-import com.proofpoint.discovery.store.ConflictResolver;
-import com.proofpoint.discovery.store.Entry;
-import com.proofpoint.discovery.store.InMemoryStore;
-import com.proofpoint.discovery.store.Version;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
