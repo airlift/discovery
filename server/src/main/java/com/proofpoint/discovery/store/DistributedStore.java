@@ -21,6 +21,7 @@ import static com.google.common.base.Predicates.not;
 
 public class DistributedStore
 {
+    private final String name;
     private final LocalStore localStore;
     private final RemoteStore remoteStore;
     private final Provider<DateTime> timeProvider;
@@ -30,8 +31,9 @@ public class DistributedStore
     private final ScheduledExecutorService garbageCollector;
 
     @Inject
-    public DistributedStore(LocalStore localStore, RemoteStore remoteStore, StoreConfig config, Provider<DateTime> timeProvider)
+    public DistributedStore(String name, LocalStore localStore, RemoteStore remoteStore, StoreConfig config, Provider<DateTime> timeProvider)
     {
+        this.name = name;
         this.localStore = localStore;
         this.remoteStore = remoteStore;
         this.timeProvider = timeProvider;
@@ -39,7 +41,7 @@ public class DistributedStore
         tombstoneMaxAge = config.getTombstoneMaxAge();
         garbageCollectionInterval = config.getGarbageCollectionInterval();
         
-        garbageCollector = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("distributed-store-gc-%d").setDaemon(true).build());
+        garbageCollector = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("distributed-store-gc-" + name + "-%d").setDaemon(true).build());
     }
 
     @PostConstruct

@@ -159,7 +159,7 @@ public class ReplicatedStoreModule
                 remoteStore = new HttpRemoteStore(name, nodeInfo, serviceSelector, storeConfig, httpClient);
                 remoteStore.start();
 
-                store = new DistributedStore(localStore, remoteStore, storeConfig, dateTimeProvider);
+                store = new DistributedStore(name, localStore, remoteStore, storeConfig, dateTimeProvider);
                 store.start();
             }
 

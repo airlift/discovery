@@ -65,7 +65,7 @@ public class Replicator
     public synchronized void start()
     {
         if (future == null) {
-            executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("replicator-%d").setDaemon(true).build());
+            executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("replicator-" + name + "-%d").setDaemon(true).build());
 
             future = executor.scheduleAtFixedRate(new Runnable()
             {

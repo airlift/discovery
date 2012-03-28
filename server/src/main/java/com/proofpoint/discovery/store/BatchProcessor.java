@@ -44,7 +44,7 @@ public class BatchProcessor<T>
     public synchronized void start()
     {
         if (future == null) {
-            executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat(format("batch-processor-%s", name)).build());
+            executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("batch-processor-" + name + "-%d").build());
 
             future = executor.submit(new Runnable() {
                 public void run()
