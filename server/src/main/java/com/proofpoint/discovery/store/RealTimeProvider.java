@@ -1,4 +1,4 @@
-package com.proofpoint.discovery;
+package com.proofpoint.discovery.store;
 
 import org.joda.time.DateTime;
 

@@ -6,7 +6,6 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-import com.proofpoint.discovery.RealTimeProvider;
 import com.proofpoint.discovery.client.ServiceSelector;
 import com.proofpoint.http.client.HttpClient;
 import com.proofpoint.http.client.HttpClientModule;

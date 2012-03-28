@@ -2,6 +2,7 @@ package com.proofpoint.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.proofpoint.discovery.store.RealTimeProvider;
 import com.proofpoint.jaxrs.testing.MockUriInfo;
 import com.proofpoint.node.NodeInfo;
 import org.testng.annotations.BeforeMethod;
