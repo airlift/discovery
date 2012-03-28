@@ -6,9 +6,11 @@ import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.proofpoint.configuration.ConfigurationModule;
-import com.proofpoint.discovery.client.HttpServiceInventory;
 import com.proofpoint.discovery.client.ServiceDescriptor;
+import com.proofpoint.discovery.client.ServiceInventory;
 import com.proofpoint.discovery.client.ServiceSelector;
+import com.proofpoint.event.client.EventClient;
+import com.proofpoint.event.client.NullEventClient;
 import com.proofpoint.node.NodeInfo;
 
 import javax.inject.Singleton;
@@ -25,13 +27,15 @@ public class DiscoveryServerModule
 
         binder.bind(DynamicStore.class).to(ReplicatedDynamicStore.class).in(Scopes.SINGLETON);
         binder.bind(StaticStore.class).to(ReplicatedStaticStore.class).in(Scopes.SINGLETON);
+        
+        binder.bind(EventClient.class).to(NullEventClient.class);
 
         ConfigurationModule.bindConfig(binder).to(DiscoveryConfig.class);
     }
 
     @Singleton
     @Provides
-    public ServiceSelector getServiceInventory(final HttpServiceInventory inventory, final NodeInfo nodeInfo)
+    public ServiceSelector getServiceInventory(final ServiceInventory inventory, final NodeInfo nodeInfo)
     {
         return new ServiceSelector()
         {
