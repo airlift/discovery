@@ -2,6 +2,7 @@ package com.proofpoint.discovery.store;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.proofpoint.discovery.client.ServiceDescriptor;
@@ -29,7 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -48,10 +51,13 @@ public class HttpRemoteStore
     private final Duration updateInterval;
 
     private final ConcurrentMap<String, BatchProcessor<Entry>> processors = new ConcurrentHashMap<String, BatchProcessor<Entry>>();
-    private final ScheduledExecutorService executor;
     private final NodeInfo node;
     private final ServiceSelector selector;
     private final HttpClient httpClient;
+
+    private Future<?> future;
+    private ScheduledExecutorService executor;
+
 
     @Inject
     public HttpRemoteStore(NodeInfo node,
@@ -66,28 +72,53 @@ public class HttpRemoteStore
         maxBatchSize = config.getMaxBatchSize();
         queueSize = config.getQueueSize();
         updateInterval = config.getRemoteUpdateInterval();
-
-        executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("remote-store-%d").setDaemon(true).build());
     }
 
     @PostConstruct
-    public void start()
+    public synchronized void start()
     {
-        executor.scheduleWithFixedDelay(new Runnable()
-        {
-            @Override
-            public void run()
+        if (future == null) {
+            // note: this *must* be single threaded for the shutdown logic to work correctly
+            executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("remote-store-%d").setDaemon(true).build());
+
+            future = executor.scheduleWithFixedDelay(new Runnable()
             {
-                updateProcessors(selector.selectAllServices());
-            }
-        }, 0, (long) updateInterval.toMillis(), TimeUnit.MILLISECONDS);
+                @Override
+                public void run()
+                {
+                    updateProcessors(selector.selectAllServices());
+                }
+            }, 0, (long) updateInterval.toMillis(), TimeUnit.MILLISECONDS);
+        }
     }
 
     @PreDestroy
-    public void shutdown()
+    public synchronized void shutdown()
     {
-        executor.shutdownNow();
-        updateProcessors(Collections.<ServiceDescriptor>emptyList());
+        if (future != null) {
+            future.cancel(true);
+
+            try {
+                // schedule a task to shut down all processors and wait for it to complete. We rely on the executor
+                // having a *single* thread to guarantee the execution happens after any currently running task
+                // (in case the cancel call above didn't do its magic and the scheduled task is still running)
+                executor.submit(new Runnable() {
+                    public void run() {
+                        updateProcessors(Collections.<ServiceDescriptor>emptyList());
+                    }
+                }).get();
+            }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            catch (ExecutionException e) {
+                Throwables.propagate(e);
+            }
+
+            executor.shutdownNow();
+
+            future = null;
+        }
     }
 
     private void updateProcessors(List<ServiceDescriptor> descriptors)
