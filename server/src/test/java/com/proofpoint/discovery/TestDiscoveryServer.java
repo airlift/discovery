@@ -117,7 +117,7 @@ public class TestDiscoveryServer
     }
 
 
-    @Test(enabled = false)
+    @Test
     public void testStaticAnnouncement()
             throws Exception
     {
