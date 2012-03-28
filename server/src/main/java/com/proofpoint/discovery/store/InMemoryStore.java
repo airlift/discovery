@@ -12,6 +12,7 @@ import static com.proofpoint.discovery.store.Version.Occurs.AFTER;
 import static com.proofpoint.discovery.store.Version.Occurs.SAME;
 
 public class InMemoryStore
+        implements LocalStore
 {
     private final ConcurrentMap<ByteBuffer, Entry> map = new ConcurrentHashMap<ByteBuffer, Entry>();
     private final ConflictResolver resolver;
@@ -22,6 +23,7 @@ public class InMemoryStore
         this.resolver = resolver;
     }
 
+    @Override
     public void put(Entry entry)
     {
         ByteBuffer key = ByteBuffer.wrap(entry.getKey());
@@ -41,6 +43,7 @@ public class InMemoryStore
         }
     }
 
+    @Override
     public Entry get(byte[] key)
     {
         Preconditions.checkNotNull(key, "key is null");
@@ -48,6 +51,7 @@ public class InMemoryStore
         return map.get(ByteBuffer.wrap(key));
     }
 
+    @Override
     public void delete(byte[] key, Version version)
     {
         Preconditions.checkNotNull(key, "key is null");
@@ -65,6 +69,7 @@ public class InMemoryStore
         }
     }
 
+    @Override
     public Iterable<Entry> getAll()
     {
         return map.values();

@@ -38,7 +38,7 @@ public class Replicator
     private final NodeInfo node;
     private final ServiceSelector selector;
     private final HttpClient httpClient;
-    private final InMemoryStore localStore;
+    private final LocalStore localStore;
     private final Duration replicationInterval;
 
     private ScheduledFuture<?> future;
@@ -50,7 +50,7 @@ public class Replicator
     public Replicator(NodeInfo node,
             ServiceSelector selector,
             @ForRemoteStoreClient HttpClient httpClient,
-            InMemoryStore localStore,
+            LocalStore localStore,
             StoreConfig config)
     {
         this.node = node;

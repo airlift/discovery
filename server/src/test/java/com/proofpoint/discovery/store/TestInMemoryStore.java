@@ -14,7 +14,7 @@ import static org.testng.Assert.assertNull;
 
 public class TestInMemoryStore
 {
-    private InMemoryStore store;
+    private LocalStore store;
 
     @BeforeMethod
     protected void setUp()

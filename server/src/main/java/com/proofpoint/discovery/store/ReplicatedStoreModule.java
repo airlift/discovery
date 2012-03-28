@@ -19,9 +19,9 @@ public class ReplicatedStoreModule
 
         binder.bind(Replicator.class).in(Scopes.SINGLETON);
         binder.bind(StoreResource.class).in(Scopes.SINGLETON);
-        binder.bind(InMemoryStore.class).in(Scopes.SINGLETON);
         binder.bind(DistributedStore.class).in(Scopes.SINGLETON);
         binder.bind(RemoteStore.class).to(HttpRemoteStore.class).in(Scopes.SINGLETON);
+        binder.bind(LocalStore.class).to(InMemoryStore.class).in(Scopes.SINGLETON);
         binder.bind(ConflictResolver.class).in(Scopes.SINGLETON);
         binder.bind(DateTime.class).toProvider(RealTimeProvider.class);
 

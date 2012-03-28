@@ -21,7 +21,7 @@ import static com.google.common.base.Predicates.not;
 
 public class DistributedStore
 {
-    private final InMemoryStore localStore;
+    private final LocalStore localStore;
     private final RemoteStore remoteStore;
     private final Provider<DateTime> timeProvider;
     private final Duration tombstoneMaxAge;
@@ -30,7 +30,7 @@ public class DistributedStore
     private final ScheduledExecutorService garbageCollector;
 
     @Inject
-    public DistributedStore(InMemoryStore localStore, RemoteStore remoteStore, StoreConfig config, Provider<DateTime> timeProvider)
+    public DistributedStore(LocalStore localStore, RemoteStore remoteStore, StoreConfig config, Provider<DateTime> timeProvider)
     {
         this.localStore = localStore;
         this.remoteStore = remoteStore;
