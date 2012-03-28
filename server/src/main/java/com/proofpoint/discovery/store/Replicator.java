@@ -38,12 +38,12 @@ public class Replicator
     private final NodeInfo node;
     private final ServiceSelector selector;
     private final HttpClient httpClient;
-    private final ScheduledExecutorService executor;
     private final InMemoryStore localStore;
     private final Duration replicationInterval;
 
     private ScheduledFuture<?> future;
-    
+    private ScheduledExecutorService executor;
+
     private final ObjectMapper mapper = new ObjectMapper(new SmileFactory());
 
     @Inject
@@ -60,20 +60,23 @@ public class Replicator
 
         this.replicationInterval = config.getReplicationInterval();
 
-        this.executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("replicator-%d").setDaemon(true).build());
     }
 
     @PostConstruct
     public synchronized void start()
     {
-        future = executor.scheduleAtFixedRate(new Runnable()
-        {
-            @Override
-            public void run()
+        if (future == null) {
+            executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("replicator-%d").setDaemon(true).build());
+
+            future = executor.scheduleAtFixedRate(new Runnable()
             {
-                synchronize();
-            }
-        }, 0, (long) replicationInterval.toMillis(), TimeUnit.MILLISECONDS);
+                @Override
+                public void run()
+                {
+                    synchronize();
+                }
+            }, 0, (long) replicationInterval.toMillis(), TimeUnit.MILLISECONDS);
+        }
 
         // TODO: need failsafe recurrent scheduler with variable delay
     }
@@ -81,8 +84,12 @@ public class Replicator
     @PreDestroy
     public synchronized void stop()
     {
-        future.cancel(true);
-        executor.shutdownNow();
+        if (future != null) {
+            future.cancel(true);
+            executor.shutdownNow();
+
+            future = null;
+        }
     }
 
     private void synchronize()
