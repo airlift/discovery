@@ -58,7 +58,6 @@ public class TestDiscoveryServer
                 new JsonModule(),
                 new JaxrsModule(),
                 new DiscoveryServerModule(),
-                new ReplicatedStoreModule(),
                 new DiscoveryModule(),
                 new ConfigurationModule(new ConfigurationFactory(serverProperties)));
 

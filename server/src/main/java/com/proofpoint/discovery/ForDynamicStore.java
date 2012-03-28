@@ -1,4 +1,4 @@
-package com.proofpoint.discovery.store;
+package com.proofpoint.discovery;
 
 import com.google.inject.BindingAnnotation;
 
@@ -13,6 +13,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER, METHOD})
 @BindingAnnotation
-public @interface ForRemoteStoreClient
+public @interface ForDynamicStore
 {
 }

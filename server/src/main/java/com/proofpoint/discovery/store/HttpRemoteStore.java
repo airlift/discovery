@@ -1,6 +1,7 @@
 package com.proofpoint.discovery.store;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
@@ -51,6 +52,7 @@ public class HttpRemoteStore
     private final Duration updateInterval;
 
     private final ConcurrentMap<String, BatchProcessor<Entry>> processors = new ConcurrentHashMap<String, BatchProcessor<Entry>>();
+    private final String name;
     private final NodeInfo node;
     private final ServiceSelector selector;
     private final HttpClient httpClient;
@@ -60,11 +62,19 @@ public class HttpRemoteStore
 
 
     @Inject
-    public HttpRemoteStore(NodeInfo node,
+    public HttpRemoteStore(String name,
+            NodeInfo node,
             ServiceSelector selector,
             StoreConfig config,
-            @ForRemoteStoreClient HttpClient httpClient)
+            HttpClient httpClient)
     {
+        Preconditions.checkNotNull(name, "name is null");
+        Preconditions.checkNotNull(node, "node is null");
+        Preconditions.checkNotNull(selector, "selector is null");
+        Preconditions.checkNotNull(httpClient, "httpClient is null");
+        Preconditions.checkNotNull(config, "config is null");
+
+        this.name = name;
         this.node = node;
         this.selector = selector;
         this.httpClient = httpClient;
@@ -141,7 +151,7 @@ public class HttpRemoteStore
 
         for (ServiceDescriptor descriptor : newDescriptors) {
             BatchProcessor<Entry> processor = new BatchProcessor<Entry>(descriptor.getNodeId(),
-                    new MyBatchHandler(descriptor, httpClient),
+                    new MyBatchHandler(name, descriptor, httpClient),
                     maxBatchSize,
                     queueSize);
 
@@ -177,12 +187,12 @@ public class HttpRemoteStore
         private final URI uri;
         private final HttpClient httpClient;
 
-        public MyBatchHandler(ServiceDescriptor descriptor, HttpClient httpClient)
+        public MyBatchHandler(String name, ServiceDescriptor descriptor, HttpClient httpClient)
         {
             this.httpClient = httpClient;
 
             // TODO: build URI from resource class
-            uri = URI.create(descriptor.getProperties().get("http") + "/v1/store");
+            uri = URI.create(descriptor.getProperties().get("http") + "/v1/store/" + name);
         }
 
         @Override

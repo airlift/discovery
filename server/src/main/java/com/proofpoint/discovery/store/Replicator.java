@@ -31,6 +31,7 @@ public class Replicator
 {
     private final static Logger log = Logger.get(Replicator.class);
 
+    private final String name;
     private final NodeInfo node;
     private final ServiceSelector selector;
     private final HttpClient httpClient;
@@ -43,12 +44,14 @@ public class Replicator
     private final ObjectMapper mapper = new ObjectMapper(new SmileFactory());
 
     @Inject
-    public Replicator(NodeInfo node,
+    public Replicator(String name,
+            NodeInfo node,
             ServiceSelector selector,
-            @ForRemoteStoreClient HttpClient httpClient,
+            HttpClient httpClient,
             LocalStore localStore,
             StoreConfig config)
     {
+        this.name = name;
         this.node = node;
         this.selector = selector;
         this.httpClient = httpClient;
@@ -101,7 +104,7 @@ public class Replicator
 
             // TODO: build URI from resource class
             Request request = RequestBuilder.prepareGet()
-                    .setUri(URI.create(uri + "/v1/store"))
+                    .setUri(URI.create(uri + "/v1/store/" + name))
                     .build();
 
             try {

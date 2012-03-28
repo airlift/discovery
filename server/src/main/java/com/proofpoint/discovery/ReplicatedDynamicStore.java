@@ -29,7 +29,7 @@ public class ReplicatedDynamicStore
     private final Duration maxAge;
 
     @Inject
-    public ReplicatedDynamicStore(DistributedStore store, DiscoveryConfig config)
+    public ReplicatedDynamicStore(@ForDynamicStore DistributedStore store, DiscoveryConfig config)
     {
         this.store = store;
         this.maxAge = config.getMaxAge();

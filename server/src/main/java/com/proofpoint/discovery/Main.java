@@ -1,6 +1,7 @@
 package com.proofpoint.discovery;
 
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.proofpoint.bootstrap.Bootstrap;
 import com.proofpoint.discovery.client.Announcer;
 import com.proofpoint.discovery.client.DiscoveryModule;
@@ -28,7 +29,6 @@ public class Main
                                           new JmxModule(),
                                           new JmxHttpRpcModule(),
                                           new DiscoveryServerModule(),
-                                          new ReplicatedStoreModule(),
                                           new DiscoveryModule()
                          );
 
