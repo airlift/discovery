@@ -6,6 +6,7 @@ import com.proofpoint.bootstrap.Bootstrap;
 import com.proofpoint.discovery.client.Announcer;
 import com.proofpoint.discovery.client.DiscoveryModule;
 import com.proofpoint.discovery.store.ReplicatedStoreModule;
+import com.proofpoint.event.client.HttpEventModule;
 import com.proofpoint.http.server.HttpServerModule;
 import com.proofpoint.jaxrs.JaxrsModule;
 import com.proofpoint.jmx.JmxModule;
@@ -13,6 +14,7 @@ import com.proofpoint.jmx.http.rpc.JmxHttpRpcModule;
 import com.proofpoint.json.JsonModule;
 import com.proofpoint.log.Logger;
 import com.proofpoint.node.NodeModule;
+import com.proofpoint.tracetoken.TraceTokenModule;
 
 public class Main
 {
@@ -29,6 +31,8 @@ public class Main
                                           new JmxModule(),
                                           new JmxHttpRpcModule(),
                                           new DiscoveryServerModule(),
+                                          new HttpEventModule(),
+                                          new TraceTokenModule(),
                                           new DiscoveryModule()
                          );
 

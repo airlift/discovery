@@ -32,7 +32,6 @@ public class DiscoveryServerModule
     {
         bindConfig(binder).to(DiscoveryConfig.class);
         binder.bind(ServiceResource.class).in(Scopes.SINGLETON);
-        binder.bind(EventClient.class).to(NullEventClient.class);
 
         discoveryBinder(binder).bindHttpAnnouncement("discovery");
 
