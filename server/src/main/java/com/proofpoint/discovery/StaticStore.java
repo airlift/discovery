@@ -5,7 +5,7 @@ import java.util.Set;
 public interface StaticStore
 {
     void put(Service service);
-    void delete(Id<Service> nodeId);
+    void delete(Id<Service> id);
 
     Set<Service> getAll();
     Set<Service> get(String type);
