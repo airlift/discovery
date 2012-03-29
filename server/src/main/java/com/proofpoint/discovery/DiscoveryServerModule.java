@@ -29,23 +29,21 @@ public class DiscoveryServerModule
 {
     public void configure(Binder binder)
     {
-        binder.bind(DynamicAnnouncementResource.class).in(Scopes.SINGLETON);
-        binder.bind(StaticAnnouncementResource.class).in(Scopes.SINGLETON);
+        bindConfig(binder).to(DiscoveryConfig.class);
         binder.bind(ServiceResource.class).in(Scopes.SINGLETON);
-
-        binder.bind(DynamicStore.class).to(ReplicatedDynamicStore.class).in(Scopes.SINGLETON);
-        binder.bind(StaticStore.class).to(ReplicatedStaticStore.class).in(Scopes.SINGLETON);
-
         binder.bind(EventClient.class).to(NullEventClient.class);
 
-        bindConfig(binder).to(DiscoveryConfig.class);
-
+        // dynamic announcements
+        binder.bind(DynamicAnnouncementResource.class).in(Scopes.SINGLETON);
+        binder.bind(DynamicStore.class).to(ReplicatedDynamicStore.class).in(Scopes.SINGLETON);
         binder.install(new ReplicatedStoreModule("dynamic", ForDynamicStore.class));
-        binder.install(new ReplicatedStoreModule("static", ForStaticStore.class));
-
         binder.bind(LocalStore.class).annotatedWith(ForDynamicStore.class).to(InMemoryStore.class).in(Scopes.SINGLETON);
-        binder.bind(LocalStore.class).annotatedWith(ForStaticStore.class).to(PersistentStore.class).in(Scopes.SINGLETON);
 
+        // static announcements
+        binder.bind(StaticAnnouncementResource.class).in(Scopes.SINGLETON);
+        binder.bind(StaticStore.class).to(ReplicatedStaticStore.class).in(Scopes.SINGLETON);
+        binder.install(new ReplicatedStoreModule("static", ForStaticStore.class));
+        binder.bind(LocalStore.class).annotatedWith(ForStaticStore.class).to(PersistentStore.class).in(Scopes.SINGLETON);
         bindConfig(binder).prefixedWith("static").to(PersistentStoreConfig.class);
     }
 
