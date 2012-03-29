@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 import java.util.List;
 
 import static com.proofpoint.configuration.ConfigurationModule.bindConfig;
+import static com.proofpoint.discovery.client.DiscoveryBinder.discoveryBinder;
 
 public class DiscoveryServerModule
         implements Module
@@ -32,6 +33,8 @@ public class DiscoveryServerModule
         bindConfig(binder).to(DiscoveryConfig.class);
         binder.bind(ServiceResource.class).in(Scopes.SINGLETON);
         binder.bind(EventClient.class).to(NullEventClient.class);
+
+        discoveryBinder(binder).bindHttpAnnouncement("discovery");
 
         // dynamic announcements
         binder.bind(DynamicAnnouncementResource.class).in(Scopes.SINGLETON);
