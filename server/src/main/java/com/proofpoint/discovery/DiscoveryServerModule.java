@@ -12,6 +12,8 @@ import com.proofpoint.discovery.client.ServiceInventory;
 import com.proofpoint.discovery.client.ServiceSelector;
 import com.proofpoint.discovery.store.InMemoryStore;
 import com.proofpoint.discovery.store.LocalStore;
+import com.proofpoint.discovery.store.PersistentStore;
+import com.proofpoint.discovery.store.PersistentStoreConfig;
 import com.proofpoint.discovery.store.ReplicatedStoreModule;
 import com.proofpoint.event.client.EventClient;
 import com.proofpoint.event.client.NullEventClient;
@@ -19,6 +21,8 @@ import com.proofpoint.node.NodeInfo;
 
 import javax.inject.Singleton;
 import java.util.List;
+
+import static com.proofpoint.configuration.ConfigurationModule.bindConfig;
 
 public class DiscoveryServerModule
         implements Module
@@ -34,13 +38,15 @@ public class DiscoveryServerModule
 
         binder.bind(EventClient.class).to(NullEventClient.class);
 
-        ConfigurationModule.bindConfig(binder).to(DiscoveryConfig.class);
+        bindConfig(binder).to(DiscoveryConfig.class);
 
         binder.install(new ReplicatedStoreModule("dynamic", ForDynamicStore.class));
         binder.install(new ReplicatedStoreModule("static", ForStaticStore.class));
 
         binder.bind(LocalStore.class).annotatedWith(ForDynamicStore.class).to(InMemoryStore.class).in(Scopes.SINGLETON);
-        binder.bind(LocalStore.class).annotatedWith(ForStaticStore.class).to(InMemoryStore.class).in(Scopes.SINGLETON);
+        binder.bind(LocalStore.class).annotatedWith(ForStaticStore.class).to(PersistentStore.class).in(Scopes.SINGLETON);
+
+        bindConfig(binder).prefixedWith("static").to(PersistentStoreConfig.class);
     }
 
     @Singleton

@@ -2,6 +2,7 @@ package com.proofpoint.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.Files;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.ning.http.client.AsyncHttpClient;
@@ -24,10 +25,12 @@ import com.proofpoint.json.JsonCodec;
 import com.proofpoint.json.JsonModule;
 import com.proofpoint.node.NodeInfo;
 import com.proofpoint.node.NodeModule;
+import org.iq80.leveldb.util.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -41,15 +44,18 @@ import static org.testng.Assert.assertTrue;
 public class TestDiscoveryServer
 {
     private TestingHttpServer server;
+    private File tempDir;
 
     @BeforeMethod
     public void setup()
             throws Exception
     {
+        tempDir = Files.createTempDir();
+
         // start server
         Map<String, String> serverProperties = ImmutableMap.<String, String>builder()
                     .put("node.environment", "testing")
-                    .put("store.replication-factor", "1")
+                    .put("static.db.location", tempDir.getAbsolutePath())
                     .build();
 
         Injector serverInjector = Guice.createInjector(
@@ -70,6 +76,7 @@ public class TestDiscoveryServer
             throws Exception
     {
         server.stop();
+        FileUtils.deleteRecursively(tempDir);
     }
 
     @Test
