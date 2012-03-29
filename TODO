@@ -1,24 +1,17 @@
 - Tests
-    - CassandraStore
-        - background expiration thread
     - Integration
     - Services
 	- DynamicAnnouncement
 	    - equivalence test
-	- EmbeddedCassandraServer
-	    - creates directory if missing or throws error if it can't
 	- ValidationAssertions
 	- ServiceResource tests that also check for static services
 	- More robust tests to ensure operations work properly with expected clock resolution
 
-- CassandraStaticStore
-    - Detect new vs replaced
-
-- Time provider should be able to return time at different resolutions. Right now, it's a DateTime (ms), but Hector supports arbitrary resolution.
-
-- Factor out keyspace & column family initialization from static/dynamic cassandra stores
-
 - Factor out common stuff from tests -- there's lots of repetition currently, especially around creating data object to use for testing
+
+- Inject executors into Replicator, HttpRemoteStore, DistributedStore and BatchProcessor
+- Remove tombstone expiration check from StoreResource
+- Resolve conflicting writes in persistent store
 
 - CLI
 
