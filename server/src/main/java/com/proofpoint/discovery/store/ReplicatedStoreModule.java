@@ -19,6 +19,10 @@ import java.lang.annotation.Annotation;
 import static com.google.inject.multibindings.MapBinder.newMapBinder;
 import static com.proofpoint.configuration.ConfigurationModule.bindConfig;
 
+/**
+ * Expects a LocalStore to be bound elsewhere.
+ * Provides a DistributedStore with the specified annotation.
+ */
 public class ReplicatedStoreModule
     implements Module
 {
