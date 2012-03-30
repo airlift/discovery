@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.proofpoint.discovery.client.ServiceDescriptor;
 import com.proofpoint.discovery.client.ServiceSelector;
@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -47,6 +48,7 @@ import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.inject.name.Names.named;
 import static org.weakref.jmx.ObjectNames.generatedNameOf;
 
@@ -152,14 +154,14 @@ public class HttpRemoteStore
 
     private void updateProcessors(List<ServiceDescriptor> descriptors)
     {
-        Map<String, ServiceDescriptor> byId = Maps.uniqueIndex(descriptors, getNodeIdFunction());
+        Set<String> nodeIds = ImmutableSet.copyOf(transform(descriptors, getNodeIdFunction()));
 
         // remove old ones
         Iterator<Map.Entry<String, BatchProcessor<Entry>>> iterator = processors.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, BatchProcessor<Entry>> entry = iterator.next();
 
-            if (!byId.containsKey(entry.getKey())) {
+            if (!nodeIds.contains(entry.getKey())) {
                 iterator.remove();
                 entry.getValue().stop();
                 mbeanExporter.unexport(nameFor(entry.getKey()));
