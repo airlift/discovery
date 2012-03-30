@@ -52,7 +52,7 @@ public class ReplicatedStoreModule
 
         // global
         binder.bind(StoreResource.class).in(Scopes.SINGLETON);
-        binder.bind(DateTime.class).toProvider(RealTimeProvider.class);
+        binder.bind(DateTime.class).toProvider(RealTimeProvider.class).in(Scopes.NO_SCOPE);;
         binder.bind(SmileMapper.class).in(Scopes.SINGLETON);
         binder.bind(ConflictResolver.class).in(Scopes.SINGLETON);
 
@@ -66,7 +66,7 @@ public class ReplicatedStoreModule
         binder.install(new HttpClientModule(name, annotation));
         binder.bind(DistributedStore.class).annotatedWith(annotation).toProvider(new DistributedStoreProvider(name, localStoreKey, storeConfigKey, remoteStoreKey)).in(Scopes.SINGLETON);
         binder.bind(Replicator.class).annotatedWith(annotation).toProvider(new ReplicatorProvider(name, localStoreKey, httpClientKey, storeConfigKey)).in(Scopes.SINGLETON);
-        binder.bind(HttpRemoteStore.class).annotatedWith(annotation).toProvider(new RemoteHttpStoreProvider(name, httpClientKey, storeConfigKey));
+        binder.bind(HttpRemoteStore.class).annotatedWith(annotation).toProvider(new RemoteHttpStoreProvider(name, httpClientKey, storeConfigKey)).in(Scopes.SINGLETON);
         binder.bind(LocalStore.class).annotatedWith(annotation).to(localStoreClass).in(Scopes.SINGLETON);
 
         binder.bind(RemoteStore.class).annotatedWith(annotation).to(Key.get(HttpRemoteStore.class, annotation));
