@@ -19,6 +19,7 @@ import com.proofpoint.node.NodeInfo;
 import com.proofpoint.units.Duration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.smile.SmileFactory;
+import org.weakref.jmx.MBeanExporter;
 import org.weakref.jmx.Managed;
 
 import javax.annotation.PostConstruct;
@@ -46,6 +47,8 @@ import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
+import static com.google.inject.name.Names.named;
+import static org.weakref.jmx.ObjectNames.generatedNameOf;
 
 public class HttpRemoteStore
         implements RemoteStore
@@ -66,6 +69,7 @@ public class HttpRemoteStore
     private ScheduledExecutorService executor;
 
     private final AtomicLong lastBatchProcessorRefresh = new AtomicLong();
+    private final MBeanExporter mbeanExporter;
 
 
     @Inject
@@ -73,18 +77,21 @@ public class HttpRemoteStore
             NodeInfo node,
             ServiceSelector selector,
             StoreConfig config,
-            HttpClient httpClient)
+            HttpClient httpClient,
+            MBeanExporter mbeanExporter)
     {
         Preconditions.checkNotNull(name, "name is null");
         Preconditions.checkNotNull(node, "node is null");
         Preconditions.checkNotNull(selector, "selector is null");
         Preconditions.checkNotNull(httpClient, "httpClient is null");
         Preconditions.checkNotNull(config, "config is null");
+        Preconditions.checkNotNull(mbeanExporter, "mBeanExporter is null");
 
         this.name = name;
         this.node = node;
         this.selector = selector;
         this.httpClient = httpClient;
+        this.mbeanExporter = mbeanExporter;
 
         maxBatchSize = config.getMaxBatchSize();
         queueSize = config.getQueueSize();
@@ -155,6 +162,7 @@ public class HttpRemoteStore
             if (!byId.containsKey(entry.getKey())) {
                 iterator.remove();
                 entry.getValue().stop();
+                mbeanExporter.unexport(nameFor(entry.getKey()));
             }
         }
 
@@ -169,9 +177,15 @@ public class HttpRemoteStore
 
             processor.start();
             processors.put(descriptor.getNodeId(), processor);
+            mbeanExporter.export(nameFor(descriptor.getNodeId()), processor);
         }
 
         lastBatchProcessorRefresh.set(System.currentTimeMillis());
+    }
+
+    private String nameFor(String id)
+    {
+        return generatedNameOf(BatchProcessor.class, named(name + "-" + id));
     }
 
     @Managed

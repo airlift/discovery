@@ -3,20 +3,20 @@ package com.proofpoint.discovery.store;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.proofpoint.log.Logger;
+import org.weakref.jmx.Managed;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static java.lang.String.format;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class BatchProcessor<T>
 {
@@ -29,6 +29,10 @@ public class BatchProcessor<T>
 
     private ExecutorService executor;
     private volatile Future<?> future;
+
+    private final AtomicLong processedEntries = new AtomicLong();
+    private final AtomicLong droppedEntries = new AtomicLong();
+    private final AtomicLong errors = new AtomicLong();
 
     public BatchProcessor(String name, BatchHandler<T> handler, int maxBatchSize, int queueSize)
     {
@@ -60,18 +64,47 @@ public class BatchProcessor<T>
                             entries.add(first);
                             queue.drainTo(entries, maxBatchSize - 1);
 
-                            handler.processBatch(entries);
+                            handler.processBatch(Collections.unmodifiableList(entries));
+
+                            processedEntries.addAndGet(entries.size());
                         }
                         catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
                         }
                         catch (Throwable t) {
+                            errors.incrementAndGet();
                             log.warn(t, "Error handling batch");
                         }
+
+                        // TODO: expose timestamp of last execution via jmx
                     }
                 }
             });
         }
+    }
+
+    @Managed
+    public long getProcessedEntries()
+    {
+        return processedEntries.get();
+    }
+
+    @Managed
+    public long getDroppedEntries()
+    {
+        return droppedEntries.get();
+    }
+
+    @Managed
+    public long getErrors()
+    {
+        return errors.get();
+    }
+
+    @Managed
+    public long getQueueSize()
+    {
+        return queue.size();
     }
 
     @PreDestroy
@@ -92,7 +125,9 @@ public class BatchProcessor<T>
 
         while (!queue.offer(entry)) {
             // throw away oldest and try again
-            queue.poll();
+            if (queue.poll() != null) {
+                droppedEntries.incrementAndGet();
+            }
         }
     }
 

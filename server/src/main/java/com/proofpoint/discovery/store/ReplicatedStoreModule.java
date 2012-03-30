@@ -5,19 +5,25 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
+import com.google.inject.Singleton;
 import com.proofpoint.discovery.client.ServiceSelector;
 import com.proofpoint.http.client.HttpClient;
 import com.proofpoint.http.client.HttpClientModule;
 import com.proofpoint.node.NodeInfo;
 import org.joda.time.DateTime;
+import org.weakref.jmx.MBeanExporter;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.management.MBeanServer;
 import java.lang.annotation.Annotation;
 
 import static com.google.inject.multibindings.MapBinder.newMapBinder;
+import static com.google.inject.name.Names.named;
 import static com.proofpoint.configuration.ConfigurationModule.bindConfig;
+import static org.weakref.jmx.ObjectNames.generatedNameOf;
 import static org.weakref.jmx.guice.MBeanModule.newExporter;
 
 /**
@@ -148,6 +154,7 @@ public class ReplicatedStoreModule
         private Injector injector;
         private NodeInfo nodeInfo;
         private ServiceSelector serviceSelector;
+        private MBeanExporter mbeanExporter;
 
         private final String name;
         private final Key<? extends HttpClient> httpClientKey;
@@ -168,7 +175,7 @@ public class ReplicatedStoreModule
                 HttpClient httpClient = injector.getInstance(httpClientKey);
                 StoreConfig storeConfig = injector.getInstance(storeConfigKey);
 
-                remoteStore = new HttpRemoteStore(name, nodeInfo, serviceSelector, storeConfig, httpClient);
+                remoteStore = new HttpRemoteStore(name, nodeInfo, serviceSelector, storeConfig, httpClient, mbeanExporter);
                 remoteStore.start();
             }
 
@@ -199,6 +206,12 @@ public class ReplicatedStoreModule
         public void setServiceSelector(ServiceSelector serviceSelector)
         {
             this.serviceSelector = serviceSelector;
+        }
+
+        @Inject
+        public void setMbeanExporter(MBeanExporter mbeanExporter)
+        {
+            this.mbeanExporter = mbeanExporter;
         }
     }
 
