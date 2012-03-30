@@ -72,13 +72,13 @@ public class Entry
 
         Entry entry = (Entry) o;
 
-        if (maxAgeInMs != entry.maxAgeInMs) {
-            return false;
-        }
         if (timestamp != entry.timestamp) {
             return false;
         }
         if (!Arrays.equals(key, entry.key)) {
+            return false;
+        }
+        if (maxAgeInMs != null ? !maxAgeInMs.equals(entry.maxAgeInMs) : entry.maxAgeInMs != null) {
             return false;
         }
         if (!Arrays.equals(value, entry.value)) {
@@ -98,7 +98,7 @@ public class Entry
         result = 31 * result + (value != null ? Arrays.hashCode(value) : 0);
         result = 31 * result + version.hashCode();
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-        result = 31 * result + (int) (maxAgeInMs ^ (maxAgeInMs >>> 32));
+        result = 31 * result + (maxAgeInMs != null ? maxAgeInMs.hashCode() : 0);
         return result;
     }
 }
