@@ -1,9 +1,12 @@
 package com.proofpoint.discovery.store;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.proofpoint.units.Duration;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -12,6 +15,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.util.List;
 import java.util.Map;
 
@@ -19,14 +24,20 @@ import java.util.Map;
 public class StoreResource
 {
     private final Map<String, LocalStore> localStores;
-    private final Map<String, StoreConfig> configs;
+    private final Map<String, Duration> tombstoneMaxAges;
 
     @Inject
     public StoreResource(Map<String, LocalStore> localStores, Map<String, StoreConfig> configs)
     {
-        // TODO: this class should not need store configs -- LocalStore should encapsulate any necessary logic
-        this.configs = ImmutableMap.copyOf(configs);
         this.localStores = ImmutableMap.copyOf(localStores);
+        this.tombstoneMaxAges = ImmutableMap.copyOf(Maps.transformValues(configs, new Function<StoreConfig, Duration>()
+        {
+            @Override
+            public Duration apply(@Nullable StoreConfig config)
+            {
+                return config.getTombstoneMaxAge();
+            }
+        }));
     }
 
     @PUT
@@ -41,24 +52,31 @@ public class StoreResource
     
     @POST
     @Consumes({"application/x-jackson-smile", "application/json"})
-    public void setMultipleEntries(@PathParam("store") String storeName, List<Entry> entries)
+    public Response setMultipleEntries(@PathParam("store") String storeName, List<Entry> entries)
     {
         LocalStore store = localStores.get(storeName);
-        StoreConfig config = configs.get(storeName);
+        Duration tombstoneMaxAge = tombstoneMaxAges.get(storeName);
+        if (store == null || tombstoneMaxAge == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
 
         for (Entry entry : entries) {
-            if (!isExpired(config.getTombstoneMaxAge(), entry)) {
+            if (!isExpired(tombstoneMaxAge, entry)) {
                 store.put(entry);
             }
         }
+        return Response.noContent().build();
     }
 
     @GET
     @Produces({"application/x-jackson-smile", "application/json"})
-    public Iterable<Entry> getAll(@PathParam("store") String storeName)
+    public Response getAll(@PathParam("store") String storeName)
     {
         LocalStore store = localStores.get(storeName);
-        return store.getAll();
+        if (store == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        return Response.ok(store.getAll()).build();
     }
 
     private boolean isExpired(Duration tombstoneMaxAge, Entry entry)
