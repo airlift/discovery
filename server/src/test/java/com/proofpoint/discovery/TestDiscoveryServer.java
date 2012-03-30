@@ -3,8 +3,10 @@ package com.proofpoint.discovery;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import com.proofpoint.configuration.ConfigurationFactory;
@@ -29,8 +31,11 @@ import org.iq80.leveldb.util.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.weakref.jmx.guice.MBeanModule;
 
+import javax.management.MBeanServer;
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Map;
 
@@ -59,13 +64,21 @@ public class TestDiscoveryServer
                     .build();
 
         Injector serverInjector = Guice.createInjector(
+                new MBeanModule(),
                 new NodeModule(),
                 new TestingHttpServerModule(),
                 new JsonModule(),
                 new JaxrsModule(),
                 new DiscoveryServerModule(),
                 new DiscoveryModule(),
-                new ConfigurationModule(new ConfigurationFactory(serverProperties)));
+                new ConfigurationModule(new ConfigurationFactory(serverProperties)),
+                new Module() {
+                    public void configure(Binder binder)
+                    {
+                        // TODO: use testing mbean server
+                        binder.bind(MBeanServer.class).toInstance(ManagementFactory.getPlatformMBeanServer());
+                    }
+                });
 
         server = serverInjector.getInstance(TestingHttpServer.class);
         server.start();
