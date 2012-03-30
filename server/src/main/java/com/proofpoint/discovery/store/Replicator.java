@@ -114,7 +114,10 @@ public class Replicator
             }
 
             String uri = descriptor.getProperties().get("http");
-            Preconditions.checkNotNull(uri, "service descriptor for node %s is missing http uri", descriptor.getNodeId());
+            if (uri == null) {
+                log.error("service descriptor for node %s is missing http uri", descriptor.getNodeId());
+                continue;
+            }
 
             // TODO: build URI from resource class
             Request request = RequestBuilder.prepareGet()
