@@ -14,6 +14,7 @@ import com.proofpoint.http.client.Request;
 import com.proofpoint.http.client.RequestBuilder;
 import com.proofpoint.http.client.Response;
 import com.proofpoint.http.client.ResponseHandler;
+import com.proofpoint.log.Logger;
 import com.proofpoint.node.NodeInfo;
 import com.proofpoint.units.Duration;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -47,6 +48,8 @@ import static com.google.common.collect.Iterables.filter;
 public class HttpRemoteStore
         implements RemoteStore
 {
+    private final static Logger log = Logger.get(HttpRemoteStore.class);
+
     private final int maxBatchSize;
     private final int queueSize;
     private final Duration updateInterval;
@@ -96,7 +99,12 @@ public class HttpRemoteStore
                 @Override
                 public void run()
                 {
-                    updateProcessors(selector.selectAllServices());
+                    try {
+                        updateProcessors(selector.selectAllServices());
+                    }
+                    catch (Throwable e) {
+                        log.warn(e, "Error refreshing batch processors");
+                    }
                 }
             }, 0, (long) updateInterval.toMillis(), TimeUnit.MILLISECONDS);
         }
