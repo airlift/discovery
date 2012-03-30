@@ -15,6 +15,7 @@ import com.proofpoint.units.Duration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.type.TypeReference;
+import org.weakref.jmx.Managed;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -26,6 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Replicator
 {
@@ -42,6 +44,7 @@ public class Replicator
     private ScheduledExecutorService executor;
 
     private final ObjectMapper mapper = new ObjectMapper(new SmileFactory());
+    private final AtomicLong lastReplicationTimestamp = new AtomicLong();
 
     @Inject
     public Replicator(String name,
@@ -96,6 +99,12 @@ public class Replicator
         }
     }
 
+    @Managed
+    public long getLastReplicationTimestamp()
+    {
+        return lastReplicationTimestamp.get();
+    }
+
     private void synchronize()
     {
         for (ServiceDescriptor descriptor : selector.selectAllServices()) {
@@ -148,5 +157,7 @@ public class Replicator
                 // ignore
             }
         }
+
+        lastReplicationTimestamp.set(System.currentTimeMillis());
     }
 }

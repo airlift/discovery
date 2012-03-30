@@ -64,6 +64,7 @@ public class ReplicatedStoreModule
         binder.bind(LocalStore.class).annotatedWith(annotation).to(localStoreClass).in(Scopes.SINGLETON);
 
         newExporter(binder).export(HttpRemoteStore.class).annotatedWith(annotation).withGeneratedName();
+        newExporter(binder).export(Replicator.class).annotatedWith(annotation).withGeneratedName();
 
         newMapBinder(binder, String.class, LocalStore.class)
             .addBinding(name)
