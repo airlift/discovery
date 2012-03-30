@@ -54,12 +54,16 @@ public class ReplicatedStoreModule
         Key<HttpClient> httpClientKey = Key.get(HttpClient.class, annotation);
         Key<LocalStore> localStoreKey = Key.get(LocalStore.class, annotation);
         Key<StoreConfig> storeConfigKey = Key.get(StoreConfig.class, annotation);
+        Key<RemoteStore> remoteStoreKey = Key.get(RemoteStore.class, annotation);
 
         bindConfig(binder).annotatedWith(annotation).prefixedWith(name).to(StoreConfig.class);
         binder.install(new HttpClientModule(name, annotation));
-        binder.bind(DistributedStore.class).annotatedWith(annotation).toProvider(new DistributedStoreProvider(name, localStoreKey, httpClientKey, storeConfigKey)).in(Scopes.SINGLETON);
+        binder.bind(DistributedStore.class).annotatedWith(annotation).toProvider(new DistributedStoreProvider(name, localStoreKey, storeConfigKey, remoteStoreKey)).in(Scopes.SINGLETON);
         binder.bind(Replicator.class).annotatedWith(annotation).toProvider(new ReplicatorProvider(name, localStoreKey, httpClientKey, storeConfigKey)).in(Scopes.SINGLETON);
+        binder.bind(HttpRemoteStore.class).annotatedWith(annotation).toProvider(new RemoteHttpStoreProvider(name, httpClientKey, storeConfigKey));
         binder.bind(LocalStore.class).annotatedWith(annotation).to(localStoreClass).in(Scopes.SINGLETON);
+
+        binder.bind(RemoteStore.class).annotatedWith(annotation).to(Key.get(HttpRemoteStore.class, annotation));
 
         newExporter(binder).export(HttpRemoteStore.class).annotatedWith(annotation).withGeneratedName();
         newExporter(binder).export(Replicator.class).annotatedWith(annotation).withGeneratedName();
@@ -136,52 +140,44 @@ public class ReplicatedStoreModule
         }
     }
 
-    private static class DistributedStoreProvider
-            implements Provider<DistributedStore>
+    private static class RemoteHttpStoreProvider
+            implements Provider<HttpRemoteStore>
     {
-        private final String name;
-        private final Key<? extends LocalStore> localStoreKey;
-        private final Key<? extends HttpClient> httpClientKey;
-        private final Key<StoreConfig> storeConfigKey;
-
+        private HttpRemoteStore remoteStore;
         private Injector injector;
         private NodeInfo nodeInfo;
         private ServiceSelector serviceSelector;
-        private Provider<DateTime> dateTimeProvider;
-        private DistributedStore store;
-        private HttpRemoteStore remoteStore;
 
-        public DistributedStoreProvider(String name, Key<? extends LocalStore> localStoreKey, Key<? extends HttpClient> httpClientKey, Key<StoreConfig> storeConfigKey)
+        private final String name;
+        private final Key<? extends HttpClient> httpClientKey;
+        private final Key<StoreConfig> storeConfigKey;
+
+
+        @Inject
+        private RemoteHttpStoreProvider(String name, Key<? extends HttpClient> httpClientKey, Key<StoreConfig> storeConfigKey)
         {
             this.name = name;
-            this.localStoreKey = localStoreKey;
             this.httpClientKey = httpClientKey;
             this.storeConfigKey = storeConfigKey;
         }
 
-        @Override
-        public synchronized DistributedStore get()
+        public synchronized HttpRemoteStore get()
         {
-            if (store == null) {
-                LocalStore localStore = injector.getInstance(localStoreKey);
+            if (remoteStore == null) {
                 HttpClient httpClient = injector.getInstance(httpClientKey);
                 StoreConfig storeConfig = injector.getInstance(storeConfigKey);
 
                 remoteStore = new HttpRemoteStore(name, nodeInfo, serviceSelector, storeConfig, httpClient);
                 remoteStore.start();
-
-                store = new DistributedStore(name, localStore, remoteStore, storeConfig, dateTimeProvider);
-                store.start();
             }
 
-            return store;
+            return remoteStore;
         }
 
         @PreDestroy
         public synchronized void shutdown()
         {
-            if (store != null) {
-                store.shutdown();
+            if (remoteStore != null) {
                 remoteStore.shutdown();
             }
         }
@@ -202,6 +198,59 @@ public class ReplicatedStoreModule
         public void setServiceSelector(ServiceSelector serviceSelector)
         {
             this.serviceSelector = serviceSelector;
+        }
+    }
+
+    private static class DistributedStoreProvider
+            implements Provider<DistributedStore>
+    {
+        private final String name;
+        private final Key<? extends LocalStore> localStoreKey;
+        private final Key<StoreConfig> storeConfigKey;
+        private final Key<? extends RemoteStore> remoteStoreKey;
+
+        private Injector injector;
+        private Provider<DateTime> dateTimeProvider;
+        private DistributedStore store;
+
+        public DistributedStoreProvider(String name,
+                Key<? extends LocalStore> localStoreKey,
+                Key<StoreConfig> storeConfigKey,
+                Key<? extends RemoteStore> remoteStoreKey)
+        {
+            this.name = name;
+            this.localStoreKey = localStoreKey;
+            this.storeConfigKey = storeConfigKey;
+            this.remoteStoreKey = remoteStoreKey;
+        }
+
+        @Override
+        public synchronized DistributedStore get()
+        {
+            if (store == null) {
+                LocalStore localStore = injector.getInstance(localStoreKey);
+                StoreConfig storeConfig = injector.getInstance(storeConfigKey);
+                RemoteStore remoteStore = injector.getInstance(remoteStoreKey);
+
+                store = new DistributedStore(name, localStore, remoteStore, storeConfig, dateTimeProvider);
+                store.start();
+            }
+
+            return store;
+        }
+
+        @PreDestroy
+        public synchronized void shutdown()
+        {
+            if (store != null) {
+                store.shutdown();
+            }
+        }
+
+        @Inject
+        public void setInjector(Injector injector)
+        {
+            this.injector = injector;
         }
 
         @Inject

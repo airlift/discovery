@@ -15,6 +15,7 @@ import com.proofpoint.json.JsonModule;
 import com.proofpoint.log.Logger;
 import com.proofpoint.node.NodeModule;
 import com.proofpoint.tracetoken.TraceTokenModule;
+import org.weakref.jmx.guice.MBeanModule;
 
 public class Main
 {
@@ -24,7 +25,8 @@ public class Main
             throws Exception
     {
         try {
-            Bootstrap app = new Bootstrap(new NodeModule(),
+            Bootstrap app = new Bootstrap(new MBeanModule(),
+                                          new NodeModule(),
                                           new HttpServerModule(),
                                           new JaxrsModule(),
                                           new JsonModule(),
