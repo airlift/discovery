@@ -39,6 +39,12 @@ public class DistributedStore
     @Inject
     public DistributedStore(String name, LocalStore localStore, RemoteStore remoteStore, StoreConfig config, Provider<DateTime> timeProvider)
     {
+        Preconditions.checkNotNull(name, "name is null");
+        Preconditions.checkNotNull(localStore, "localStore is null");
+        Preconditions.checkNotNull(remoteStore, "remoteStore is null");
+        Preconditions.checkNotNull(config, "config is null");
+        Preconditions.checkNotNull(timeProvider, "timeProvider is null");
+
         this.name = name;
         this.localStore = localStore;
         this.remoteStore = remoteStore;
