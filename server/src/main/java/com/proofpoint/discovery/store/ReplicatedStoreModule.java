@@ -65,6 +65,7 @@ public class ReplicatedStoreModule
 
         binder.bind(RemoteStore.class).annotatedWith(annotation).to(Key.get(HttpRemoteStore.class, annotation));
 
+        newExporter(binder).export(DistributedStore.class).annotatedWith(annotation).withGeneratedName();
         newExporter(binder).export(HttpRemoteStore.class).annotatedWith(annotation).withGeneratedName();
         newExporter(binder).export(Replicator.class).annotatedWith(annotation).withGeneratedName();
 

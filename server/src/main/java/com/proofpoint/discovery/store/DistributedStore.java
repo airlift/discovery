@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.proofpoint.units.Duration;
 import org.joda.time.DateTime;
+import org.weakref.jmx.Managed;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.base.Predicates.and;
 import static com.google.common.base.Predicates.not;
@@ -29,6 +31,7 @@ public class DistributedStore
     private final Duration garbageCollectionInterval;
 
     private final ScheduledExecutorService garbageCollector;
+    private final AtomicLong lastGcTimestamp = new AtomicLong();
 
     @Inject
     public DistributedStore(String name, LocalStore localStore, RemoteStore remoteStore, StoreConfig config, Provider<DateTime> timeProvider)
@@ -57,6 +60,12 @@ public class DistributedStore
         }, 0, (long) garbageCollectionInterval.toMillis(), TimeUnit.MILLISECONDS);
     }
 
+    @Managed
+    public long getLastGcTimestamp()
+    {
+        return lastGcTimestamp.get();
+    }
+
     private void removeExpiredEntries()
     {
         for (Entry entry : localStore.getAll()) {
@@ -64,6 +73,8 @@ public class DistributedStore
                 localStore.delete(entry.getKey(), entry.getVersion());
             }
         }
+
+        lastGcTimestamp.set(System.currentTimeMillis());
     }
 
     private boolean isExpired(Entry entry)
