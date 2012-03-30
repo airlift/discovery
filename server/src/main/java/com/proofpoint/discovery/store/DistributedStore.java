@@ -70,12 +70,19 @@ public class DistributedStore
     }
 
     @Managed
+    public String getName()
+    {
+        return name;
+    }
+
+    @Managed
     public long getLastGcTimestamp()
     {
         return lastGcTimestamp.get();
     }
 
-    private void removeExpiredEntries()
+    @Managed
+    public void removeExpiredEntries()
     {
         for (Entry entry : localStore.getAll()) {
             if (isExpired(entry)) {
