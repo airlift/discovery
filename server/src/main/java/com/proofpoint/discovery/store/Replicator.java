@@ -85,7 +85,7 @@ public class Replicator
             }, 0, (long) replicationInterval.toMillis(), TimeUnit.MILLISECONDS);
         }
 
-        // TODO: need failsafe recurrent scheduler with variable delay
+        // TODO: need fail-safe recurrent scheduler with variable delay
     }
 
     @PreDestroy

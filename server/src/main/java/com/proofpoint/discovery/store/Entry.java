@@ -3,8 +3,10 @@ package com.proofpoint.discovery.store;
 import com.google.common.base.Preconditions;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
 
+@Immutable
 public class Entry
 {
     private final byte[] key;

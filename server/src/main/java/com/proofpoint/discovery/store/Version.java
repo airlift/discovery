@@ -3,9 +3,12 @@ package com.proofpoint.discovery.store;
 import com.google.common.primitives.Longs;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class Version
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+class Version
 {
-    private long sequence;
+    private final long sequence;
 
     public Version(@JsonProperty("sequence") long sequence)
     {

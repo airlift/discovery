@@ -21,6 +21,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.google.common.base.Predicates.and;
 import static com.google.common.base.Predicates.not;
 
+/**
+ * A simple, eventually consistent, fully replicated, distributed key-value store.
+ */
 public class DistributedStore
 {
     private final String name;
