@@ -28,11 +28,13 @@ public class ReplicatedStoreModule
 {
     private final String name;
     private final Class<? extends Annotation> annotation;
+    private final Class<? extends LocalStore> localStoreClass;
 
-    public ReplicatedStoreModule(String name, Class<? extends Annotation> annotation)
+    public ReplicatedStoreModule(String name, Class<? extends Annotation> annotation, Class<? extends LocalStore> localStoreClass)
     {
         this.name = name;
         this.annotation = annotation;
+        this.localStoreClass = localStoreClass;
     }
 
     @Override
@@ -56,6 +58,7 @@ public class ReplicatedStoreModule
         binder.install(new HttpClientModule(name, annotation));
         binder.bind(DistributedStore.class).annotatedWith(annotation).toProvider(new DistributedStoreProvider(name, localStoreKey, httpClientKey, storeConfigKey)).in(Scopes.SINGLETON);
         binder.bind(Replicator.class).annotatedWith(annotation).toProvider(new ReplicatorProvider(name, localStoreKey, httpClientKey, storeConfigKey)).in(Scopes.SINGLETON);
+        binder.bind(LocalStore.class).annotatedWith(annotation).to(localStoreClass).in(Scopes.SINGLETON);
 
         newMapBinder(binder, String.class, LocalStore.class)
             .addBinding(name)

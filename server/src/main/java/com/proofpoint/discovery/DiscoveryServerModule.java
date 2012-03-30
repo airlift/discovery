@@ -38,14 +38,12 @@ public class DiscoveryServerModule
         // dynamic announcements
         binder.bind(DynamicAnnouncementResource.class).in(Scopes.SINGLETON);
         binder.bind(DynamicStore.class).to(ReplicatedDynamicStore.class).in(Scopes.SINGLETON);
-        binder.install(new ReplicatedStoreModule("dynamic", ForDynamicStore.class));
-        binder.bind(LocalStore.class).annotatedWith(ForDynamicStore.class).to(InMemoryStore.class).in(Scopes.SINGLETON);
+        binder.install(new ReplicatedStoreModule("dynamic", ForDynamicStore.class, InMemoryStore.class));
 
         // static announcements
         binder.bind(StaticAnnouncementResource.class).in(Scopes.SINGLETON);
         binder.bind(StaticStore.class).to(ReplicatedStaticStore.class).in(Scopes.SINGLETON);
-        binder.install(new ReplicatedStoreModule("static", ForStaticStore.class));
-        binder.bind(LocalStore.class).annotatedWith(ForStaticStore.class).to(PersistentStore.class).in(Scopes.SINGLETON);
+        binder.install(new ReplicatedStoreModule("static", ForStaticStore.class, PersistentStore.class));
         bindConfig(binder).prefixedWith("static").to(PersistentStoreConfig.class);
     }
 
