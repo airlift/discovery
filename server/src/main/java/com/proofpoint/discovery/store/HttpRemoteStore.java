@@ -68,7 +68,7 @@ public class HttpRemoteStore
     private Future<?> future;
     private ScheduledExecutorService executor;
 
-    private final AtomicLong lastBatchProcessorRefresh = new AtomicLong();
+    private final AtomicLong lastRemoteServerRefreshTimestamp = new AtomicLong();
     private final MBeanExporter mbeanExporter;
 
 
@@ -180,7 +180,7 @@ public class HttpRemoteStore
             mbeanExporter.export(nameFor(descriptor.getNodeId()), processor);
         }
 
-        lastBatchProcessorRefresh.set(System.currentTimeMillis());
+        lastRemoteServerRefreshTimestamp.set(System.currentTimeMillis());
     }
 
     private String nameFor(String id)
@@ -189,9 +189,9 @@ public class HttpRemoteStore
     }
 
     @Managed
-    public long getLastBatchProcessorRefreshTimestamp()
+    public long getLastRemoteServerRefreshTimestamp()
     {
-        return lastBatchProcessorRefresh.get();
+        return lastRemoteServerRefreshTimestamp.get();
     }
 
     private static Function<ServiceDescriptor, String> getNodeIdFunction()
