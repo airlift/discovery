@@ -14,7 +14,7 @@ public class StoreConfig
     private Duration garbageCollectionInterval = new Duration(1, TimeUnit.HOURS);
     private int maxBatchSize = 1000;
     private int queueSize = 1000;
-    private Duration remoteUpdateInterval = new Duration(1, TimeUnit.SECONDS);
+    private Duration remoteUpdateInterval = new Duration(5, TimeUnit.SECONDS);
     private Duration replicationInterval = new Duration(1, TimeUnit.MINUTES);
 
     @NotNull
