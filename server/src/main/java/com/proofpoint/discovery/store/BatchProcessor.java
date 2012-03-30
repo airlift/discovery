@@ -2,6 +2,7 @@ package com.proofpoint.discovery.store;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.proofpoint.log.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -19,6 +20,8 @@ import static java.lang.String.format;
 
 public class BatchProcessor<T>
 {
+    private final static Logger log = Logger.get(BatchProcessor.class);
+
     private final BatchHandler<T> handler;
     private final int maxBatchSize;
     private final BlockingQueue<T> queue;
@@ -61,6 +64,9 @@ public class BatchProcessor<T>
                         }
                         catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
+                        }
+                        catch (Throwable t) {
+                            log.warn(t, "Error handling batch");
                         }
                     }
                 }
