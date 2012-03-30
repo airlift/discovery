@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.proofpoint.discovery</groupId>
     <artifactId>discovery-server</artifactId>
-    <version>1.3</version>
+    <version>1.4-SNAPSHOT</version>
     <name>discovery-server</name>
     <description>Discovery server</description>
     <url>https://github.com/proofpoint/discovery</url>
