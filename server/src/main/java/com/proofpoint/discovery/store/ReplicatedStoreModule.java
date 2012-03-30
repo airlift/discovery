@@ -11,8 +11,6 @@ import com.proofpoint.http.client.HttpClient;
 import com.proofpoint.http.client.HttpClientModule;
 import com.proofpoint.node.NodeInfo;
 import org.joda.time.DateTime;
-import org.weakref.jmx.MBeanExporter;
-import org.weakref.jmx.guice.MBeanModule;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
