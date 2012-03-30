@@ -19,6 +19,7 @@ import com.proofpoint.node.NodeInfo;
 import com.proofpoint.units.Duration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.smile.SmileFactory;
+import org.weakref.jmx.Managed;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -37,6 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.base.Predicates.and;
 import static com.google.common.base.Predicates.compose;
@@ -62,6 +64,8 @@ public class HttpRemoteStore
 
     private Future<?> future;
     private ScheduledExecutorService executor;
+
+    private final AtomicLong lastBatchProcessorRefresh = new AtomicLong();
 
 
     @Inject
@@ -166,6 +170,14 @@ public class HttpRemoteStore
             processor.start();
             processors.put(descriptor.getNodeId(), processor);
         }
+
+        lastBatchProcessorRefresh.set(System.currentTimeMillis());
+    }
+
+    @Managed
+    public long getLastBatchProcessorRefreshTimestamp()
+    {
+        return lastBatchProcessorRefresh.get();
     }
 
     private static Function<ServiceDescriptor, String> getNodeIdFunction()

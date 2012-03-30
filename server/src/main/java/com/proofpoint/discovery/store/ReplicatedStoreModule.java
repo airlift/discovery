@@ -11,6 +11,8 @@ import com.proofpoint.http.client.HttpClient;
 import com.proofpoint.http.client.HttpClientModule;
 import com.proofpoint.node.NodeInfo;
 import org.joda.time.DateTime;
+import org.weakref.jmx.MBeanExporter;
+import org.weakref.jmx.guice.MBeanModule;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -18,6 +20,7 @@ import java.lang.annotation.Annotation;
 
 import static com.google.inject.multibindings.MapBinder.newMapBinder;
 import static com.proofpoint.configuration.ConfigurationModule.bindConfig;
+import static org.weakref.jmx.guice.MBeanModule.newExporter;
 
 /**
  * Expects a LocalStore to be bound elsewhere.
@@ -59,6 +62,8 @@ public class ReplicatedStoreModule
         binder.bind(DistributedStore.class).annotatedWith(annotation).toProvider(new DistributedStoreProvider(name, localStoreKey, httpClientKey, storeConfigKey)).in(Scopes.SINGLETON);
         binder.bind(Replicator.class).annotatedWith(annotation).toProvider(new ReplicatorProvider(name, localStoreKey, httpClientKey, storeConfigKey)).in(Scopes.SINGLETON);
         binder.bind(LocalStore.class).annotatedWith(annotation).to(localStoreClass).in(Scopes.SINGLETON);
+
+        newExporter(binder).export(HttpRemoteStore.class).annotatedWith(annotation).withGeneratedName();
 
         newMapBinder(binder, String.class, LocalStore.class)
             .addBinding(name)

@@ -72,7 +72,12 @@ public class Replicator
                 @Override
                 public void run()
                 {
-                    synchronize();
+                    try {
+                        synchronize();
+                    }
+                    catch (Throwable t) {
+                        log.warn(t, "Error replicating state");
+                    }
                 }
             }, 0, (long) replicationInterval.toMillis(), TimeUnit.MILLISECONDS);
         }
