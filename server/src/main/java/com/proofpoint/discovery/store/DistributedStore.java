@@ -146,16 +146,16 @@ public class DistributedStore
 
     public Iterable<Entry> getAll()
     {
-        return Iterables.filter(localStore.getAll(), and(nonExpiredEntries(), not(tombstone())));
+        return Iterables.filter(localStore.getAll(), and(not(expired()), not(tombstone())));
     }
 
-    private Predicate<? super Entry> nonExpiredEntries()
+    private Predicate<? super Entry> expired()
     {
         return new Predicate<Entry>()
         {
             public boolean apply(Entry entry)
             {
-                return !isExpired(entry);
+                return isExpired(entry);
             }
         };
     }
