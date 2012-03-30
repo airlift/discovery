@@ -1,6 +1,5 @@
 package com.proofpoint.discovery.store;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.proofpoint.discovery.client.ServiceDescriptor;
 import com.proofpoint.discovery.client.ServiceSelector;
@@ -95,6 +94,7 @@ public class Replicator
             future.cancel(true);
             executor.shutdownNow();
 
+            executor = null;
             future = null;
         }
     }
