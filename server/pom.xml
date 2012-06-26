@@ -196,6 +196,28 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
+
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.9.0</version>
+                <configuration>
+                    <skipExistingHeaders>true</skipExistingHeaders>
+                    <strictCheck>true</strictCheck>
+                    <header>license-header.txt</header>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
+                    <excludes>
+                        <exclude>**/.gitignore</exclude>
+                        <exclude>**/README.txt</exclude>
+                        <exclude>**/TODO</exclude>
+                        <exclude>**/config*.properties</exclude>
+                        <exclude>**/log.properties</exclude>
+                        <exclude>**/*.json</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
