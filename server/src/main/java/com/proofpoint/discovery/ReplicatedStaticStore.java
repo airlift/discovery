@@ -19,19 +19,14 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.proofpoint.discovery.store.DistributedStore;
 import com.proofpoint.discovery.store.Entry;
-import com.proofpoint.json.JsonCodec;
-import com.proofpoint.units.Duration;
+import io.airlift.json.JsonCodec;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Predicates.and;
-import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.transform;
-import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static com.proofpoint.discovery.Service.matchesPool;
 import static com.proofpoint.discovery.Service.matchesType;
 

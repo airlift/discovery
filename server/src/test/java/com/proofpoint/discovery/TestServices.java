@@ -20,15 +20,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
-import com.proofpoint.json.JsonCodec;
+import io.airlift.json.JsonCodec;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.proofpoint.json.JsonCodec.jsonCodec;
-import static com.proofpoint.testing.Assertions.assertNotEquals;
+import static io.airlift.json.JsonCodec.jsonCodec;
+import static io.airlift.testing.Assertions.assertNotEquals;
 import static org.testng.Assert.assertEquals;
 
 public class TestServices

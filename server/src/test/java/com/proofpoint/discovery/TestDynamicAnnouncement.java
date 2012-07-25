@@ -19,15 +19,15 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
-import com.proofpoint.json.JsonCodec;
+import io.airlift.json.JsonCodec;
 import org.testng.annotations.Test;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Collections;
 
-import static com.proofpoint.experimental.testing.ValidationAssertions.assertFailsValidation;
-import static com.proofpoint.experimental.testing.ValidationAssertions.assertValidates;
+import static io.airlift.testing.ValidationAssertions.assertFailsValidation;
+import static io.airlift.testing.ValidationAssertions.assertValidates;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 

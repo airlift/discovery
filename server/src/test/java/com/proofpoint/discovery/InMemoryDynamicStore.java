@@ -18,7 +18,7 @@ package com.proofpoint.discovery;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.proofpoint.units.Duration;
+import io.airlift.units.Duration;
 import org.joda.time.DateTime;
 
 import javax.annotation.concurrent.ThreadSafe;

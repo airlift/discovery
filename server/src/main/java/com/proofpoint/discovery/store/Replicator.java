@@ -16,16 +16,15 @@
 package com.proofpoint.discovery.store;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.proofpoint.discovery.client.ServiceDescriptor;
-import com.proofpoint.discovery.client.ServiceSelector;
-import com.proofpoint.http.client.HttpClient;
-import com.proofpoint.http.client.Request;
-import com.proofpoint.http.client.RequestBuilder;
-import com.proofpoint.http.client.Response;
-import com.proofpoint.http.client.ResponseHandler;
-import com.proofpoint.log.Logger;
-import com.proofpoint.node.NodeInfo;
-import com.proofpoint.units.Duration;
+import io.airlift.discovery.client.ServiceDescriptor;
+import io.airlift.discovery.client.ServiceSelector;
+import io.airlift.http.client.HttpClient;
+import io.airlift.http.client.Request;
+import io.airlift.http.client.Response;
+import io.airlift.http.client.ResponseHandler;
+import io.airlift.log.Logger;
+import io.airlift.node.NodeInfo;
+import io.airlift.units.Duration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.type.TypeReference;
@@ -135,7 +134,7 @@ public class Replicator
             }
 
             // TODO: build URI from resource class
-            Request request = RequestBuilder.prepareGet()
+            Request request = Request.Builder.prepareGet()
                     .setUri(URI.create(uri + "/v1/store/" + name))
                     .build();
 

@@ -21,17 +21,16 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.proofpoint.discovery.client.ServiceDescriptor;
-import com.proofpoint.discovery.client.ServiceSelector;
-import com.proofpoint.http.client.BodyGenerator;
-import com.proofpoint.http.client.HttpClient;
-import com.proofpoint.http.client.Request;
-import com.proofpoint.http.client.RequestBuilder;
-import com.proofpoint.http.client.Response;
-import com.proofpoint.http.client.ResponseHandler;
-import com.proofpoint.log.Logger;
-import com.proofpoint.node.NodeInfo;
-import com.proofpoint.units.Duration;
+import io.airlift.discovery.client.ServiceDescriptor;
+import io.airlift.discovery.client.ServiceSelector;
+import io.airlift.http.client.BodyGenerator;
+import io.airlift.http.client.HttpClient;
+import io.airlift.http.client.Request;
+import io.airlift.http.client.Response;
+import io.airlift.http.client.ResponseHandler;
+import io.airlift.log.Logger;
+import io.airlift.node.NodeInfo;
+import io.airlift.units.Duration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.weakref.jmx.MBeanExporter;
@@ -249,7 +248,8 @@ public class HttpRemoteStore
         @Override
         public void processBatch(final Collection<Entry> entries)
         {
-            final Request request = RequestBuilder.preparePost()
+            final Request request = Request.Builder.preparePost()
+
                     .setUri(uri)
                     .setHeader("Content-Type", "application/x-jackson-smile")
                     .setBodyGenerator(new BodyGenerator() {

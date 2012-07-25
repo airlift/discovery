@@ -16,7 +16,7 @@
 package com.proofpoint.discovery;
 
 import com.google.inject.Inject;
-import com.proofpoint.node.NodeInfo;
+import io.airlift.node.NodeInfo;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

@@ -17,7 +17,7 @@ package com.proofpoint.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.proofpoint.node.NodeInfo;
+import io.airlift.node.NodeInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

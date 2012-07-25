@@ -18,7 +18,7 @@ package com.proofpoint.discovery.store;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.proofpoint.log.Logger;
+import io.airlift.log.Logger;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;

@@ -17,7 +17,7 @@ package com.proofpoint.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.proofpoint.units.Duration;
+import io.airlift.units.Duration;
 import org.joda.time.DateTime;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Iterables.concat;
 import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
-import static com.proofpoint.testing.Assertions.assertEqualsIgnoreOrder;
+import static io.airlift.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 

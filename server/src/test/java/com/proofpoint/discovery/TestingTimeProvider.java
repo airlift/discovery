@@ -15,12 +15,11 @@
  */
 package com.proofpoint.discovery;
 
-import com.proofpoint.units.Duration;
+import io.airlift.units.Duration;
 import org.joda.time.DateTime;
 
 import javax.inject.Provider;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 class TestingTimeProvider
         implements Provider<DateTime>

@@ -23,10 +23,10 @@ import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
-import com.proofpoint.discovery.client.ServiceSelector;
-import com.proofpoint.http.client.HttpClient;
-import com.proofpoint.http.client.HttpClientModule;
-import com.proofpoint.node.NodeInfo;
+import io.airlift.discovery.client.ServiceSelector;
+import io.airlift.http.client.HttpClient;
+import io.airlift.http.client.HttpClientBinder;
+import io.airlift.node.NodeInfo;
 import org.joda.time.DateTime;
 import org.weakref.jmx.MBeanExporter;
 
@@ -37,7 +37,8 @@ import java.lang.annotation.Annotation;
 
 import static com.google.inject.multibindings.MapBinder.newMapBinder;
 import static com.google.inject.name.Names.named;
-import static com.proofpoint.configuration.ConfigurationModule.bindConfig;
+import static io.airlift.configuration.ConfigurationModule.bindConfig;
+import static io.airlift.http.client.HttpClientBinder.httpClientBinder;
 import static org.weakref.jmx.ObjectNames.generatedNameOf;
 import static org.weakref.jmx.guice.MBeanModule.newExporter;
 
@@ -78,7 +79,8 @@ public class ReplicatedStoreModule
         Key<RemoteStore> remoteStoreKey = Key.get(RemoteStore.class, annotation);
 
         bindConfig(binder).annotatedWith(annotation).prefixedWith(name).to(StoreConfig.class);
-        binder.install(new HttpClientModule(name, annotation));
+        httpClientBinder(binder).bindHttpClient(name, annotation);
+
         binder.bind(DistributedStore.class).annotatedWith(annotation).toProvider(new DistributedStoreProvider(name, localStoreKey, storeConfigKey, remoteStoreKey)).in(Scopes.SINGLETON);
         binder.bind(Replicator.class).annotatedWith(annotation).toProvider(new ReplicatorProvider(name, localStoreKey, httpClientKey, storeConfigKey)).in(Scopes.SINGLETON);
         binder.bind(HttpRemoteStore.class).annotatedWith(annotation).toProvider(new RemoteHttpStoreProvider(name, httpClientKey, storeConfigKey)).in(Scopes.SINGLETON);

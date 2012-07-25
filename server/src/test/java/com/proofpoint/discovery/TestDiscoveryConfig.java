@@ -16,15 +16,15 @@
 package com.proofpoint.discovery;
 
 import com.google.common.collect.ImmutableMap;
-import com.proofpoint.configuration.testing.ConfigAssertions;
-import com.proofpoint.units.Duration;
+import io.airlift.configuration.testing.ConfigAssertions;
+import io.airlift.units.Duration;
 import org.testng.annotations.Test;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.proofpoint.experimental.testing.ValidationAssertions.assertFailsValidation;
+import static io.airlift.testing.ValidationAssertions.assertFailsValidation;
 
 public class TestDiscoveryConfig
 {
@@ -32,7 +32,7 @@ public class TestDiscoveryConfig
     public void testDefaults()
     {
         ConfigAssertions.assertRecordedDefaults(ConfigAssertions.recordDefaults(DiscoveryConfig.class)
-                                                        .setMaxAge(new Duration(30, TimeUnit.SECONDS)));
+                .setMaxAge(new Duration(30, TimeUnit.SECONDS)));
     }
 
     @Test

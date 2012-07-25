@@ -17,7 +17,7 @@ package com.proofpoint.discovery.store;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.proofpoint.log.Logger;
+import io.airlift.log.Logger;
 import org.weakref.jmx.Managed;
 
 import javax.annotation.PostConstruct;

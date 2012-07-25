@@ -19,8 +19,8 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.proofpoint.discovery.store.DistributedStore;
 import com.proofpoint.discovery.store.Entry;
-import com.proofpoint.json.JsonCodec;
-import com.proofpoint.units.Duration;
+import io.airlift.json.JsonCodec;
+import io.airlift.units.Duration;
 
 import javax.inject.Inject;
 import java.util.List;

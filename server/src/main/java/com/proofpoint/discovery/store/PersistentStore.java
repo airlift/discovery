@@ -18,7 +18,7 @@ package com.proofpoint.discovery.store;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
-import com.proofpoint.log.Logger;
+import io.airlift.log.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.iq80.leveldb.DB;

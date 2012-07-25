@@ -18,8 +18,8 @@ package com.proofpoint.discovery;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.proofpoint.discovery.store.RealTimeProvider;
-import com.proofpoint.jaxrs.testing.MockUriInfo;
-import com.proofpoint.node.NodeInfo;
+import io.airlift.jaxrs.testing.MockUriInfo;
+import io.airlift.node.NodeInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -28,7 +28,7 @@ import java.net.URI;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
-import static com.proofpoint.testing.Assertions.assertEqualsIgnoreOrder;
+import static io.airlift.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;

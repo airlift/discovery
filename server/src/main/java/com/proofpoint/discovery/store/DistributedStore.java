@@ -19,7 +19,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.proofpoint.units.Duration;
+import io.airlift.units.Duration;
 import org.joda.time.DateTime;
 import org.weakref.jmx.Managed;
 

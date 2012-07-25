@@ -19,7 +19,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.proofpoint.units.Duration;
+import io.airlift.units.Duration;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;

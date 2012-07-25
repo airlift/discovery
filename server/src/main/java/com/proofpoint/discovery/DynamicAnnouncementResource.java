@@ -16,7 +16,7 @@
 package com.proofpoint.discovery;
 
 import com.google.common.base.Objects;
-import com.proofpoint.node.NodeInfo;
+import io.airlift.node.NodeInfo;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;

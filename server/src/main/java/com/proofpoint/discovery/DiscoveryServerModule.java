@@ -17,30 +17,25 @@ package com.proofpoint.discovery;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
-import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import com.proofpoint.configuration.ConfigurationModule;
-import com.proofpoint.discovery.client.ServiceDescriptor;
-import com.proofpoint.discovery.client.ServiceInventory;
-import com.proofpoint.discovery.client.ServiceSelector;
 import com.proofpoint.discovery.store.InMemoryStore;
-import com.proofpoint.discovery.store.LocalStore;
 import com.proofpoint.discovery.store.PersistentStore;
 import com.proofpoint.discovery.store.PersistentStoreConfig;
 import com.proofpoint.discovery.store.ReplicatedStoreModule;
-import com.proofpoint.event.client.EventClient;
-import com.proofpoint.event.client.NullEventClient;
-import com.proofpoint.node.NodeInfo;
+import io.airlift.discovery.client.ServiceDescriptor;
+import io.airlift.discovery.client.ServiceInventory;
+import io.airlift.discovery.client.ServiceSelector;
+import io.airlift.node.NodeInfo;
 import org.weakref.jmx.MBeanExporter;
 
 import javax.inject.Singleton;
 import javax.management.MBeanServer;
 import java.util.List;
 
-import static com.proofpoint.configuration.ConfigurationModule.bindConfig;
-import static com.proofpoint.discovery.client.DiscoveryBinder.discoveryBinder;
+import static io.airlift.configuration.ConfigurationModule.bindConfig;
+import static io.airlift.discovery.client.DiscoveryBinder.discoveryBinder;
 
 public class DiscoveryServerModule
         implements Module

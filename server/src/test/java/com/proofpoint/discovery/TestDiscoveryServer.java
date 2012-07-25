@@ -24,24 +24,23 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
-import com.proofpoint.configuration.ConfigurationFactory;
-import com.proofpoint.configuration.ConfigurationModule;
-import com.proofpoint.discovery.client.DiscoveryAnnouncementClient;
-import com.proofpoint.discovery.client.DiscoveryLookupClient;
-import com.proofpoint.discovery.client.DiscoveryModule;
-import com.proofpoint.discovery.client.ServiceAnnouncement;
-import com.proofpoint.discovery.client.ServiceDescriptor;
-import com.proofpoint.discovery.client.ServiceSelector;
-import com.proofpoint.discovery.client.ServiceSelectorConfig;
-import com.proofpoint.discovery.client.testing.SimpleServiceSelector;
-import com.proofpoint.discovery.store.ReplicatedStoreModule;
-import com.proofpoint.http.server.testing.TestingHttpServer;
-import com.proofpoint.http.server.testing.TestingHttpServerModule;
-import com.proofpoint.jaxrs.JaxrsModule;
-import com.proofpoint.json.JsonCodec;
-import com.proofpoint.json.JsonModule;
-import com.proofpoint.node.NodeInfo;
-import com.proofpoint.node.NodeModule;
+import io.airlift.configuration.ConfigurationFactory;
+import io.airlift.configuration.ConfigurationModule;
+import io.airlift.discovery.client.DiscoveryAnnouncementClient;
+import io.airlift.discovery.client.DiscoveryLookupClient;
+import io.airlift.discovery.client.DiscoveryModule;
+import io.airlift.discovery.client.ServiceAnnouncement;
+import io.airlift.discovery.client.ServiceDescriptor;
+import io.airlift.discovery.client.ServiceSelector;
+import io.airlift.discovery.client.ServiceSelectorConfig;
+import io.airlift.discovery.client.testing.SimpleServiceSelector;
+import io.airlift.http.server.testing.TestingHttpServer;
+import io.airlift.http.server.testing.TestingHttpServerModule;
+import io.airlift.jaxrs.JaxrsModule;
+import io.airlift.json.JsonCodec;
+import io.airlift.json.JsonModule;
+import io.airlift.node.NodeInfo;
+import io.airlift.node.NodeModule;
 import org.iq80.leveldb.util.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -54,7 +53,7 @@ import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Map;
 
-import static com.proofpoint.json.JsonCodec.mapJsonCodec;
+import static io.airlift.json.JsonCodec.mapJsonCodec;
 import static javax.ws.rs.core.Response.Status;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -122,7 +121,7 @@ public class TestDiscoveryServer
                 new NodeModule(),
                 new JsonModule(),
                 new ConfigurationModule(new ConfigurationFactory(announcerProperties)),
-                new com.proofpoint.discovery.client.DiscoveryModule()
+                new io.airlift.discovery.client.DiscoveryModule()
         );
 
         ServiceAnnouncement announcement = ServiceAnnouncement.serviceAnnouncement("apple")
@@ -211,7 +210,7 @@ public class TestDiscoveryServer
                 new NodeModule(),
                 new JsonModule(),
                 new ConfigurationModule(new ConfigurationFactory(clientProperties)),
-                new com.proofpoint.discovery.client.DiscoveryModule()
+                new io.airlift.discovery.client.DiscoveryModule()
         );
 
         DiscoveryLookupClient client = clientInjector.getInstance(DiscoveryLookupClient.class);

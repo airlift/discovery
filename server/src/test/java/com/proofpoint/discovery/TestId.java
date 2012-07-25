@@ -22,8 +22,9 @@ import org.testng.annotations.Test;
 
 import java.util.Map;
 
-import static com.proofpoint.json.JsonCodec.jsonCodec;
+import static io.airlift.json.JsonCodec.jsonCodec;
 import static org.testng.Assert.assertEquals;
+
 
 public class TestId
 {
