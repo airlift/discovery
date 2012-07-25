@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.proofpoint.discovery;
+package io.airlift.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.proofpoint.discovery.store.RealTimeProvider;
+import io.airlift.discovery.store.RealTimeProvider;
 import io.airlift.jaxrs.testing.MockUriInfo;
 import io.airlift.node.NodeInfo;
 import org.testng.annotations.BeforeMethod;
@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 
 import static com.google.common.collect.Iterables.transform;
-import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
+import static io.airlift.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static io.airlift.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;

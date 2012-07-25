@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.proofpoint.discovery.store;
+package io.airlift.discovery.store;
 
 import com.google.common.base.Preconditions;
 
@@ -23,8 +23,8 @@ import java.util.EnumSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.proofpoint.discovery.store.Version.Occurs.AFTER;
-import static com.proofpoint.discovery.store.Version.Occurs.SAME;
+import static io.airlift.discovery.store.Version.Occurs.AFTER;
+import static io.airlift.discovery.store.Version.Occurs.SAME;
 
 public class InMemoryStore
         implements LocalStore

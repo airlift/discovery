@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.proofpoint.discovery;
+package io.airlift.discovery;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
-import com.proofpoint.discovery.store.DistributedStore;
-import com.proofpoint.discovery.store.Entry;
+import io.airlift.discovery.store.DistributedStore;
+import io.airlift.discovery.store.Entry;
 import io.airlift.json.JsonCodec;
 
 import javax.inject.Inject;
@@ -27,8 +27,8 @@ import java.util.Set;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Iterables.filter;
-import static com.proofpoint.discovery.Service.matchesPool;
-import static com.proofpoint.discovery.Service.matchesType;
+import static io.airlift.discovery.Service.matchesPool;
+import static io.airlift.discovery.Service.matchesType;
 
 public class ReplicatedStaticStore
     implements StaticStore

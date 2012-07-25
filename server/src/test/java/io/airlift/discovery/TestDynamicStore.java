@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.proofpoint.discovery;
+package io.airlift.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Iterables.concat;
-import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
+import static io.airlift.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static io.airlift.testing.Assertions.assertEqualsIgnoreOrder;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.proofpoint.discovery;
+package io.airlift.discovery;
 
-import com.proofpoint.discovery.store.ConflictResolver;
-import com.proofpoint.discovery.store.DistributedStore;
-import com.proofpoint.discovery.store.Entry;
-import com.proofpoint.discovery.store.InMemoryStore;
-import com.proofpoint.discovery.store.RemoteStore;
-import com.proofpoint.discovery.store.StoreConfig;
+import io.airlift.discovery.store.ConflictResolver;
+import io.airlift.discovery.store.DistributedStore;
+import io.airlift.discovery.store.Entry;
+import io.airlift.discovery.store.InMemoryStore;
+import io.airlift.discovery.store.RemoteStore;
+import io.airlift.discovery.store.StoreConfig;
 import org.joda.time.DateTime;
 
 import javax.inject.Provider;

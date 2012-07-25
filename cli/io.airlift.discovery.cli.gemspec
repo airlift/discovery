@@ -1,11 +1,11 @@
 # create by maven - leave it as is
 Gem::Specification.new do |s|
-  s.name = 'com.proofpoint.discovery.cli'
+  s.name = 'io.airlift.discovery.cli'
   s.version = "@DISCOVERY_GEM_VERSION@"
 
   s.summary = 'discovery'
   s.description = 'Discovery command line interface'
-  s.homepage = 'https://github.com/dain/discovery-server'
+  s.homepage = 'https://github.com/airlift/discovery'
 
   s.authors = ['Dain Sundstrom']
   s.email = ['dain@iq80.com']

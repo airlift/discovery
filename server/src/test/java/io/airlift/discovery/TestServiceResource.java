@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.proofpoint.discovery;
+package io.airlift.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 import java.util.Collections;
 
 import static com.google.common.collect.ImmutableSet.of;
-import static com.proofpoint.discovery.DynamicServiceAnnouncement.toServiceWith;
+import static io.airlift.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static org.testng.Assert.assertEquals;
 
 public class TestServiceResource

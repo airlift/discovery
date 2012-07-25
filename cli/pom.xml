@@ -2,19 +2,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.proofpoint.discovery</groupId>
+    <groupId>io.airlift</groupId>
     <artifactId>cli</artifactId>
     <version>1.4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>cli</name>
     <description>Discovery command line interface</description>
-    <url>https://github.com/proofpoint/discovery</url>
+    <url>https://github.com/airlift/discovery</url>
 
 
     <inceptionYear>2010</inceptionYear>
     <organization>
-        <name>Proofpoint, Inc.</name>
-        <url>http://www.proofpoint.com</url>
+        <name>Airlift</name>
+        <url>http://airlift.io</url>
     </organization>
     <licenses>
         <license>
@@ -25,9 +25,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/proofpoint/discovery.git</connection>
-        <developerConnection>scm:git:git@github.com:proofpoint/discovery.git</developerConnection>
-        <url>https://github.com/proofpoint/discovery</url>
+        <connection>scm:git:git://github.com/airlift/discovery.git</connection>
+        <developerConnection>scm:git:git@github.com:airlift/discovery.git</developerConnection>
+        <url>https://github.com/airlift/discovery</url>
     </scm>
 
     <developers>
@@ -87,7 +87,7 @@
                                 </copy>
 
                                 <!-- copy the gemspec into the target directory and set the gem version number -->
-                                <copy file="com.proofpoint.discovery.cli.gemspec" tofile="${gem.build.directory}/com.proofpoint.discovery.cli.gemspec">
+                                <copy file="io.airlift.discovery.cli.gemspec" tofile="${gem.build.directory}/io.airlift.discovery.cli.gemspec">
                                     <filterset>
                                         <filter token="DISCOVERY_GEM_VERSION" value="${gem.version}" />
                                     </filterset>
@@ -96,18 +96,18 @@
                                 <!-- build the gem -->
                                 <exec dir="${gem.build.directory}" executable="gem">
                                     <arg value="build" />
-                                    <arg value="com.proofpoint.discovery.cli.gemspec" />
+                                    <arg value="io.airlift.discovery.cli.gemspec" />
                                 </exec>
 
                                 <!-- move the gem to the final location -->
                                 <move todir="${project.build.directory}">
                                     <fileset dir="${gem.build.directory}">
-                                        <include name="com.proofpoint.discovery.cli-${gem.version}.gem" />
+                                        <include name="io.airlift.discovery.cli-${gem.version}.gem" />
                                     </fileset>
                                 </move>
 
                                 <!-- make a copy of the gem with the name maven expects so the attach plugin can find it -->
-                                <copy file="${project.build.directory}/com.proofpoint.discovery.cli-${gem.version}.gem" tofile="${project.build.directory}/com.proofpoint.discovery.cli-${project.version}.gem" />
+                                <copy file="${project.build.directory}/io.airlift.discovery.cli-${gem.version}.gem" tofile="${project.build.directory}/io.airlift.discovery.cli-${project.version}.gem" />
                             </tasks>
                         </configuration>
                         <goals>
@@ -148,7 +148,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.build.directory}/com.proofpoint.discovery.cli-${project.version}.gem</file>
+                                    <file>${project.build.directory}/io.airlift.discovery.cli-${project.version}.gem</file>
                                     <type>gem</type>
                                 </artifact>
                             </artifacts>

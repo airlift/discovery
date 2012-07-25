@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.proofpoint.discovery;
+package io.airlift.discovery;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -24,8 +24,8 @@ import java.util.Set;
 
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Iterables.filter;
-import static com.proofpoint.discovery.Service.matchesPool;
-import static com.proofpoint.discovery.Service.matchesType;
+import static io.airlift.discovery.Service.matchesPool;
+import static io.airlift.discovery.Service.matchesType;
 
 public class InMemoryStaticStore
     implements StaticStore

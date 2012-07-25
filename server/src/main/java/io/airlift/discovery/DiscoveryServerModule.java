@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.proofpoint.discovery;
+package io.airlift.discovery;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import com.proofpoint.discovery.store.InMemoryStore;
-import com.proofpoint.discovery.store.PersistentStore;
-import com.proofpoint.discovery.store.PersistentStoreConfig;
-import com.proofpoint.discovery.store.ReplicatedStoreModule;
 import io.airlift.discovery.client.ServiceDescriptor;
 import io.airlift.discovery.client.ServiceInventory;
 import io.airlift.discovery.client.ServiceSelector;
+import io.airlift.discovery.store.InMemoryStore;
+import io.airlift.discovery.store.PersistentStore;
+import io.airlift.discovery.store.PersistentStoreConfig;
+import io.airlift.discovery.store.ReplicatedStoreModule;
 import io.airlift.node.NodeInfo;
 import org.weakref.jmx.MBeanExporter;
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.proofpoint.discovery</groupId>
+    <groupId>io.airlift.discovery</groupId>
     <artifactId>discovery-server</artifactId>
     <version>1.4-SNAPSHOT</version>
     <name>discovery-server</name>
     <description>Discovery server</description>
-    <url>https://github.com/proofpoint/discovery</url>
+    <url>https://github.com/airlift/discovery</url>
 
     <parent>
         <groupId>io.airlift</groupId>
@@ -15,14 +15,14 @@
     </parent>
 
     <properties>
-        <main-class>com.proofpoint.discovery.Main</main-class>
+        <main-class>io.airlift.discovery.Main</main-class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <inceptionYear>2010</inceptionYear>
     <organization>
-        <name>Proofpoint, Inc.</name>
-        <url>http://www.proofpoint.com</url>
+        <name>Airlift</name>
+        <url>http://airlift.io</url>
     </organization>
     <licenses>
         <license>
@@ -33,9 +33,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/proofpoint/discovery.git</connection>
-        <developerConnection>scm:git:git@github.com:proofpoint/discovery.git</developerConnection>
-        <url>https://github.com/proofpoint/discovery</url>
+        <connection>scm:git:git://github.com/airlift/discovery.git</connection>
+        <developerConnection>scm:git:git@github.com:airlift/discovery.git</developerConnection>
+        <url>https://github.com/airlift/discovery</url>
     </scm>
 
     <developers>
