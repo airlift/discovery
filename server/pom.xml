@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.airlift.discovery</groupId>
     <artifactId>discovery-server</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.4</version>
     <name>discovery-server</name>
     <description>Discovery server</description>
     <url>https://github.com/airlift/discovery</url>
@@ -12,7 +12,7 @@
         <groupId>io.airlift</groupId>
         <artifactId>rest-server-base</artifactId>
         <version>0.66</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <properties>

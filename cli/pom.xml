@@ -4,7 +4,7 @@
 
     <groupId>io.airlift</groupId>
     <artifactId>cli</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.4</version>
     <packaging>pom</packaging>
     <name>cli</name>
     <description>Discovery command line interface</description>
