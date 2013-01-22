@@ -89,13 +89,13 @@
         <dependency>
             <groupId>org.iq80.leveldb</groupId>
             <artifactId>leveldb-api</artifactId>
-            <version>0.3</version>
+            <version>0.5</version>
         </dependency>
 
         <dependency>
             <groupId>org.iq80.leveldb</groupId>
             <artifactId>leveldb</artifactId>
-            <version>0.3</version>
+            <version>0.5</version>
         </dependency>
 
         <dependency>
