@@ -15,6 +15,8 @@
  */
 package io.airlift.discovery.store;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -31,8 +33,6 @@ import io.airlift.http.client.ResponseHandler;
 import io.airlift.log.Logger;
 import io.airlift.node.NodeInfo;
 import io.airlift.units.Duration;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.smile.SmileFactory;
 import org.weakref.jmx.MBeanExporter;
 import org.weakref.jmx.Managed;
 

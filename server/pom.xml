@@ -11,7 +11,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>rest-server-base</artifactId>
-        <version>0.66</version>
+        <version>0.70-SNAPSHOT</version>
         <relativePath />
     </parent>
 
@@ -76,9 +76,24 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-smile</artifactId>
-            <version>1.9.5</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-smile</artifactId>
         </dependency>
 
         <dependency>
@@ -89,13 +104,13 @@
         <dependency>
             <groupId>org.iq80.leveldb</groupId>
             <artifactId>leveldb-api</artifactId>
-            <version>0.3</version>
+            <version>0.5</version>
         </dependency>
 
         <dependency>
             <groupId>org.iq80.leveldb</groupId>
             <artifactId>leveldb</artifactId>
-            <version>0.3</version>
+            <version>0.5</version>
         </dependency>
 
         <dependency>

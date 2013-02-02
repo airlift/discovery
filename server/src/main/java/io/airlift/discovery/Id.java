@@ -15,9 +15,9 @@
  */
 package io.airlift.discovery;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.base.Preconditions;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonValue;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.UUID;

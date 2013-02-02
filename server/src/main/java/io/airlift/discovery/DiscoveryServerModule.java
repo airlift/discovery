@@ -28,10 +28,8 @@ import io.airlift.discovery.store.PersistentStore;
 import io.airlift.discovery.store.PersistentStoreConfig;
 import io.airlift.discovery.store.ReplicatedStoreModule;
 import io.airlift.node.NodeInfo;
-import org.weakref.jmx.MBeanExporter;
 
 import javax.inject.Singleton;
-import javax.management.MBeanServer;
 import java.util.List;
 
 import static io.airlift.configuration.ConfigurationModule.bindConfig;
@@ -57,14 +55,6 @@ public class DiscoveryServerModule
         binder.bind(StaticStore.class).to(ReplicatedStaticStore.class).in(Scopes.SINGLETON);
         binder.install(new ReplicatedStoreModule("static", ForStaticStore.class, PersistentStore.class));
         bindConfig(binder).prefixedWith("static").to(PersistentStoreConfig.class);
-    }
-
-    @Singleton
-    @Provides
-    public MBeanExporter getMBeanExporter(MBeanServer mbeanServer)
-    {
-        // TODO: get rid of this once we upgrade to jmxutils 1.11+
-        return new MBeanExporter(mbeanServer);
     }
 
     @Singleton
