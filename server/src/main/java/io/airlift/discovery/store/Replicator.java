@@ -15,6 +15,9 @@
  */
 package io.airlift.discovery.store;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.airlift.discovery.client.ServiceDescriptor;
 import io.airlift.discovery.client.ServiceSelector;
@@ -25,9 +28,6 @@ import io.airlift.http.client.ResponseHandler;
 import io.airlift.log.Logger;
 import io.airlift.node.NodeInfo;
 import io.airlift.units.Duration;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.smile.SmileFactory;
-import org.codehaus.jackson.type.TypeReference;
 import org.weakref.jmx.Managed;
 
 import javax.annotation.PostConstruct;

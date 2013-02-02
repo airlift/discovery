@@ -15,8 +15,9 @@
  */
 package io.airlift.discovery.store;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ public class Entry
     private final long timestamp;
     private final Long maxAgeInMs;
 
+    @JsonCreator
     public Entry(@JsonProperty("key") byte[] key,
             @JsonProperty("value") byte[] value,
             @JsonProperty("version") Version version, 

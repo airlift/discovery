@@ -15,8 +15,9 @@
  */
 package io.airlift.discovery.store;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.primitives.Longs;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -25,6 +26,7 @@ class Version
 {
     private final long sequence;
 
+    @JsonCreator
     public Version(@JsonProperty("sequence") long sequence)
     {
         this.sequence = sequence;

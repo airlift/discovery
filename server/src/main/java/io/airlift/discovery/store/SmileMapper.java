@@ -15,18 +15,16 @@
  */
 package io.airlift.discovery.store;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import io.airlift.log.Logger;
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
-import org.codehaus.jackson.smile.SmileFactory;
-import org.codehaus.jackson.type.JavaType;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -126,7 +124,7 @@ public class SmileMapper
             // mapping, so we need to instruct parser:
             jsonParser.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
 
-            object = objectMapper.readValue(jsonParser, TypeFactory.type(genericType));
+            object = objectMapper.readValue(jsonParser, objectMapper.getTypeFactory().constructType(genericType));
         }
         catch (Exception e) {
             // we want to return a 400 for bad JSON but not for a real IO exception
@@ -191,12 +189,19 @@ public class SmileMapper
                 // This is still not exactly right; should root type be further
                 // specialized with 'value.getClass()'? Let's see how well this works before
                 // trying to come up with more complete solution.
-                rootType = TypeFactory.type(genericType);
+                rootType = objectMapper.getTypeFactory().constructType(genericType);
+                // 26-Feb-2011, tatu: To help with [JACKSON-518], we better recognize cases where
+                //    type degenerates back into "Object.class" (as is the case with plain TypeVariable,
+                //    for example), and not use that.
+                //
+                if (rootType.getRawClass() == Object.class) {
+                    rootType = null;
+                }
             }
         }
 
         if (rootType != null) {
-            objectMapper.typedWriter(rootType).writeValue(jsonGenerator, value);
+            objectMapper.writerWithType(rootType).writeValue(jsonGenerator, value);
         }
         else {
             objectMapper.writeValue(jsonGenerator, value);
