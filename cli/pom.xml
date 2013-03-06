@@ -2,63 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.airlift.discovery</groupId>
+    <parent>
+        <groupId>io.airlift.discovery</groupId>
+        <artifactId>discovery</artifactId>
+        <version>1.7-SNAPSHOT</version>
+    </parent>
+
     <artifactId>cli</artifactId>
-    <version>1.7-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>cli</name>
     <description>Discovery command line interface</description>
-    <url>https://github.com/airlift/discovery</url>
 
-
-    <inceptionYear>2010</inceptionYear>
-    <organization>
-        <name>Airlift</name>
-        <url>http://airlift.io</url>
-    </organization>
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <connection>scm:git:git://github.com/airlift/discovery.git</connection>
-        <developerConnection>scm:git:git@github.com:airlift/discovery.git</developerConnection>
-        <url>https://github.com/airlift/discovery</url>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>dain</id>
-            <name>Dain Sundstrom</name>
-            <email>dain@iq80.com</email>
-        </developer>
-        <developer>
-            <id>mtraverso</id>
-            <name>Martin Traverso</name>
-            <email>mtraverso@gmail.com</email>
-        </developer>
-    </developers>
-
-    <prerequisites>
-        <maven>3.0</maven>
-    </prerequisites>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Nexus Release Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
+    <properties>
+        <air.main.basedir>${project.parent.basedir}</air.main.basedir>
+    </properties>
 
     <build>
         <plugins>
@@ -70,7 +27,7 @@
                         <id>gem-build</id>
                         <phase>package</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <!-- Replace the invalid characters in the version number with dot -->
                                 <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
                                 <propertyregex property="gem.version" input="${project.version}" regexp="[-.]" replace="." global="true" casesensitive="false" />
@@ -108,36 +65,17 @@
 
                                 <!-- make a copy of the gem with the name maven expects so the attach plugin can find it -->
                                 <copy file="${project.build.directory}/io.airlift.discovery.cli-${gem.version}.gem" tofile="${project.build.directory}/io.airlift.discovery.cli-${project.version}.gem" />
-                            </tasks>
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>ant-contrib</groupId>
-                        <artifactId>ant-contrib</artifactId>
-                        <version>1.0b3</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>ant</groupId>
-                                <artifactId>ant</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>ant</groupId>
-                        <artifactId>ant-nodeps</artifactId>
-                        <version>1.6.5</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.5</version>
                 <executions>
                     <execution>
                         <id>attach-gem</id>
@@ -172,52 +110,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.2.1</version>
-                <configuration>
-                        <mavenExecutorId>forked-path</mavenExecutorId>
-                        <useReleaseProfile>false</useReleaseProfile>
-                        <arguments>-Psonatype-oss-release</arguments>
-                        <pushChanges>false</pushChanges>
-                        <localCheckout>true</localCheckout>
-                        <autoVersionSubmodules>true</autoVersionSubmodules>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>sonatype-oss-release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.1</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <configuration>
-                                    <useAgent>true</useAgent>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
 </project>
