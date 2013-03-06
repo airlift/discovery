@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>3-SNAPSHOT</version>
+        <version>3</version>
     </parent>
 
     <groupId>io.airlift.discovery</groupId>
@@ -55,8 +55,8 @@
         <air.check.fail-basic>true</air.check.fail-basic>
         <air.check.skip-pmd>true</air.check.skip-pmd>
 
-        <dep.airlift.version>0.71-SNAPSHOT</dep.airlift.version>
-        <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
+        <dep.airlift.version>0.71</dep.airlift.version>
+        <dep.packaging.version>0.71</dep.packaging.version>
         <dep.leveldb.version>0.5</dep.leveldb.version>
     </properties>
 
