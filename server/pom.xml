@@ -177,4 +177,28 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <!-- This is a workaround for a bug in airbase 3, which is fixed in airbase 4. -->
+    <!-- Remove the maven-jar-plugin code (and the build section when switching to -->
+    <!-- released airbase 4 -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${main-class}</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <useUniqueVersions>false</useUniqueVersions>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <!-- This is a workaround for a bug in airbase 3, which is fixed in airbase 4. -->
+    <!-- Remove the maven-jar-plugin code (and the build section when switching to -->
+    <!-- released airbase 4 -->
 </project>
