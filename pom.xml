@@ -5,11 +5,11 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>4</version>
+        <version>6-SNAPSHOT</version>
     </parent>
 
     <groupId>io.airlift.discovery</groupId>
-    <artifactId>discovery</artifactId>
+    <artifactId>discovery-root</artifactId>
     <version>1.9-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>discovery-root</name>
@@ -55,8 +55,8 @@
         <air.check.fail-basic>true</air.check.fail-basic>
         <air.check.skip-pmd>true</air.check.skip-pmd>
 
-        <dep.airlift.version>0.71</dep.airlift.version>
-        <dep.packaging.version>0.71</dep.packaging.version>
+        <dep.airlift.version>0.74-SNAPSHOT</dep.airlift.version>
+        <dep.packaging.version>0.74-SNAPSHOT</dep.packaging.version>
         <dep.leveldb.version>0.5</dep.leveldb.version>
     </properties>
 
@@ -81,7 +81,7 @@
 
             <dependency>
                 <groupId>io.airlift</groupId>
-                <artifactId>jmx-http-rpc-experimental</artifactId>
+                <artifactId>jmx-http-rpc</artifactId>
                 <version>${dep.airlift.version}</version>
             </dependency>
             <dependency>
@@ -92,7 +92,7 @@
 
             <dependency>
                 <groupId>io.airlift</groupId>
-                <artifactId>discovery-experimental</artifactId>
+                <artifactId>discovery</artifactId>
                 <version>${dep.airlift.version}</version>
             </dependency>
 
@@ -140,7 +140,7 @@
 
             <dependency>
                 <groupId>io.airlift</groupId>
-                <artifactId>http-client-experimental</artifactId>
+                <artifactId>http-client</artifactId>
                 <version>${dep.airlift.version}</version>
             </dependency>
 
@@ -152,7 +152,7 @@
 
             <dependency>
                 <groupId>io.airlift</groupId>
-                <artifactId>event-experimental</artifactId>
+                <artifactId>event</artifactId>
                 <version>${dep.airlift.version}</version>
             </dependency>
 
