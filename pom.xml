@@ -10,7 +10,7 @@
 
     <groupId>io.airlift.discovery</groupId>
     <artifactId>discovery-root</artifactId>
-    <version>1.9-SNAPSHOT</version>
+    <version>1.9</version>
     <packaging>pom</packaging>
     <name>discovery-root</name>
     <description>Discovery</description>
@@ -35,7 +35,8 @@
         <connection>scm:git:git://github.com/airlift/discovery.git</connection>
         <developerConnection>scm:git:git@github.com:airlift/discovery.git</developerConnection>
         <url>https://github.com/airlift/discovery</url>
-    </scm>
+      <tag>1.9</tag>
+  </scm>
 
     <developers>
         <developer>
