@@ -15,15 +15,19 @@
  */
 package io.airlift.discovery;
 
+import com.google.common.collect.ForwardingSet;
+import com.google.common.collect.ImmutableSet;
 import io.airlift.configuration.Config;
 import io.airlift.units.Duration;
 
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class DiscoveryConfig
 {
     private Duration maxAge = new Duration(30, TimeUnit.SECONDS);
+    private StringSet proxyTypes = StringSet.of();
 
     @NotNull
     public Duration getMaxAge()
@@ -36,5 +40,43 @@ public class DiscoveryConfig
     {
         this.maxAge = maxAge;
         return this;
+    }
+
+    public StringSet getProxyTypes()
+    {
+        return proxyTypes;
+    }
+
+    @Config("discovery.proxy.types")
+    public DiscoveryConfig setProxyTypes(StringSet proxyTypes)
+    {
+        this.proxyTypes = proxyTypes;
+        return this;
+    }
+
+    public static final class StringSet extends ForwardingSet<String>
+    {
+        private final Set<String> delegate;
+
+        private StringSet(Set<String> delegate)
+        {
+            this.delegate = ImmutableSet.copyOf(delegate);
+        }
+
+        public static StringSet of(String... strings)
+        {
+            return new StringSet(ImmutableSet.copyOf(strings));
+        }
+
+        public static StringSet valueOf(String string)
+        {
+            return of(string.split("\\s*,\\s*"));
+        }
+
+        @Override
+        protected Set<String> delegate()
+        {
+            return delegate;
+        }
     }
 }

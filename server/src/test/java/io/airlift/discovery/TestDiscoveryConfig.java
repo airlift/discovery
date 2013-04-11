@@ -32,7 +32,8 @@ public class TestDiscoveryConfig
     public void testDefaults()
     {
         ConfigAssertions.assertRecordedDefaults(ConfigAssertions.recordDefaults(DiscoveryConfig.class)
-                .setMaxAge(new Duration(30, TimeUnit.SECONDS)));
+                .setMaxAge(new Duration(30, TimeUnit.SECONDS))
+                .setProxyTypes(DiscoveryConfig.StringSet.of()));
     }
 
     @Test
@@ -40,14 +41,22 @@ public class TestDiscoveryConfig
     {
         Map<String, String> properties = ImmutableMap.<String, String>builder()
                 .put("discovery.max-age", "1m")
+                .put("discovery.proxy.types", "foo  ,  bar")
                 .build();
 
         DiscoveryConfig expected = new DiscoveryConfig()
-                .setMaxAge(new Duration(1, TimeUnit.MINUTES));
+                .setMaxAge(new Duration(1, TimeUnit.MINUTES))
+                .setProxyTypes(DiscoveryConfig.StringSet.of("foo", "bar"));
 
         ConfigAssertions.assertFullMapping(properties, expected);
     }
 
+    @Test
+    public void testDeprecatedProperties()
+    {
+        ConfigAssertions.assertDeprecatedEquivalence(DiscoveryConfig.class,
+                ImmutableMap.<String, String>of());
+    }
 
     @Test
     public void testValidatesNotNullDuration()

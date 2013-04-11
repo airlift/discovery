@@ -17,12 +17,14 @@ package io.airlift.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import io.airlift.discovery.DiscoveryConfig.StringSet;
 import io.airlift.jaxrs.testing.MockUriInfo;
 import io.airlift.node.NodeInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 
 import static org.testng.Assert.assertEquals;
@@ -39,7 +41,7 @@ public class TestStaticAnnouncementResource
     public void setup()
     {
         store = new InMemoryStaticStore();
-        resource = new StaticAnnouncementResource(store, new NodeInfo("testing"));
+        resource = new StaticAnnouncementResource(store, new NodeInfo("testing"), new DiscoveryConfig());
     }
 
     @Test
@@ -72,6 +74,20 @@ public class TestStaticAnnouncementResource
 
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.BAD_REQUEST.getStatusCode());
+
+        assertTrue(store.getAll().isEmpty());
+    }
+
+    @Test
+    public void testPostProxied()
+    {
+        resource = new StaticAnnouncementResource(store, new NodeInfo("testing"), new DiscoveryConfig().setProxyTypes(StringSet.of("storage")));
+        StaticAnnouncement announcement = new StaticAnnouncement("testing", "storage", "alpha", "/a/b/c", ImmutableMap.of("http", "http://localhost:1111"));
+
+        Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/static")));
+
+        assertNotNull(response);
+        assertEquals(response.getStatus(), Status.FORBIDDEN.getStatusCode());
 
         assertTrue(store.getAll().isEmpty());
     }

@@ -17,14 +17,14 @@ package io.airlift.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import io.airlift.discovery.DiscoveryConfig.StringSet;
 import io.airlift.discovery.store.RealTimeProvider;
-import io.airlift.jaxrs.testing.MockUriInfo;
 import io.airlift.node.NodeInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.core.Response;
-import java.net.URI;
+import javax.ws.rs.core.Response.Status;
 
 import static com.google.common.collect.Iterables.transform;
 import static io.airlift.discovery.DynamicServiceAnnouncement.toServiceWith;
@@ -42,7 +42,7 @@ public class TestDynamicAnnouncementResource
     public void setup()
     {
         store = new InMemoryDynamicStore(new DiscoveryConfig(), new RealTimeProvider());
-        resource = new DynamicAnnouncementResource(store, new NodeInfo("testing"));
+        resource = new DynamicAnnouncementResource(store, new NodeInfo("testing"), new DiscoveryConfig());
     }
 
     @Test
@@ -53,7 +53,7 @@ public class TestDynamicAnnouncementResource
         );
 
         Id<Node> nodeId = Id.random();
-        Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
+        Response response = resource.put(nodeId, announcement);
 
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.ACCEPTED.getStatusCode());
@@ -75,7 +75,7 @@ public class TestDynamicAnnouncementResource
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("key", "new")))
         );
 
-        Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
+        Response response = resource.put(nodeId, announcement);
 
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.ACCEPTED.getStatusCode());
@@ -91,10 +91,29 @@ public class TestDynamicAnnouncementResource
         );
 
         Id<Node> nodeId = Id.random();
-        Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
+        Response response = resource.put(nodeId, announcement);
 
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.BAD_REQUEST.getStatusCode());
+
+        assertTrue(store.getAll().isEmpty());
+    }
+
+    @Test
+    public void testPutProxied()
+    {
+        resource = new DynamicAnnouncementResource(store, new NodeInfo("testing"),
+                new DiscoveryConfig().setProxyTypes(StringSet.of("storage")));
+
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "alpha", "/a/b/c", ImmutableSet.of(
+                new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")))
+        );
+
+        Id<Node> nodeId = Id.random();
+        Response response = resource.put(nodeId, announcement);
+
+        assertNotNull(response);
+        assertEquals(response.getStatus(), Status.FORBIDDEN.getStatusCode());
 
         assertTrue(store.getAll().isEmpty());
     }
@@ -142,7 +161,7 @@ public class TestDynamicAnnouncementResource
         );
 
         Id<Node> nodeId = Id.random();
-        Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
+        Response response = resource.put(nodeId, announcement);
 
         assertNotNull(response);
         assertEquals(response.getStatus(), Response.Status.ACCEPTED.getStatusCode());

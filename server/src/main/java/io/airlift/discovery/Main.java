@@ -58,7 +58,6 @@ public class Main
         }
         catch (Exception e) {
             log.error(e);
-            // Cassandra prevents the vm from shutting down on its own
             System.exit(1);
         }
     }
