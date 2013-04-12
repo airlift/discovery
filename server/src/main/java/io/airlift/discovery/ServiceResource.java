@@ -24,6 +24,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Sets.union;
 
 
@@ -32,13 +33,15 @@ public class ServiceResource
 {
     private final DynamicStore dynamicStore;
     private final StaticStore staticStore;
+    private final ProxyStore proxyStore;
     private final NodeInfo node;
 
     @Inject
-    public ServiceResource(DynamicStore dynamicStore, StaticStore staticStore, NodeInfo node)
+    public ServiceResource(DynamicStore dynamicStore, StaticStore staticStore, ProxyStore proxyStore, NodeInfo node)
     {
         this.dynamicStore = dynamicStore;
         this.staticStore = staticStore;
+        this.proxyStore = proxyStore;
         this.node = node;
     }
 
@@ -47,7 +50,8 @@ public class ServiceResource
     @Produces(MediaType.APPLICATION_JSON)
     public Services getServices(@PathParam("type") String type, @PathParam("pool") String pool)
     {
-        return new Services(node.getEnvironment(), union(dynamicStore.get(type, pool), staticStore.get(type, pool)));
+        return new Services(node.getEnvironment(), firstNonNull(proxyStore.get(type, pool),
+                union(dynamicStore.get(type, pool), staticStore.get(type, pool))));
     }
 
     @GET
@@ -55,13 +59,15 @@ public class ServiceResource
     @Produces(MediaType.APPLICATION_JSON)
     public Services getServices(@PathParam("type") String type)
     {
-        return new Services(node.getEnvironment(), union(dynamicStore.get(type), staticStore.get(type)));
+        return new Services(node.getEnvironment(), firstNonNull(proxyStore.get(type),
+                union(dynamicStore.get(type), staticStore.get(type))));
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Services getServices()
     {
-        return new Services(node.getEnvironment(), union(dynamicStore.getAll(), staticStore.getAll()));
+        return new Services(node.getEnvironment(), union(proxyStore.getAll(),
+                union(dynamicStore.getAll(), staticStore.getAll())));
     }
 }

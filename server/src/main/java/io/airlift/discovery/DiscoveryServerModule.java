@@ -55,6 +55,9 @@ public class DiscoveryServerModule
         binder.bind(StaticStore.class).to(ReplicatedStaticStore.class).in(Scopes.SINGLETON);
         binder.install(new ReplicatedStoreModule("static", ForStaticStore.class, PersistentStore.class));
         bindConfig(binder).prefixedWith("static").to(PersistentStoreConfig.class);
+
+        // proxy announcements
+        binder.bind(ProxyStore.class).in(Scopes.SINGLETON);
     }
 
     @Singleton
