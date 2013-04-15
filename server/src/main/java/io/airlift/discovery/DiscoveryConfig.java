@@ -18,9 +18,11 @@ package io.airlift.discovery;
 import com.google.common.collect.ForwardingSet;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.configuration.Config;
+import io.airlift.configuration.ConfigDescription;
 import io.airlift.units.Duration;
 
 import javax.validation.constraints.NotNull;
+import java.net.URI;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +30,8 @@ public class DiscoveryConfig
 {
     private Duration maxAge = new Duration(30, TimeUnit.SECONDS);
     private StringSet proxyTypes = StringSet.of();
+    private String proxyEnvironment = null;
+    private URI proxyUri = null;
 
     @NotNull
     public Duration getMaxAge()
@@ -36,6 +40,7 @@ public class DiscoveryConfig
     }
 
     @Config("discovery.max-age")
+    @ConfigDescription("Dynamic announcement expiration")
     public DiscoveryConfig setMaxAge(Duration maxAge)
     {
         this.maxAge = maxAge;
@@ -48,9 +53,36 @@ public class DiscoveryConfig
     }
 
     @Config("discovery.proxy.types")
+    @ConfigDescription("Service types to proxy (test environments only)")
     public DiscoveryConfig setProxyTypes(StringSet proxyTypes)
     {
         this.proxyTypes = proxyTypes;
+        return this;
+    }
+
+    public String getProxyEnvironment()
+    {
+        return proxyEnvironment;
+    }
+
+    @Config("discovery.proxy.environment")
+    @ConfigDescription("Environment to proxy to (test environments only)")
+    public DiscoveryConfig setProxyEnvironment(String proxyEnvironment)
+    {
+        this.proxyEnvironment = proxyEnvironment;
+        return this;
+    }
+
+    public URI getProxyUri()
+    {
+        return proxyUri;
+    }
+
+    @Config("discovery.proxy.uri")
+    @ConfigDescription("Discovery server to proxy to (test environments only)")
+    public DiscoveryConfig setProxyUri(URI proxyUri)
+    {
+        this.proxyUri = proxyUri;
         return this;
     }
 

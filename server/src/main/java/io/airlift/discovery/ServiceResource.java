@@ -23,6 +23,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Set;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Sets.union;
@@ -67,7 +68,7 @@ public class ServiceResource
     @Produces(MediaType.APPLICATION_JSON)
     public Services getServices()
     {
-        return new Services(node.getEnvironment(), union(proxyStore.getAll(),
-                union(dynamicStore.getAll(), staticStore.getAll())));
+        Set<Service> services = union(dynamicStore.getAll(), staticStore.getAll());
+        return new Services(node.getEnvironment(), proxyStore.filterAndGetAll(services));
     }
 }
