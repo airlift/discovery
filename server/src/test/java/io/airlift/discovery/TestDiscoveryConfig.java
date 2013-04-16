@@ -17,9 +17,11 @@ package io.airlift.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import io.airlift.configuration.testing.ConfigAssertions;
+import io.airlift.discovery.DiscoveryConfig.StringSet;
 import io.airlift.units.Duration;
 import org.testng.annotations.Test;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.Map;
@@ -71,5 +73,37 @@ public class TestDiscoveryConfig
         DiscoveryConfig config = new DiscoveryConfig().setMaxAge(null);
 
         assertFailsValidation(config, "maxAge", "may not be null", NotNull.class);
+    }
+
+    @Test
+    public void testProxyMissingEnvironment()
+    {
+        DiscoveryConfig config = new DiscoveryConfig().setProxyTypes(StringSet.of("foo")).setProxyUri(URI.create("http://10.20.30.40:4111"));
+        assertFailsValidation(config, "proxyTypeAndEnvironment", "discovery.proxy.environment specified if and only if any proxy types",
+                AssertTrue.class);
+    }
+
+    @Test
+    public void testProxyEnvironment()
+    {
+        DiscoveryConfig config = new DiscoveryConfig().setProxyEnvironment("pre-release");
+        assertFailsValidation(config, "proxyTypeAndEnvironment", "discovery.proxy.environment specified if and only if any proxy types",
+                AssertTrue.class);
+    }
+
+    @Test
+    public void testProxyMissingUri()
+    {
+        DiscoveryConfig config = new DiscoveryConfig().setProxyTypes(StringSet.of("foo")).setProxyEnvironment("pre-release");
+        assertFailsValidation(config, "proxyTypeAndUri", "discovery.proxy.uri specified if and only if any proxy types",
+                AssertTrue.class);
+    }
+
+    @Test
+    public void testProxyUri()
+    {
+        DiscoveryConfig config = new DiscoveryConfig().setProxyUri(URI.create("http://10.20.30.40:4111"));
+        assertFailsValidation(config, "proxyTypeAndUri", "discovery.proxy.uri specified if and only if any proxy types",
+                AssertTrue.class);
     }
 }

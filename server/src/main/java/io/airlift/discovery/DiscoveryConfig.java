@@ -21,6 +21,7 @@ import io.airlift.configuration.Config;
 import io.airlift.configuration.ConfigDescription;
 import io.airlift.units.Duration;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.Set;
@@ -84,6 +85,18 @@ public class DiscoveryConfig
     {
         this.proxyUri = proxyUri;
         return this;
+    }
+
+    @AssertTrue(message = "discovery.proxy.environment specified if and only if any proxy types")
+    public boolean isProxyTypeAndEnvironment()
+    {
+        return proxyTypes.isEmpty() == (proxyEnvironment == null);
+    }
+
+    @AssertTrue(message = "discovery.proxy.uri specified if and only if any proxy types")
+    public boolean isProxyTypeAndUri()
+    {
+        return proxyTypes.isEmpty() == (proxyUri == null);
     }
 
     public static final class StringSet extends ForwardingSet<String>
