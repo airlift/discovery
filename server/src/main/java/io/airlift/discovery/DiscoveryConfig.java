@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class DiscoveryConfig
 {
     private Duration maxAge = new Duration(30, TimeUnit.SECONDS);
-    private StringSet proxyTypes = StringSet.of();
+    private StringSet proxyProxiedTypes = StringSet.of();
     private String proxyEnvironment = null;
     private URI proxyUri = null;
 
@@ -48,16 +48,16 @@ public class DiscoveryConfig
         return this;
     }
 
-    public StringSet getProxyTypes()
+    public StringSet getProxyProxiedTypes()
     {
-        return proxyTypes;
+        return proxyProxiedTypes;
     }
 
-    @Config("discovery.proxy.types")
+    @Config("discovery.proxy.proxied-types")
     @ConfigDescription("Service types to proxy (test environments only)")
-    public DiscoveryConfig setProxyTypes(StringSet proxyTypes)
+    public DiscoveryConfig setProxyProxiedTypes(StringSet proxyProxiedTypes)
     {
-        this.proxyTypes = proxyTypes;
+        this.proxyProxiedTypes = proxyProxiedTypes;
         return this;
     }
 
@@ -90,13 +90,13 @@ public class DiscoveryConfig
     @AssertTrue(message = "discovery.proxy.environment specified if and only if any proxy types")
     public boolean isProxyTypeAndEnvironment()
     {
-        return proxyTypes.isEmpty() == (proxyEnvironment == null);
+        return proxyProxiedTypes.isEmpty() == (proxyEnvironment == null);
     }
 
     @AssertTrue(message = "discovery.proxy.uri specified if and only if any proxy types")
     public boolean isProxyTypeAndUri()
     {
-        return proxyTypes.isEmpty() == (proxyUri == null);
+        return proxyProxiedTypes.isEmpty() == (proxyUri == null);
     }
 
     public static final class StringSet extends ForwardingSet<String>

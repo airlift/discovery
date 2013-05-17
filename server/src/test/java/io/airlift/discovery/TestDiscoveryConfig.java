@@ -36,7 +36,7 @@ public class TestDiscoveryConfig
     {
         ConfigAssertions.assertRecordedDefaults(ConfigAssertions.recordDefaults(DiscoveryConfig.class)
                 .setMaxAge(new Duration(30, TimeUnit.SECONDS))
-                .setProxyTypes(DiscoveryConfig.StringSet.of())
+                .setProxyProxiedTypes(DiscoveryConfig.StringSet.of())
                 .setProxyEnvironment(null)
                 .setProxyUri(null));
     }
@@ -46,14 +46,14 @@ public class TestDiscoveryConfig
     {
         Map<String, String> properties = ImmutableMap.<String, String>builder()
                 .put("discovery.max-age", "1m")
-                .put("discovery.proxy.types", "foo  ,  bar")
+                .put("discovery.proxy.proxied-types", "foo  ,  bar")
                 .put("discovery.proxy.environment", "pre-release")
                 .put("discovery.proxy.uri", "http://10.20.30.40:4111")
                 .build();
 
         DiscoveryConfig expected = new DiscoveryConfig()
                 .setMaxAge(new Duration(1, TimeUnit.MINUTES))
-                .setProxyTypes(DiscoveryConfig.StringSet.of("foo", "bar"))
+                .setProxyProxiedTypes(DiscoveryConfig.StringSet.of("foo", "bar"))
                 .setProxyEnvironment("pre-release")
                 .setProxyUri(URI.create("http://10.20.30.40:4111"));
 
@@ -78,7 +78,7 @@ public class TestDiscoveryConfig
     @Test
     public void testProxyMissingEnvironment()
     {
-        DiscoveryConfig config = new DiscoveryConfig().setProxyTypes(StringSet.of("foo")).setProxyUri(URI.create("http://10.20.30.40:4111"));
+        DiscoveryConfig config = new DiscoveryConfig().setProxyProxiedTypes(StringSet.of("foo")).setProxyUri(URI.create("http://10.20.30.40:4111"));
         assertFailsValidation(config, "proxyTypeAndEnvironment", "discovery.proxy.environment specified if and only if any proxy types",
                 AssertTrue.class);
     }
@@ -94,7 +94,7 @@ public class TestDiscoveryConfig
     @Test
     public void testProxyMissingUri()
     {
-        DiscoveryConfig config = new DiscoveryConfig().setProxyTypes(StringSet.of("foo")).setProxyEnvironment("pre-release");
+        DiscoveryConfig config = new DiscoveryConfig().setProxyProxiedTypes(StringSet.of("foo")).setProxyEnvironment("pre-release");
         assertFailsValidation(config, "proxyTypeAndUri", "discovery.proxy.uri specified if and only if any proxy types",
                 AssertTrue.class);
     }

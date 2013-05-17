@@ -48,7 +48,7 @@ public class DynamicAnnouncementResource
     {
         this.dynamicStore = dynamicStore;
         this.nodeInfo = nodeInfo;
-        proxyTypes = discoveryConfig.getProxyTypes();
+        proxyTypes = discoveryConfig.getProxyProxiedTypes();
     }
 
     @PUT

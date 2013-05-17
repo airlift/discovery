@@ -57,7 +57,7 @@ public class ProxyStore
     @Inject
     public ProxyStore(final DiscoveryConfig discoveryConfig, Injector injector)
     {
-        this.proxyTypes = discoveryConfig.getProxyTypes();
+        this.proxyTypes = discoveryConfig.getProxyProxiedTypes();
 
         if (!proxyTypes.isEmpty()) {
             map = new ConcurrentHashMap<>();

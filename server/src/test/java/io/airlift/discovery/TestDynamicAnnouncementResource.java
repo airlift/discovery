@@ -103,7 +103,7 @@ public class TestDynamicAnnouncementResource
     public void testPutProxied()
     {
         resource = new DynamicAnnouncementResource(store, new NodeInfo("testing"),
-                new DiscoveryConfig().setProxyTypes(StringSet.of("storage")));
+                new DiscoveryConfig().setProxyProxiedTypes(StringSet.of("storage")));
 
         DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "alpha", "/a/b/c", ImmutableSet.of(
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")))

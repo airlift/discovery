@@ -81,7 +81,7 @@ public class TestStaticAnnouncementResource
     @Test
     public void testPostProxied()
     {
-        resource = new StaticAnnouncementResource(store, new NodeInfo("testing"), new DiscoveryConfig().setProxyTypes(StringSet.of("storage")));
+        resource = new StaticAnnouncementResource(store, new NodeInfo("testing"), new DiscoveryConfig().setProxyProxiedTypes(StringSet.of("storage")));
         StaticAnnouncement announcement = new StaticAnnouncement("testing", "storage", "alpha", "/a/b/c", ImmutableMap.of("http", "http://localhost:1111"));
 
         Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/static")));

@@ -56,7 +56,7 @@ public class TestProxyStore
         Service service3 = new Service(Id.<Service>random(), Id.<Node>random(), "customer", "general", "/location/3", ImmutableMap.of("key3", "value3"));
 
         DiscoveryConfig config = new DiscoveryConfig()
-                .setProxyTypes(StringSet.of("storage", "customer", "auth"))
+                .setProxyProxiedTypes(StringSet.of("storage", "customer", "auth"))
                 .setProxyEnvironment("upstream")
                 .setProxyUri(URI.create("http://discovery.example.com"));
         Injector injector = mock(Injector.class);
@@ -95,12 +95,12 @@ public class TestProxyStore
 
         Injector injector = mock(Injector.class);
         AsyncHttpClient httpClient = new TestingDiscoveryHttpClient(new DiscoveryConfig()
-                .setProxyTypes(StringSet.of("storage", "customer", "auth"))
+                .setProxyProxiedTypes(StringSet.of("storage", "customer", "auth"))
                 .setProxyEnvironment("mismatch")
                 .setProxyUri(URI.create("http://discovery.example.com")), new Service[]{service1, service2, service3});
         when(injector.getInstance(Key.get(AsyncHttpClient.class, ForProxyStore.class))).thenReturn(httpClient);
         new ProxyStore(new DiscoveryConfig()
-                .setProxyTypes(StringSet.of("storage", "customer", "auth"))
+                .setProxyProxiedTypes(StringSet.of("storage", "customer", "auth"))
                 .setProxyEnvironment("upstream")
                 .setProxyUri(URI.create("http://discovery.example.com")), injector);
     }
@@ -126,7 +126,7 @@ public class TestProxyStore
             if (type.endsWith("/")) {
                 type = type.substring(0, type.length() - 1);
             }
-            assertTrue(config.getProxyTypes().contains(type), "type " + type + " in configured proxy types");
+            assertTrue(config.getProxyProxiedTypes().contains(type), "type " + type + " in configured proxy types");
 
             Builder<Service> builder = ImmutableSet.builder();
             for (Service service : services) {

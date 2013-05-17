@@ -49,7 +49,7 @@ public class StaticAnnouncementResource
     {
         this.store = store;
         this.nodeInfo = nodeInfo;
-        proxyTypes = discoveryConfig.getProxyTypes();
+        proxyTypes = discoveryConfig.getProxyProxiedTypes();
     }
 
     @POST
