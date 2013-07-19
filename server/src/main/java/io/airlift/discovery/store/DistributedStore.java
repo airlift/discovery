@@ -81,7 +81,7 @@ public class DistributedStore
             {
                 removeExpiredEntries();
             }
-        }, 0, (long) garbageCollectionInterval.toMillis(), TimeUnit.MILLISECONDS);
+        }, 0, garbageCollectionInterval.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     @Managed
@@ -143,7 +143,7 @@ public class DistributedStore
 
         long now = timeProvider.get().getMillis();
 
-        Entry entry = new Entry(key, value, new Version(now), now, (long) maxAge.toMillis());
+        Entry entry = new Entry(key, value, new Version(now), now, maxAge.toMillis());
 
         localStore.put(entry);
         remoteStore.put(entry);

@@ -20,19 +20,16 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Provider;
-import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import com.google.inject.Singleton;
 import io.airlift.discovery.client.ServiceSelector;
 import io.airlift.http.client.HttpClient;
-import io.airlift.http.client.HttpClientBinder;
 import io.airlift.node.NodeInfo;
 import org.joda.time.DateTime;
 import org.weakref.jmx.MBeanExporter;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.management.MBeanServer;
+
 import java.lang.annotation.Annotation;
 
 import static com.google.inject.multibindings.MapBinder.newMapBinder;
@@ -40,7 +37,7 @@ import static com.google.inject.name.Names.named;
 import static io.airlift.configuration.ConfigurationModule.bindConfig;
 import static io.airlift.http.client.HttpClientBinder.httpClientBinder;
 import static org.weakref.jmx.ObjectNames.generatedNameOf;
-import static org.weakref.jmx.guice.MBeanModule.newExporter;
+import static org.weakref.jmx.guice.ExportBinder.newExporter;
 
 /**
  * Expects a LocalStore to be bound elsewhere.
@@ -68,7 +65,7 @@ public class ReplicatedStoreModule
 
         // global
         binder.bind(StoreResource.class).in(Scopes.SINGLETON);
-        binder.bind(DateTime.class).toProvider(RealTimeProvider.class).in(Scopes.NO_SCOPE);;
+        binder.bind(DateTime.class).toProvider(RealTimeProvider.class).in(Scopes.NO_SCOPE);
         binder.bind(SmileMapper.class).in(Scopes.SINGLETON);
         binder.bind(ConflictResolver.class).in(Scopes.SINGLETON);
 

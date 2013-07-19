@@ -118,7 +118,7 @@ public class SmileMapper
     {
         Object object;
         try {
-            JsonParser jsonParser = new SmileFactory().createJsonParser(inputStream);
+            JsonParser jsonParser = new SmileFactory().createParser(inputStream);
 
             // Important: we are NOT to close the underlying stream after
             // mapping, so we need to instruct parser:
@@ -172,7 +172,7 @@ public class SmileMapper
             OutputStream outputStream)
             throws IOException
     {
-        JsonGenerator jsonGenerator = new SmileFactory().createJsonGenerator(outputStream);
+        JsonGenerator jsonGenerator = new SmileFactory().createGenerator(outputStream);
 
         // Important: we are NOT to close the underlying stream after
         // mapping, so we need to instruct generator:

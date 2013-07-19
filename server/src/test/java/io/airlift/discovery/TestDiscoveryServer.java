@@ -19,19 +19,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
 import com.google.inject.Binder;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
-import io.airlift.configuration.ConfigurationFactory;
-import io.airlift.configuration.ConfigurationModule;
+import io.airlift.bootstrap.Bootstrap;
 import io.airlift.discovery.client.DiscoveryAnnouncementClient;
-import io.airlift.discovery.client.DiscoveryLookupClient;
 import io.airlift.discovery.client.DiscoveryModule;
 import io.airlift.discovery.client.ServiceAnnouncement;
 import io.airlift.discovery.client.ServiceDescriptor;
 import io.airlift.discovery.client.ServiceSelector;
-import io.airlift.discovery.client.ServiceSelectorConfig;
-import io.airlift.discovery.client.testing.SimpleServiceSelector;
 import io.airlift.http.client.ApacheHttpClient;
 import io.airlift.http.client.HttpClient;
 import io.airlift.http.client.Request;
@@ -40,7 +36,7 @@ import io.airlift.http.server.testing.TestingHttpServerModule;
 import io.airlift.jaxrs.JaxrsModule;
 import io.airlift.json.JsonModule;
 import io.airlift.node.NodeInfo;
-import io.airlift.node.NodeModule;
+import io.airlift.node.testing.TestingNodeModule;
 import org.iq80.leveldb.util.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -57,6 +53,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import static io.airlift.discovery.client.DiscoveryBinder.discoveryBinder;
+import static io.airlift.discovery.client.ServiceTypes.serviceType;
 import static io.airlift.http.client.FullJsonResponseHandler.JsonResponse;
 import static io.airlift.http.client.FullJsonResponseHandler.createFullJsonResponseHandler;
 import static io.airlift.http.client.JsonBodyGenerator.jsonBodyGenerator;
@@ -85,26 +83,31 @@ public class TestDiscoveryServer
 
         // start server
         Map<String, String> serverProperties = ImmutableMap.<String, String>builder()
-                    .put("node.environment", "testing")
-                    .put("static.db.location", tempDir.getAbsolutePath())
-                    .build();
+                .put("static.db.location", tempDir.getAbsolutePath())
+                .build();
 
-        Injector serverInjector = Guice.createInjector(
+        Bootstrap bootstrap = new Bootstrap(
                 new MBeanModule(),
-                new NodeModule(),
+                new TestingNodeModule("testing"),
                 new TestingHttpServerModule(),
                 new JsonModule(),
                 new JaxrsModule(),
                 new DiscoveryServerModule(),
                 new DiscoveryModule(),
-                new ConfigurationModule(new ConfigurationFactory(serverProperties)),
-                new Module() {
+                new Module()
+                {
                     public void configure(Binder binder)
                     {
                         // TODO: use testing mbean server
                         binder.bind(MBeanServer.class).toInstance(new TestingMBeanServer());
                     }
                 });
+
+        Injector serverInjector = bootstrap
+                .strictConfig()
+                .doNotInitializeLogging()
+                .setRequiredConfigurationProperties(serverProperties)
+                .initialize();
 
         server = serverInjector.getInstance(TestingHttpServer.class);
         server.start();
@@ -124,17 +127,19 @@ public class TestDiscoveryServer
     {
         // publish announcement
         Map<String, String> announcerProperties = ImmutableMap.<String, String>builder()
-            .put("node.environment", "testing")
-            .put("node.pool", "red")
-            .put("discovery.uri", server.getBaseUrl().toString())
-            .build();
+                .put("discovery.uri", server.getBaseUrl().toString())
+                .build();
 
-        Injector announcerInjector = Guice.createInjector(
-                new NodeModule(),
+        Bootstrap bootstrap = new Bootstrap(
+                new TestingNodeModule("testing", "red"),
                 new JsonModule(),
-                new ConfigurationModule(new ConfigurationFactory(announcerProperties)),
-                new io.airlift.discovery.client.DiscoveryModule()
-        );
+                new DiscoveryModule());
+
+        Injector announcerInjector = bootstrap
+                .strictConfig()
+                .doNotInitializeLogging()
+                .setRequiredConfigurationProperties(announcerProperties)
+                .initialize();
 
         ServiceAnnouncement announcement = ServiceAnnouncement.serviceAnnouncement("apple")
                 .addProperties(ImmutableMap.of("key", "value"))
@@ -209,22 +214,32 @@ public class TestDiscoveryServer
     }
 
     private ServiceSelector selectorFor(String type, String pool)
+            throws Exception
     {
         Map<String, String> clientProperties = ImmutableMap.<String, String>builder()
-            .put("node.environment", "testing")
             .put("discovery.uri", server.getBaseUrl().toString())
             .put("discovery.apple.pool", "red")
             .build();
 
-        Injector clientInjector = Guice.createInjector(
-                new NodeModule(),
+        Bootstrap bootstrap = new Bootstrap(
+                new TestingNodeModule("testing"),
                 new JsonModule(),
-                new ConfigurationModule(new ConfigurationFactory(clientProperties)),
-                new io.airlift.discovery.client.DiscoveryModule()
-        );
+                new DiscoveryModule(),
+                new Module() {
+                    @Override
+                    public void configure(Binder binder)
+                    {
+                        discoveryBinder(binder).bindSelector("apple");
+                    }
+                });
 
-        DiscoveryLookupClient client = clientInjector.getInstance(DiscoveryLookupClient.class);
-        return new SimpleServiceSelector(type, new ServiceSelectorConfig().setPool(pool), client);
+        Injector clientInjector = bootstrap
+                .strictConfig()
+                .doNotInitializeLogging()
+                .setRequiredConfigurationProperties(clientProperties)
+                .initialize();
+
+        return clientInjector.getInstance(Key.get(ServiceSelector.class, serviceType("apple")));
     }
 
     private URI uriFor(String path)
