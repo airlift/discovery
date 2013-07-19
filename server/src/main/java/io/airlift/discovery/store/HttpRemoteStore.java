@@ -75,7 +75,7 @@ public class HttpRemoteStore
     private final int queueSize;
     private final Duration updateInterval;
 
-    private final ConcurrentMap<String, BatchProcessor<Entry>> processors = new ConcurrentHashMap<String, BatchProcessor<Entry>>();
+    private final ConcurrentMap<String, BatchProcessor<Entry>> processors = new ConcurrentHashMap<>();
     private final String name;
     private final NodeInfo node;
     private final ServiceSelector selector;
@@ -133,7 +133,7 @@ public class HttpRemoteStore
                         log.warn(e, "Error refreshing batch processors");
                     }
                 }
-            }, 0, (long) updateInterval.toMillis(), TimeUnit.MILLISECONDS);
+            }, 0, updateInterval.toMillis(), TimeUnit.MILLISECONDS);
         }
     }
 
@@ -266,10 +266,11 @@ public class HttpRemoteStore
                 httpClient.execute(request, new ResponseHandler<Void, Exception>()
                 {
                     @Override
-                    public Exception handleException(Request request, Exception exception)
+                    public Void handleException(Request request, Exception exception)
+                            throws Exception
                     {
                         // ignore
-                        return exception;
+                        throw exception;
                     }
 
                     @Override

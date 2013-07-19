@@ -28,7 +28,7 @@ class TestingTimeProvider
 
     public void add(Duration interval)
     {
-        currentTime.addAndGet((long) interval.toMillis());
+        currentTime.addAndGet(interval.toMillis());
     }
 
     public void set(DateTime currentTime)

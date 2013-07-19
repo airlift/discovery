@@ -95,7 +95,7 @@ public class Replicator
                         log.warn(t, "Error replicating state");
                     }
                 }
-            }, 0, (long) replicationInterval.toMillis(), TimeUnit.MILLISECONDS);
+            }, 0, replicationInterval.toMillis(), TimeUnit.MILLISECONDS);
         }
 
         // TODO: need fail-safe recurrent scheduler with variable delay
@@ -142,9 +142,10 @@ public class Replicator
                 httpClient.execute(request, new ResponseHandler<Void, Exception>()
                 {
                     @Override
-                    public Exception handleException(Request request, Exception exception)
+                    public Void handleException(Request request, Exception exception)
+                            throws Exception
                     {
-                        return exception;
+                        throw exception;
                     }
 
                     @Override
