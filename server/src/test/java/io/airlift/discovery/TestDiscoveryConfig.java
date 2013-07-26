@@ -17,10 +17,13 @@ package io.airlift.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import io.airlift.configuration.testing.ConfigAssertions;
+import io.airlift.discovery.DiscoveryConfig.StringSet;
 import io.airlift.units.Duration;
 import org.testng.annotations.Test;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +35,10 @@ public class TestDiscoveryConfig
     public void testDefaults()
     {
         ConfigAssertions.assertRecordedDefaults(ConfigAssertions.recordDefaults(DiscoveryConfig.class)
-                .setMaxAge(new Duration(30, TimeUnit.SECONDS)));
+                .setMaxAge(new Duration(30, TimeUnit.SECONDS))
+                .setProxyProxiedTypes(DiscoveryConfig.StringSet.of())
+                .setProxyEnvironment(null)
+                .setProxyUri(null));
     }
 
     @Test
@@ -40,14 +46,26 @@ public class TestDiscoveryConfig
     {
         Map<String, String> properties = ImmutableMap.<String, String>builder()
                 .put("discovery.max-age", "1m")
+                .put("discovery.proxy.proxied-types", "foo  ,  bar")
+                .put("discovery.proxy.environment", "pre-release")
+                .put("discovery.proxy.uri", "http://10.20.30.40:4111")
                 .build();
 
         DiscoveryConfig expected = new DiscoveryConfig()
-                .setMaxAge(new Duration(1, TimeUnit.MINUTES));
+                .setMaxAge(new Duration(1, TimeUnit.MINUTES))
+                .setProxyProxiedTypes(DiscoveryConfig.StringSet.of("foo", "bar"))
+                .setProxyEnvironment("pre-release")
+                .setProxyUri(URI.create("http://10.20.30.40:4111"));
 
         ConfigAssertions.assertFullMapping(properties, expected);
     }
 
+    @Test
+    public void testDeprecatedProperties()
+    {
+        ConfigAssertions.assertDeprecatedEquivalence(DiscoveryConfig.class,
+                ImmutableMap.<String, String>of());
+    }
 
     @Test
     public void testValidatesNotNullDuration()
@@ -55,5 +73,37 @@ public class TestDiscoveryConfig
         DiscoveryConfig config = new DiscoveryConfig().setMaxAge(null);
 
         assertFailsValidation(config, "maxAge", "may not be null", NotNull.class);
+    }
+
+    @Test
+    public void testProxyMissingEnvironment()
+    {
+        DiscoveryConfig config = new DiscoveryConfig().setProxyProxiedTypes(StringSet.of("foo")).setProxyUri(URI.create("http://10.20.30.40:4111"));
+        assertFailsValidation(config, "proxyTypeAndEnvironment", "discovery.proxy.environment specified if and only if any proxy types",
+                AssertTrue.class);
+    }
+
+    @Test
+    public void testProxyEnvironment()
+    {
+        DiscoveryConfig config = new DiscoveryConfig().setProxyEnvironment("pre-release");
+        assertFailsValidation(config, "proxyTypeAndEnvironment", "discovery.proxy.environment specified if and only if any proxy types",
+                AssertTrue.class);
+    }
+
+    @Test
+    public void testProxyMissingUri()
+    {
+        DiscoveryConfig config = new DiscoveryConfig().setProxyProxiedTypes(StringSet.of("foo")).setProxyEnvironment("pre-release");
+        assertFailsValidation(config, "proxyTypeAndUri", "discovery.proxy.uri specified if and only if any proxy types",
+                AssertTrue.class);
+    }
+
+    @Test
+    public void testProxyUri()
+    {
+        DiscoveryConfig config = new DiscoveryConfig().setProxyUri(URI.create("http://10.20.30.40:4111"));
+        assertFailsValidation(config, "proxyTypeAndUri", "discovery.proxy.uri specified if and only if any proxy types",
+                AssertTrue.class);
     }
 }

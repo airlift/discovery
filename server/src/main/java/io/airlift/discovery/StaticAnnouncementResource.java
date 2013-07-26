@@ -31,21 +31,25 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.Set;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 @Path("/v1/announcement/static")
 public class StaticAnnouncementResource
 {
     private final StaticStore store;
     private final NodeInfo nodeInfo;
+    private final Set<String> proxyTypes;
 
     @Inject
-    public StaticAnnouncementResource(StaticStore store, NodeInfo nodeInfo)
+    public StaticAnnouncementResource(StaticStore store, NodeInfo nodeInfo, DiscoveryConfig discoveryConfig)
     {
         this.store = store;
         this.nodeInfo = nodeInfo;
+        proxyTypes = discoveryConfig.getProxyProxiedTypes();
     }
 
     @POST
@@ -55,6 +59,12 @@ public class StaticAnnouncementResource
         if (!nodeInfo.getEnvironment().equals(announcement.getEnvironment())) {
             return Response.status(BAD_REQUEST)
                     .entity(format("Environment mismatch. Expected: %s, Provided: %s", nodeInfo.getEnvironment(), announcement.getEnvironment()))
+                    .build();
+        }
+
+        if (proxyTypes.contains(announcement.getType())) {
+            return Response.status(FORBIDDEN)
+                    .entity(format("Cannot announce proxied type %s", announcement.getType()))
                     .build();
         }
 

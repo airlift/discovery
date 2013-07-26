@@ -34,6 +34,7 @@ import java.util.List;
 
 import static io.airlift.configuration.ConfigurationModule.bindConfig;
 import static io.airlift.discovery.client.DiscoveryBinder.discoveryBinder;
+import static io.airlift.http.client.HttpClientBinder.httpClientBinder;
 
 public class DiscoveryServerModule
         implements Module
@@ -55,6 +56,10 @@ public class DiscoveryServerModule
         binder.bind(StaticStore.class).to(ReplicatedStaticStore.class).in(Scopes.SINGLETON);
         binder.install(new ReplicatedStoreModule("static", ForStaticStore.class, PersistentStore.class));
         bindConfig(binder).prefixedWith("static").to(PersistentStoreConfig.class);
+
+        // proxy announcements
+        httpClientBinder(binder).bindAsyncHttpClient("discovery.proxy", ForProxyStore.class);
+        binder.bind(ProxyStore.class).in(Scopes.SINGLETON);
     }
 
     @Singleton
