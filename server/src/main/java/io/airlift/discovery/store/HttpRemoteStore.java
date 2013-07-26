@@ -28,8 +28,6 @@ import io.airlift.discovery.client.ServiceSelector;
 import io.airlift.http.client.BodyGenerator;
 import io.airlift.http.client.HttpClient;
 import io.airlift.http.client.Request;
-import io.airlift.http.client.Response;
-import io.airlift.http.client.ResponseHandler;
 import io.airlift.log.Logger;
 import io.airlift.node.NodeInfo;
 import io.airlift.units.Duration;
@@ -39,6 +37,7 @@ import org.weakref.jmx.Managed;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Collection;
@@ -64,6 +63,7 @@ import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.inject.name.Names.named;
+import static io.airlift.http.client.StatusResponseHandler.createStatusResponseHandler;
 import static org.weakref.jmx.ObjectNames.generatedNameOf;
 
 public class HttpRemoteStore
@@ -263,29 +263,9 @@ public class HttpRemoteStore
                     .build();
 
             try {
-                httpClient.execute(request, new ResponseHandler<Void, Exception>()
-                {
-                    @Override
-                    public Void handleException(Request request, Exception exception)
-                            throws Exception
-                    {
-                        // ignore
-                        throw exception;
-                    }
-
-                    @Override
-                    public Void handle(Request request, Response response)
-                            throws Exception
-                    {
-                        // ignore
-                        return null;
-                    }
-                });
+                httpClient.execute(request, createStatusResponseHandler());
             }
-            catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            catch (Exception e) {
+            catch (RuntimeException e) {
                 // ignore
             }
         }
