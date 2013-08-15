@@ -15,6 +15,7 @@
  */
 package io.airlift.discovery;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.units.Duration;
@@ -22,7 +23,6 @@ import org.joda.time.DateTime;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import javax.inject.Provider;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -37,15 +37,15 @@ public abstract class TestDynamicStore
 {
     private static final Duration MAX_AGE = new Duration(1, TimeUnit.MINUTES);
 
-    protected TestingTimeProvider currentTime;
+    protected TestingTimeSupplier currentTime;
     protected DynamicStore store;
 
-    protected abstract DynamicStore initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider);
+    protected abstract DynamicStore initializeStore(DiscoveryConfig config, Supplier<DateTime> timeSupplier);
 
     @BeforeMethod
     public void setup()
     {
-        currentTime = new TestingTimeProvider();
+        currentTime = new TestingTimeSupplier();
         DiscoveryConfig config = new DiscoveryConfig().setMaxAge(new Duration(1, TimeUnit.MINUTES));
         store = initializeStore(config, currentTime);
     }
@@ -226,11 +226,11 @@ public abstract class TestDynamicStore
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
                 transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
 
-        assertEqualsIgnoreOrder(store.get("monitoring", "poolA"), concat(
-                transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, red.getLocation(), red.getPool()))));
+        assertEqualsIgnoreOrder(store.get("monitoring", "poolA"),
+                transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, red.getLocation(), red.getPool())));
 
-        assertEqualsIgnoreOrder(store.get("storage", "poolB"), concat(
-                transform(yellow.getServiceAnnouncements(), toServiceWith(yellowNodeId, red.getLocation(), red.getPool()))));
+        assertEqualsIgnoreOrder(store.get("storage", "poolB"),
+                transform(yellow.getServiceAnnouncements(), toServiceWith(yellowNodeId, red.getLocation(), red.getPool())));
     }
 
     @Test

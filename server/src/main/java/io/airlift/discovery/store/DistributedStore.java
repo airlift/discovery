@@ -17,6 +17,7 @@ package io.airlift.discovery.store;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.airlift.units.Duration;
@@ -26,7 +27,7 @@ import org.weakref.jmx.Managed;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Provider;
+
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -44,7 +45,7 @@ public class DistributedStore
     private final String name;
     private final LocalStore localStore;
     private final RemoteStore remoteStore;
-    private final Provider<DateTime> timeProvider;
+    private final Supplier<DateTime> timeSupplier;
     private final Duration tombstoneMaxAge;
     private final Duration garbageCollectionInterval;
 
@@ -52,18 +53,18 @@ public class DistributedStore
     private final AtomicLong lastGcTimestamp = new AtomicLong();
 
     @Inject
-    public DistributedStore(String name, LocalStore localStore, RemoteStore remoteStore, StoreConfig config, Provider<DateTime> timeProvider)
+    public DistributedStore(String name, LocalStore localStore, RemoteStore remoteStore, StoreConfig config, Supplier<DateTime> timeSupplier)
     {
         Preconditions.checkNotNull(name, "name is null");
         Preconditions.checkNotNull(localStore, "localStore is null");
         Preconditions.checkNotNull(remoteStore, "remoteStore is null");
         Preconditions.checkNotNull(config, "config is null");
-        Preconditions.checkNotNull(timeProvider, "timeProvider is null");
+        Preconditions.checkNotNull(timeSupplier, "timeSupplier is null");
 
         this.name = name;
         this.localStore = localStore;
         this.remoteStore = remoteStore;
-        this.timeProvider = timeProvider;
+        this.timeSupplier = timeSupplier;
 
         tombstoneMaxAge = config.getTombstoneMaxAge();
         garbageCollectionInterval = config.getGarbageCollectionInterval();
@@ -110,7 +111,7 @@ public class DistributedStore
 
     private boolean isExpired(Entry entry)
     {
-        long ageInMs = timeProvider.get().getMillis() - entry.getTimestamp();
+        long ageInMs = timeSupplier.get().getMillis() - entry.getTimestamp();
 
         return entry.getValue() == null && ageInMs > tombstoneMaxAge.toMillis() ||  // TODO: this is repeated in StoreResource
                 entry.getMaxAgeInMs() != null && ageInMs > entry.getMaxAgeInMs();
@@ -127,7 +128,7 @@ public class DistributedStore
         Preconditions.checkNotNull(key, "key is null");
         Preconditions.checkNotNull(value, "value is null");
 
-        long now = timeProvider.get().getMillis();
+        long now = timeSupplier.get().getMillis();
 
         Entry entry = new Entry(key, value, new Version(now), now, null);
 
@@ -141,7 +142,7 @@ public class DistributedStore
         Preconditions.checkNotNull(value, "value is null");
         Preconditions.checkNotNull(maxAge, "maxAge is null");
 
-        long now = timeProvider.get().getMillis();
+        long now = timeSupplier.get().getMillis();
 
         Entry entry = new Entry(key, value, new Version(now), now, maxAge.toMillis());
 
@@ -167,7 +168,7 @@ public class DistributedStore
     {
         Preconditions.checkNotNull(key, "key is null");
 
-        long now = timeProvider.get().getMillis();
+        long now = timeSupplier.get().getMillis();
 
         Entry entry = new Entry(key, null, new Version(now), now, null);
 

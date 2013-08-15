@@ -15,13 +15,13 @@
  */
 package io.airlift.discovery;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.joda.time.DateTime;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import javax.inject.Provider;
 import java.util.Set;
 
 import static io.airlift.testing.Assertions.assertEqualsIgnoreOrder;
@@ -36,14 +36,14 @@ public abstract class TestStaticStore
     private static final Service YELLOW = new Service(Id.<Service>random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:4444"));
 
     protected StaticStore store;
-    protected TestingTimeProvider currentTime;
+    protected TestingTimeSupplier currentTime;
 
-    protected abstract StaticStore initializeStore(Provider<DateTime> timeProvider);
+    protected abstract StaticStore initializeStore(Supplier<DateTime> timeSupplier);
 
     @BeforeMethod
     public void setup()
     {
-        currentTime = new TestingTimeProvider();
+        currentTime = new TestingTimeSupplier();
         store = initializeStore(currentTime);
     }
 
