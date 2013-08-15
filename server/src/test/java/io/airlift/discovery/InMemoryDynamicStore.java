@@ -16,6 +16,7 @@
 package io.airlift.discovery;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import io.airlift.units.Duration;
@@ -23,7 +24,7 @@ import org.joda.time.DateTime;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import javax.inject.Provider;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -41,10 +42,10 @@ public class InMemoryDynamicStore
 {
     private final Map<Id<Node>, Entry> descriptors = Maps.newHashMap();
     private final Duration maxAge;
-    private final Provider<DateTime> currentTime;
+    private final Supplier<DateTime> currentTime;
 
     @Inject
-    public InMemoryDynamicStore(DiscoveryConfig config, Provider<DateTime> timeSource)
+    public InMemoryDynamicStore(DiscoveryConfig config, Supplier<DateTime> timeSource)
     {
         this.currentTime = timeSource;
         this.maxAge = config.getMaxAge();

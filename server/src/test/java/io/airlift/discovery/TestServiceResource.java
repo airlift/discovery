@@ -30,15 +30,13 @@ import static org.testng.Assert.assertEquals;
 public class TestServiceResource
 {
     private InMemoryDynamicStore dynamicStore;
-    private InMemoryStaticStore staticStore;
     private ServiceResource resource;
 
     @BeforeMethod
     protected void setUp()
     {
-        dynamicStore = new InMemoryDynamicStore(new DiscoveryConfig(), new TestingTimeProvider());
-        staticStore = new InMemoryStaticStore();
-        resource = new ServiceResource(dynamicStore, staticStore, new NodeInfo("testing"));
+        dynamicStore = new InMemoryDynamicStore(new DiscoveryConfig(), new TestingTimeSupplier());
+        resource = new ServiceResource(dynamicStore, new InMemoryStaticStore(), new NodeInfo("testing"));
     }
 
     @Test

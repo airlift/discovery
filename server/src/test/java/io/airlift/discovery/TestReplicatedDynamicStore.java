@@ -15,6 +15,7 @@
  */
 package io.airlift.discovery;
 
+import com.google.common.base.Supplier;
 import io.airlift.discovery.store.ConflictResolver;
 import io.airlift.discovery.store.DistributedStore;
 import io.airlift.discovery.store.Entry;
@@ -23,19 +24,17 @@ import io.airlift.discovery.store.RemoteStore;
 import io.airlift.discovery.store.StoreConfig;
 import org.joda.time.DateTime;
 
-import javax.inject.Provider;
-
 public class TestReplicatedDynamicStore
     extends TestDynamicStore
 {
     @Override
-    protected DynamicStore initializeStore(DiscoveryConfig config, Provider<DateTime> timeProvider)
+    protected DynamicStore initializeStore(DiscoveryConfig config, Supplier<DateTime> timeSupplier)
     {
         RemoteStore dummy = new RemoteStore() {
             public void put(Entry entry) { }
         };
 
-        DistributedStore distributedStore = new DistributedStore("dynamic", new InMemoryStore(new ConflictResolver()), dummy, new StoreConfig(), timeProvider);
+        DistributedStore distributedStore = new DistributedStore("dynamic", new InMemoryStore(new ConflictResolver()), dummy, new StoreConfig(), timeSupplier);
 
         return new ReplicatedDynamicStore(distributedStore, config);
     }

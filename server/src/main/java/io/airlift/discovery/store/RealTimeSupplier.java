@@ -13,37 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.airlift.discovery;
+package io.airlift.discovery.store;
 
-import io.airlift.units.Duration;
+import com.google.common.base.Supplier;
 import org.joda.time.DateTime;
 
-import javax.inject.Provider;
-import java.util.concurrent.atomic.AtomicLong;
-
-class TestingTimeProvider
-        implements Provider<DateTime>
+public class RealTimeSupplier
+        implements Supplier<DateTime>
 {
-    private final AtomicLong currentTime = new AtomicLong(System.currentTimeMillis());
-
-    public void add(Duration interval)
-    {
-        currentTime.addAndGet(interval.toMillis());
-    }
-
-    public void set(DateTime currentTime)
-    {
-        this.currentTime.set(currentTime.getMillis());
-    }
-
-    public void increment()
-    {
-        currentTime.incrementAndGet();
-    }
-
     @Override
     public DateTime get()
     {
-        return new DateTime(currentTime.get());
+        return new DateTime();
     }
 }

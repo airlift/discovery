@@ -17,7 +17,7 @@ package io.airlift.discovery;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import io.airlift.discovery.store.RealTimeProvider;
+import io.airlift.discovery.store.RealTimeSupplier;
 import io.airlift.jaxrs.testing.MockUriInfo;
 import io.airlift.node.NodeInfo;
 import org.testng.annotations.BeforeMethod;
@@ -41,7 +41,7 @@ public class TestDynamicAnnouncementResource
     @BeforeMethod
     public void setup()
     {
-        store = new InMemoryDynamicStore(new DiscoveryConfig(), new RealTimeProvider());
+        store = new InMemoryDynamicStore(new DiscoveryConfig(), new RealTimeSupplier());
         resource = new DynamicAnnouncementResource(store, new NodeInfo("testing"));
     }
 
