@@ -226,11 +226,11 @@ public abstract class TestDynamicStore
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
                 transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
 
-        assertEqualsIgnoreOrder(store.get("monitoring", "poolA"), concat(
-                transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, red.getLocation(), red.getPool()))));
+        assertEqualsIgnoreOrder(store.get("monitoring", "poolA"),
+                transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, red.getLocation(), red.getPool())));
 
-        assertEqualsIgnoreOrder(store.get("storage", "poolB"), concat(
-                transform(yellow.getServiceAnnouncements(), toServiceWith(yellowNodeId, red.getLocation(), red.getPool()))));
+        assertEqualsIgnoreOrder(store.get("storage", "poolB"),
+                transform(yellow.getServiceAnnouncements(), toServiceWith(yellowNodeId, red.getLocation(), red.getPool())));
     }
 
     @Test
