@@ -15,7 +15,6 @@
  */
 package io.airlift.discovery;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.discovery.store.DistributedStore;
 import io.airlift.discovery.store.Entry;
@@ -23,10 +22,10 @@ import io.airlift.json.JsonCodec;
 import io.airlift.units.Duration;
 
 import javax.inject.Inject;
+
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
@@ -36,7 +35,7 @@ import static io.airlift.discovery.Service.matchesPool;
 import static io.airlift.discovery.Service.matchesType;
 
 public class ReplicatedDynamicStore
-    implements DynamicStore
+        implements DynamicStore
 {
     private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
 
@@ -56,7 +55,7 @@ public class ReplicatedDynamicStore
         List<Service> services = copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
 
         byte[] key = nodeId.getBytes();
-        byte[] value = codec.toJson(services).getBytes(UTF_8);
+        byte[] value = codec.toJsonBytes(services);
 
         store.put(key, value, maxAge);
 
@@ -76,7 +75,7 @@ public class ReplicatedDynamicStore
     {
         ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
         for (Entry entry : store.getAll()) {
-            builder.addAll(codec.fromJson(new String(entry.getValue(), Charsets.UTF_8)));
+            builder.addAll(codec.fromJson(entry.getValue()));
         }
 
         return builder.build();
