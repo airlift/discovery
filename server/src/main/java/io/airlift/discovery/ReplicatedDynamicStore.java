@@ -55,7 +55,7 @@ public class ReplicatedDynamicStore
     {
         List<Service> services = copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
 
-        byte[] key = nodeId.toString().getBytes(UTF_8);
+        byte[] key = nodeId.getBytes();
         byte[] value = codec.toJson(services).getBytes(UTF_8);
 
         store.put(key, value, maxAge);
@@ -66,9 +66,7 @@ public class ReplicatedDynamicStore
     @Override
     public boolean delete(Id<Node> nodeId)
     {
-        byte[] key = nodeId.toString().getBytes(UTF_8);
-
-        store.delete(key);
+        store.delete(nodeId.getBytes());
 
         return true; // TODO
     }
