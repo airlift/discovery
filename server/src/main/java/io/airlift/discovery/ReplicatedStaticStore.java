@@ -15,23 +15,22 @@
  */
 package io.airlift.discovery;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.discovery.store.DistributedStore;
 import io.airlift.discovery.store.Entry;
 import io.airlift.json.JsonCodec;
 
 import javax.inject.Inject;
+
 import java.util.Set;
 
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Iterables.filter;
 import static io.airlift.discovery.Service.matchesPool;
 import static io.airlift.discovery.Service.matchesType;
 
 public class ReplicatedStaticStore
-    implements StaticStore
+        implements StaticStore
 {
     private final JsonCodec<Service> codec = JsonCodec.jsonCodec(Service.class);
     private final DistributedStore store;
@@ -45,8 +44,8 @@ public class ReplicatedStaticStore
     @Override
     public void put(Service service)
     {
-        byte[] key = service.getId().toString().getBytes(UTF_8);
-        byte[] value = codec.toJson(service).getBytes(UTF_8);
+        byte[] key = service.getId().getBytes();
+        byte[] value = codec.toJsonBytes(service);
 
         store.put(key, value);
     }
@@ -54,9 +53,7 @@ public class ReplicatedStaticStore
     @Override
     public void delete(Id<Service> id)
     {
-        byte[] key = id.toString().getBytes(UTF_8);
-
-        store.delete(key);
+        store.delete(id.getBytes());
     }
 
     @Override
@@ -64,7 +61,7 @@ public class ReplicatedStaticStore
     {
         ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
         for (Entry entry : store.getAll()) {
-            builder.add(codec.fromJson(new String(entry.getValue(), Charsets.UTF_8)));
+            builder.add(codec.fromJson(entry.getValue()));
         }
 
         return builder.build();

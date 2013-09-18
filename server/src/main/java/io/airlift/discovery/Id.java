@@ -20,7 +20,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.Immutable;
+
 import java.util.UUID;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Immutable
 public class Id<T>
@@ -37,12 +40,12 @@ public class Id<T>
     public static <T> Id<T> valueOf(String id)
     {
         Preconditions.checkNotNull(id, "id is null");
-        return new Id<T>(UUID.fromString(id));
+        return new Id<>(UUID.fromString(id));
     }
 
     public static <T> Id<T> random()
     {
-        return new Id<T>(UUID.randomUUID());
+        return new Id<>(UUID.randomUUID());
     }
 
     private Id(UUID id)
@@ -65,14 +68,7 @@ public class Id<T>
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        Id id1 = (Id) o;
-
-        if (!id.equals(id1.id)) {
-            return false;
-        }
-
-        return true;
+        return id.equals(((Id<?>) o).id);
     }
 
     @Override
@@ -85,5 +81,10 @@ public class Id<T>
     public String toString()
     {
         return id.toString();
+    }
+
+    public byte[] getBytes()
+    {
+        return toString().getBytes(UTF_8);
     }
 }
