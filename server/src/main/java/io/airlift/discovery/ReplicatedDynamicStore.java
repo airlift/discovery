@@ -15,6 +15,7 @@
  */
 package io.airlift.discovery;
 
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.discovery.store.DistributedStore;
 import io.airlift.discovery.store.Entry;
@@ -26,10 +27,9 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.and;
-import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.transform;
 import static io.airlift.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static io.airlift.discovery.Service.matchesPool;
 import static io.airlift.discovery.Service.matchesType;
@@ -45,14 +45,16 @@ public class ReplicatedDynamicStore
     @Inject
     public ReplicatedDynamicStore(@ForDynamicStore DistributedStore store, DiscoveryConfig config)
     {
-        this.store = store;
-        this.maxAge = config.getMaxAge();
+        this.store = checkNotNull(store, "store is null");
+        this.maxAge = checkNotNull(config, "config is null").getMaxAge();
     }
 
     @Override
     public boolean put(Id<Node> nodeId, DynamicAnnouncement announcement)
     {
-        List<Service> services = copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
+        List<Service> services = FluentIterable.from(announcement.getServiceAnnouncements())
+                .transform(toServiceWith(nodeId, announcement.getLocation(), announcement.getPool()))
+                .toList();
 
         byte[] key = nodeId.getBytes();
         byte[] value = codec.toJsonBytes(services);

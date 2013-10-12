@@ -16,12 +16,12 @@
 package io.airlift.discovery.store;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.airlift.log.Logger;
 import org.weakref.jmx.Managed;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,9 +29,11 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static io.airlift.concurrent.Threads.threadsNamed;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 public class BatchProcessor<T>
 {
@@ -66,7 +68,7 @@ public class BatchProcessor<T>
     public synchronized void start()
     {
         if (future == null) {
-            executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("batch-processor-" + name + "-%d").build());
+            executor = newSingleThreadExecutor(threadsNamed("batch-processor-" + name + "-%d"));
 
             future = executor.submit(new Runnable() {
                 public void run()

@@ -24,6 +24,7 @@ import javax.inject.Inject;
 
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.Iterables.filter;
 import static io.airlift.discovery.Service.matchesPool;
@@ -38,7 +39,7 @@ public class ReplicatedStaticStore
     @Inject
     public ReplicatedStaticStore(@ForStaticStore DistributedStore store)
     {
-        this.store = store;
+        this.store = checkNotNull(store, "store is null");
     }
 
     @Override

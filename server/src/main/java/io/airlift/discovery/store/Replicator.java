@@ -18,7 +18,6 @@ package io.airlift.discovery.store;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.airlift.discovery.client.ServiceDescriptor;
 import io.airlift.discovery.client.ServiceSelector;
 import io.airlift.http.client.HttpClient;
@@ -33,14 +32,17 @@ import org.weakref.jmx.Managed;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+
 import java.io.EOFException;
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static io.airlift.concurrent.Threads.daemonThreadsNamed;
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 public class Replicator
 {
@@ -81,7 +83,7 @@ public class Replicator
     public synchronized void start()
     {
         if (future == null) {
-            executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("replicator-" + name + "-%d").setDaemon(true).build());
+            executor = newSingleThreadScheduledExecutor(daemonThreadsNamed("replicator-" + name + "-%d"));
 
             future = executor.scheduleAtFixedRate(new Runnable()
             {
