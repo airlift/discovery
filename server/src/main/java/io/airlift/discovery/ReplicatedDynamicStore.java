@@ -37,16 +37,16 @@ import static io.airlift.discovery.Service.matchesType;
 public class ReplicatedDynamicStore
         implements DynamicStore
 {
-    private final JsonCodec<List<Service>> codec = JsonCodec.listJsonCodec(Service.class);
-
     private final DistributedStore store;
     private final Duration maxAge;
+    private final JsonCodec<List<Service>> codec;
 
     @Inject
-    public ReplicatedDynamicStore(@ForDynamicStore DistributedStore store, DiscoveryConfig config)
+    public ReplicatedDynamicStore(@ForDynamicStore DistributedStore store, DiscoveryConfig config, JsonCodec<List<Service>> codec)
     {
         this.store = checkNotNull(store, "store is null");
         this.maxAge = checkNotNull(config, "config is null").getMaxAge();
+        this.codec = checkNotNull(codec, "codec is null");
     }
 
     @Override

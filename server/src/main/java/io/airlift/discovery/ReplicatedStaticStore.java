@@ -33,13 +33,14 @@ import static io.airlift.discovery.Service.matchesType;
 public class ReplicatedStaticStore
         implements StaticStore
 {
-    private final JsonCodec<Service> codec = JsonCodec.jsonCodec(Service.class);
     private final DistributedStore store;
+    private final JsonCodec<Service> codec;
 
     @Inject
-    public ReplicatedStaticStore(@ForStaticStore DistributedStore store)
+    public ReplicatedStaticStore(@ForStaticStore DistributedStore store, JsonCodec<Service> codec)
     {
         this.store = checkNotNull(store, "store is null");
+        this.codec = checkNotNull(codec, "codec is null");
     }
 
     @Override

@@ -24,6 +24,8 @@ import io.airlift.discovery.store.RemoteStore;
 import io.airlift.discovery.store.StoreConfig;
 import org.joda.time.DateTime;
 
+import static io.airlift.json.JsonCodec.listJsonCodec;
+
 public class TestReplicatedDynamicStore
     extends TestDynamicStore
 {
@@ -36,6 +38,6 @@ public class TestReplicatedDynamicStore
 
         DistributedStore distributedStore = new DistributedStore("dynamic", new InMemoryStore(new ConflictResolver()), dummy, new StoreConfig(), timeSupplier);
 
-        return new ReplicatedDynamicStore(distributedStore, config);
+        return new ReplicatedDynamicStore(distributedStore, config, listJsonCodec(Service.class));
     }
 }

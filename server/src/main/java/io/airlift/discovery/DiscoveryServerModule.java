@@ -30,10 +30,12 @@ import io.airlift.discovery.store.ReplicatedStoreModule;
 import io.airlift.node.NodeInfo;
 
 import javax.inject.Singleton;
+
 import java.util.List;
 
 import static io.airlift.configuration.ConfigurationModule.bindConfig;
 import static io.airlift.discovery.client.DiscoveryBinder.discoveryBinder;
+import static io.airlift.json.JsonCodecBinder.jsonCodecBinder;
 
 public class DiscoveryServerModule
         implements Module
@@ -44,6 +46,9 @@ public class DiscoveryServerModule
         binder.bind(ServiceResource.class).in(Scopes.SINGLETON);
 
         discoveryBinder(binder).bindHttpAnnouncement("discovery");
+
+        jsonCodecBinder(binder).bindJsonCodec(Service.class);
+        jsonCodecBinder(binder).bindListJsonCodec(Service.class);
 
         // dynamic announcements
         binder.bind(DynamicAnnouncementResource.class).in(Scopes.SINGLETON);

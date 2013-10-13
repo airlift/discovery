@@ -24,6 +24,8 @@ import io.airlift.discovery.store.RemoteStore;
 import io.airlift.discovery.store.StoreConfig;
 import org.joda.time.DateTime;
 
+import static io.airlift.json.JsonCodec.jsonCodec;
+
 public class TestReplicatedStaticStore
     extends TestStaticStore
 {
@@ -36,6 +38,6 @@ public class TestReplicatedStaticStore
 
         DistributedStore distributedStore = new DistributedStore("static", new InMemoryStore(new ConflictResolver()), dummy, new StoreConfig(), timeSupplier);
 
-        return new ReplicatedStaticStore(distributedStore);
+        return new ReplicatedStaticStore(distributedStore, jsonCodec(Service.class));
     }
 }
