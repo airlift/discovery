@@ -84,6 +84,7 @@ public class TestDiscoveryServer
         // start server
         Map<String, String> serverProperties = ImmutableMap.<String, String>builder()
                 .put("static.db.location", tempDir.getAbsolutePath())
+                .put("discovery.store-cache-ttl", "0s")
                 .build();
 
         Bootstrap bootstrap = new Bootstrap(

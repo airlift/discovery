@@ -32,7 +32,8 @@ public class TestDiscoveryConfig
     public void testDefaults()
     {
         ConfigAssertions.assertRecordedDefaults(ConfigAssertions.recordDefaults(DiscoveryConfig.class)
-                .setMaxAge(new Duration(30, TimeUnit.SECONDS)));
+                .setMaxAge(new Duration(30, TimeUnit.SECONDS))
+                .setStoreCacheTtl(new Duration(1, TimeUnit.SECONDS)));
     }
 
     @Test
@@ -40,10 +41,12 @@ public class TestDiscoveryConfig
     {
         Map<String, String> properties = ImmutableMap.<String, String>builder()
                 .put("discovery.max-age", "1m")
+                .put("discovery.store-cache-ttl", "13s")
                 .build();
 
         DiscoveryConfig expected = new DiscoveryConfig()
-                .setMaxAge(new Duration(1, TimeUnit.MINUTES));
+                .setMaxAge(new Duration(1, TimeUnit.MINUTES))
+                .setStoreCacheTtl(new Duration(13, TimeUnit.SECONDS));
 
         ConfigAssertions.assertFullMapping(properties, expected);
     }

@@ -46,7 +46,9 @@ public abstract class TestDynamicStore
     public void setup()
     {
         currentTime = new TestingTimeSupplier();
-        DiscoveryConfig config = new DiscoveryConfig().setMaxAge(new Duration(1, TimeUnit.MINUTES));
+        DiscoveryConfig config = new DiscoveryConfig()
+                .setMaxAge(new Duration(1, TimeUnit.MINUTES))
+                .setStoreCacheTtl(new Duration(0, TimeUnit.SECONDS));
         store = initializeStore(config, currentTime);
     }
 

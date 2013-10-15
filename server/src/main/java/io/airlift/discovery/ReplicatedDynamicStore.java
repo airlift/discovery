@@ -15,6 +15,7 @@
  */
 package io.airlift.discovery;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.discovery.store.DistributedStore;
@@ -29,10 +30,12 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.and;
+import static com.google.common.base.Suppliers.memoizeWithExpiration;
 import static com.google.common.collect.Iterables.filter;
 import static io.airlift.discovery.DynamicServiceAnnouncement.toServiceWith;
 import static io.airlift.discovery.Service.matchesPool;
 import static io.airlift.discovery.Service.matchesType;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class ReplicatedDynamicStore
         implements DynamicStore
@@ -40,6 +43,7 @@ public class ReplicatedDynamicStore
     private final DistributedStore store;
     private final Duration maxAge;
     private final JsonCodec<List<Service>> codec;
+    private final Supplier<Set<Service>> servicesSupplier;
 
     @Inject
     public ReplicatedDynamicStore(@ForDynamicStore DistributedStore store, DiscoveryConfig config, JsonCodec<List<Service>> codec)
@@ -47,6 +51,8 @@ public class ReplicatedDynamicStore
         this.store = checkNotNull(store, "store is null");
         this.maxAge = checkNotNull(config, "config is null").getMaxAge();
         this.codec = checkNotNull(codec, "codec is null");
+
+        servicesSupplier = cachingSupplier(servicesSupplier(), config.getStoreCacheTtl());
     }
 
     @Override
@@ -71,12 +77,7 @@ public class ReplicatedDynamicStore
     @Override
     public Set<Service> getAll()
     {
-        ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
-        for (Entry entry : store.getAll()) {
-            builder.addAll(codec.fromJson(entry.getValue()));
-        }
-
-        return builder.build();
+        return servicesSupplier.get();
     }
 
     @Override
@@ -89,5 +90,29 @@ public class ReplicatedDynamicStore
     public Set<Service> get(String type, String pool)
     {
         return ImmutableSet.copyOf(filter(getAll(), and(matchesType(type), matchesPool(pool))));
+    }
+
+    private Supplier<Set<Service>> servicesSupplier()
+    {
+        return new Supplier<Set<Service>>()
+        {
+            @Override
+            public Set<Service> get()
+            {
+                ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
+                for (Entry entry : store.getAll()) {
+                    builder.addAll(codec.fromJson(entry.getValue()));
+                }
+                return builder.build();
+            }
+        };
+    }
+
+    private static <T> Supplier<T> cachingSupplier(Supplier<T> supplier, Duration ttl)
+    {
+        if (ttl.toMillis() == 0) {
+            return supplier;
+        }
+        return memoizeWithExpiration(supplier, ttl.toMillis(), MILLISECONDS);
     }
 }

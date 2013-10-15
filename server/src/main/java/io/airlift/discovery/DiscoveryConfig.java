@@ -19,11 +19,13 @@ import io.airlift.configuration.Config;
 import io.airlift.units.Duration;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.concurrent.TimeUnit;
 
 public class DiscoveryConfig
 {
     private Duration maxAge = new Duration(30, TimeUnit.SECONDS);
+    private Duration storeCacheTtl = new Duration(1, TimeUnit.SECONDS);
 
     @NotNull
     public Duration getMaxAge()
@@ -35,6 +37,19 @@ public class DiscoveryConfig
     public DiscoveryConfig setMaxAge(Duration maxAge)
     {
         this.maxAge = maxAge;
+        return this;
+    }
+
+    @NotNull
+    public Duration getStoreCacheTtl()
+    {
+        return storeCacheTtl;
+    }
+
+    @Config("discovery.store-cache-ttl")
+    public DiscoveryConfig setStoreCacheTtl(Duration storeCacheTtl)
+    {
+        this.storeCacheTtl = storeCacheTtl;
         return this;
     }
 }
