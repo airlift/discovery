@@ -50,7 +50,7 @@ public class ReplicatedDynamicStore
     }
 
     @Override
-    public boolean put(Id<Node> nodeId, DynamicAnnouncement announcement)
+    public void put(Id<Node> nodeId, DynamicAnnouncement announcement)
     {
         List<Service> services = FluentIterable.from(announcement.getServiceAnnouncements())
                 .transform(toServiceWith(nodeId, announcement.getLocation(), announcement.getPool()))
@@ -60,16 +60,12 @@ public class ReplicatedDynamicStore
         byte[] value = codec.toJsonBytes(services);
 
         store.put(key, value, maxAge);
-
-        return true; // TODO
     }
 
     @Override
-    public boolean delete(Id<Node> nodeId)
+    public void delete(Id<Node> nodeId)
     {
         store.delete(nodeId.getBytes());
-
-        return true; // TODO
     }
 
     @Override

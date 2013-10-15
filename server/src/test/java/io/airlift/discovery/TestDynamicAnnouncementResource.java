@@ -129,7 +129,7 @@ public class TestDynamicAnnouncementResource
         Response response = resource.delete(Id.<Node>random());
 
         assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.NOT_FOUND.getStatusCode());
+        assertEquals(response.getStatus(), Response.Status.NO_CONTENT.getStatusCode());
 
         assertTrue(store.getAll().isEmpty());
     }

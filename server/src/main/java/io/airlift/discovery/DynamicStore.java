@@ -19,8 +19,8 @@ import java.util.Set;
 
 public interface DynamicStore
 {
-    boolean put(Id<Node> nodeId, DynamicAnnouncement announcement);
-    boolean delete(Id<Node> nodeId);
+    void put(Id<Node> nodeId, DynamicAnnouncement announcement);
+    void delete(Id<Node> nodeId);
 
     Set<Service> getAll();
     Set<Service> get(String type);

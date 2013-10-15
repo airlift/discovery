@@ -32,7 +32,6 @@ import javax.ws.rs.core.UriInfo;
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 @Path("/v1/announcement/{node_id}")
 public class DynamicAnnouncementResource
@@ -71,9 +70,7 @@ public class DynamicAnnouncementResource
     @DELETE
     public Response delete(@PathParam("node_id") Id<Node> nodeId)
     {
-        if (!dynamicStore.delete(nodeId)) {
-            return Response.status(NOT_FOUND).build();
-        }
+        dynamicStore.delete(nodeId);
 
         return Response.noContent().build();
     }

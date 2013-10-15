@@ -52,7 +52,7 @@ public class InMemoryDynamicStore
     }
 
     @Override
-    public synchronized boolean put(Id<Node> nodeId, DynamicAnnouncement announcement)
+    public synchronized void put(Id<Node> nodeId, DynamicAnnouncement announcement)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
         Preconditions.checkNotNull(announcement, "announcement is null");
@@ -60,17 +60,15 @@ public class InMemoryDynamicStore
         Set<Service> services = ImmutableSet.copyOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
 
         DateTime expiration = currentTime.get().plusMillis((int) maxAge.toMillis());
-        Entry old = descriptors.put(nodeId, new Entry(expiration, services));
-
-        return old == null || old.getExpiration().isBefore(currentTime.get());
+        descriptors.put(nodeId, new Entry(expiration, services));
     }
 
     @Override
-    public synchronized boolean delete(Id<Node> nodeId)
+    public synchronized void delete(Id<Node> nodeId)
     {
         Preconditions.checkNotNull(nodeId, "nodeId is null");
 
-        return descriptors.remove(nodeId) != null;
+        descriptors.remove(nodeId);
     }
 
     @Override

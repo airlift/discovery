@@ -64,7 +64,7 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
         ));
 
-        assertTrue(store.put(nodeId, blue));
+        store.put(nodeId, blue);
 
         assertEquals(store.getAll(), transform(blue.getServiceAnnouncements(), toServiceWith(nodeId, blue.getLocation(), blue.getPool())));
     }
@@ -77,7 +77,7 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"))
         ));
 
-        assertTrue(store.put(nodeId, blue));
+        store.put(nodeId, blue);
         advanceTimeBeyondMaxAge();
         assertEquals(store.getAll(), Collections.<Service>emptySet());
     }
@@ -92,7 +92,7 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
         ));
 
-        assertTrue(store.put(nodeId, announcement));
+        store.put(nodeId, announcement);
 
         assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
     }
@@ -130,9 +130,9 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
-        assertTrue(store.put(nodeId, oldAnnouncement));
+        store.put(nodeId, oldAnnouncement);
         advanceTimeBeyondMaxAge();
-        assertTrue(store.put(nodeId, newAnnouncement));
+        store.put(nodeId, newAnnouncement);
 
         assertEqualsIgnoreOrder(store.getAll(), transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation(), newAnnouncement.getPool())));
     }
@@ -155,9 +155,9 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
         ));
 
-        assertTrue(store.put(blueNodeId, blue));
-        assertTrue(store.put(redNodeId, red));
-        assertTrue(store.put(greenNodeId, green));
+        store.put(blueNodeId, blue);
+        store.put(redNodeId, red);
+        store.put(greenNodeId, green);
 
         assertEqualsIgnoreOrder(store.getAll(), concat(
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
@@ -183,9 +183,9 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:3333"))
         ));
 
-        assertTrue(store.put(blueNodeId, blue));
-        assertTrue(store.put(redNodeId, red));
-        assertTrue(store.put(greenNodeId, green));
+        store.put(blueNodeId, blue);
+        store.put(redNodeId, red);
+        store.put(greenNodeId, green);
 
         assertEqualsIgnoreOrder(store.get("storage"), concat(
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
@@ -217,10 +217,10 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:4444"))
         ));
 
-        assertTrue(store.put(blueNodeId, blue));
-        assertTrue(store.put(redNodeId, red));
-        assertTrue(store.put(greenNodeId, green));
-        assertTrue(store.put(yellowNodeId, yellow));
+        store.put(blueNodeId, blue);
+        store.put(redNodeId, red);
+        store.put(greenNodeId, green);
+        store.put(yellowNodeId, yellow);
 
         assertEqualsIgnoreOrder(store.get("storage", "poolA"), concat(
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
@@ -247,8 +247,8 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
-        assertTrue(store.put(blueNodeId, blue));
-        assertTrue(store.put(redNodeId, red));
+        store.put(blueNodeId, blue);
+        store.put(redNodeId, red);
 
         assertEqualsIgnoreOrder(store.getAll(), concat(
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
@@ -256,7 +256,7 @@ public abstract class TestDynamicStore
 
         currentTime.increment();
 
-        assertTrue(store.delete(blueNodeId));
+        store.delete(blueNodeId);
 
         assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
 
@@ -272,16 +272,16 @@ public abstract class TestDynamicStore
                 new DynamicServiceAnnouncement(Id.<Service>random(), "monitoring", ImmutableMap.of("http", "http://localhost:2222"))
         ));
 
-        assertTrue(store.put(redNodeId, red));
+        store.put(redNodeId, red);
         assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
 
         currentTime.increment();
 
-        assertTrue(store.delete(redNodeId));
+        store.delete(redNodeId);
 
         currentTime.increment();
 
-        assertTrue(store.put(redNodeId, red));
+        store.put(redNodeId, red);
 
         assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
     }
