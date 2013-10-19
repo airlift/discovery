@@ -30,35 +30,34 @@ import io.airlift.node.NodeModule;
 import io.airlift.tracetoken.TraceTokenModule;
 import org.weakref.jmx.guice.MBeanModule;
 
-public class DiscoveryServer
+public final class DiscoveryServer
 {
+    private static final Logger log = Logger.get(DiscoveryServer.class);
 
-    private final static Logger log = Logger.get(DiscoveryServer.class);
+    private DiscoveryServer() {}
 
     public static void main(String[] args)
-            throws Exception
     {
         try {
-            Bootstrap app = new Bootstrap(new MBeanModule(),
-                                          new NodeModule(),
-                                          new HttpServerModule(),
-                                          new JaxrsModule(),
-                                          new JsonModule(),
-                                          new JmxModule(),
-                                          new JmxHttpRpcModule(),
-                                          new DiscoveryServerModule(),
-                                          new HttpEventModule(),
-                                          new TraceTokenModule(),
-                                          new DiscoveryModule()
-                         );
+            Bootstrap app = new Bootstrap(
+                    new MBeanModule(),
+                    new NodeModule(),
+                    new HttpServerModule(),
+                    new JaxrsModule(),
+                    new JsonModule(),
+                    new JmxModule(),
+                    new JmxHttpRpcModule(),
+                    new DiscoveryServerModule(),
+                    new HttpEventModule(),
+                    new TraceTokenModule(),
+                    new DiscoveryModule()
+            );
 
-            Injector injector = app.initialize();
-
+            Injector injector = app.strictConfig().initialize();
             injector.getInstance(Announcer.class).start();
         }
-        catch (Exception e) {
-            log.error(e);
-            // Cassandra prevents the vm from shutting down on its own
+        catch (Throwable t) {
+            log.error(t);
             System.exit(1);
         }
     }
