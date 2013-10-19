@@ -30,10 +30,10 @@ import io.airlift.node.NodeModule;
 import io.airlift.tracetoken.TraceTokenModule;
 import org.weakref.jmx.guice.MBeanModule;
 
-public class Main
+public class DiscoveryServer
 {
 
-    private final static Logger log = Logger.get(Main.class);
+    private final static Logger log = Logger.get(DiscoveryServer.class);
 
     public static void main(String[] args)
             throws Exception
