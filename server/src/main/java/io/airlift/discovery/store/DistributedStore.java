@@ -130,7 +130,7 @@ public class DistributedStore
 
         long now = timeSupplier.get().getMillis();
 
-        Entry entry = new Entry(key, value, new Version(now), now, null);
+        Entry entry = new Entry(key, value, now, null);
 
         localStore.put(entry);
         remoteStore.put(entry);
@@ -144,7 +144,7 @@ public class DistributedStore
 
         long now = timeSupplier.get().getMillis();
 
-        Entry entry = new Entry(key, value, new Version(now), now, maxAge.toMillis());
+        Entry entry = new Entry(key, value, now, maxAge.toMillis());
 
         localStore.put(entry);
         remoteStore.put(entry);
@@ -170,7 +170,7 @@ public class DistributedStore
 
         long now = timeSupplier.get().getMillis();
 
-        Entry entry = new Entry(key, null, new Version(now), now, null);
+        Entry entry = new Entry(key, null, now, null);
 
         localStore.put(entry);
         remoteStore.put(entry);

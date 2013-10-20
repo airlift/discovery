@@ -15,6 +15,7 @@
  */
 package io.airlift.discovery.store;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.google.common.base.Function;
@@ -37,7 +38,7 @@ public class PersistentStore
 {
     private static final Logger log = Logger.get(PersistentStore.class);
     private final DB db;
-    private final ObjectMapper mapper = new ObjectMapper(new SmileFactory());
+    private final ObjectMapper mapper = new ObjectMapper(new SmileFactory()).disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     @Inject
     public PersistentStore(PersistentStoreConfig config)
