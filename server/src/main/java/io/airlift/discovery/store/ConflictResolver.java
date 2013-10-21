@@ -15,17 +15,21 @@
  */
 package io.airlift.discovery.store;
 
+import com.google.common.primitives.Longs;
+
 public class ConflictResolver
 {
     public Entry resolve(Entry a, Entry b)
     {
-        switch (new Version(a.getTimestamp()).compare(new Version(b.getTimestamp()))) {
-            case BEFORE:
-                return b;
-            case AFTER:
-                return a;
+        if (isNewer(b, a.getTimestamp())) {
+            return b;
         }
+        else {
+            return a;
+        }
+    }
 
-        return a; // arbitrary
+    public boolean isNewer(Entry entry, long timestamp) {
+        return (Longs.compare(entry.getTimestamp(), timestamp) > 0);
     }
 }
