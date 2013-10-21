@@ -19,17 +19,13 @@ import com.google.common.base.Preconditions;
 
 import javax.inject.Inject;
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import static io.airlift.discovery.store.Version.Occurs.AFTER;
-import static io.airlift.discovery.store.Version.Occurs.SAME;
 
 public class InMemoryStore
         implements LocalStore
 {
-    private final ConcurrentMap<ByteBuffer, Entry> map = new ConcurrentHashMap<ByteBuffer, Entry>();
+    private final ConcurrentMap<ByteBuffer, Entry> map = new ConcurrentHashMap<>();
     private final ConflictResolver resolver;
 
     @Inject
@@ -67,7 +63,7 @@ public class InMemoryStore
     }
 
     @Override
-    public void delete(byte[] key, Version version)
+    public void delete(byte[] key, long timestamp)
     {
         Preconditions.checkNotNull(key, "key is null");
 
@@ -78,7 +74,7 @@ public class InMemoryStore
             Entry old = map.get(wrappedKey);
 
             done = true;
-            if (old != null && EnumSet.of(AFTER, SAME).contains(version.compare(old.getVersion()))) {
+            if (old != null && !resolver.isNewer(old, timestamp)) {
                 done = map.remove(wrappedKey, old);
             }
         }

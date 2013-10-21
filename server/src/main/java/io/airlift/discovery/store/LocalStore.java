@@ -19,6 +19,6 @@ public interface LocalStore
 {
     void put(Entry entry);
     Entry get(byte[] key);
-    void delete(byte[] key, Version version);
+    void delete(byte[] key, long timestamp);
     Iterable<Entry> getAll();
 }

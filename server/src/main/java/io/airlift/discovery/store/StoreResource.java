@@ -61,7 +61,7 @@ public class StoreResource
     {
         LocalStore store = localStores.get(storeName);
 
-        Entry entry = new Entry(key.getBytes(Charsets.UTF_8), value, new Version(System.currentTimeMillis()), System.currentTimeMillis(), null); // TODO: version
+        Entry entry = new Entry(key.getBytes(Charsets.UTF_8), value, System.currentTimeMillis(), null);
         store.put(entry);
     }
     

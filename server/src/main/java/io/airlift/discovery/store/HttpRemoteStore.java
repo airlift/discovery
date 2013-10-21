@@ -15,6 +15,7 @@
  */
 package io.airlift.discovery.store;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.google.common.base.Function;
@@ -232,7 +233,7 @@ public class HttpRemoteStore
     private static class MyBatchHandler
             implements BatchProcessor.BatchHandler<Entry>
     {
-        private final ObjectMapper mapper = new ObjectMapper(new SmileFactory());
+        private final ObjectMapper mapper = new ObjectMapper(new SmileFactory()).disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         private final URI uri;
         private final HttpClient httpClient;

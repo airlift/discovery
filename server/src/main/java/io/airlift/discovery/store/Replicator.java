@@ -16,6 +16,7 @@
 package io.airlift.discovery.store;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -56,7 +57,7 @@ public class Replicator
     private ScheduledFuture<?> future;
     private ScheduledExecutorService executor;
 
-    private final ObjectMapper mapper = new ObjectMapper(new SmileFactory());
+    private final ObjectMapper mapper = new ObjectMapper(new SmileFactory()).disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     private final AtomicLong lastReplicationTimestamp = new AtomicLong();
 
     @Inject
