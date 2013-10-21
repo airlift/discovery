@@ -57,6 +57,7 @@ public class Entry
         return value;
     }
 
+    @Deprecated
     @JsonProperty
     public Version getVersion()
     {

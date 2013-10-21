@@ -50,7 +50,7 @@ public class TestInMemoryStore
         Entry entry = entryOf("blue", "apple", 1);
         store.put(entry);
 
-        store.delete(key, entry.getVersion());
+        store.delete(key, entry.getTimestamp());
 
         assertNull(store.get(key));
     }
@@ -62,7 +62,7 @@ public class TestInMemoryStore
         Entry entry = entryOf("blue", "apple", 5);
         store.put(entry);
 
-        store.delete(key, new Version(2));
+        store.delete(key, 2);
 
         assertEquals(store.get("blue".getBytes(Charsets.UTF_8)), entry);
     }

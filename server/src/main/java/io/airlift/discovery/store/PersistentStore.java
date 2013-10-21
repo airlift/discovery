@@ -73,7 +73,7 @@ public class PersistentStore
     }
 
     @Override
-    public void delete(byte[] key, Version version)
+    public void delete(byte[] key, long timestamp)
     {
         db.delete(key);
     }

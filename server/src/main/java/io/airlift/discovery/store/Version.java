@@ -52,7 +52,7 @@ class Version
     
     public enum Occurs
     {
-        BEFORE, SAME, CONCURRENT, AFTER
+        BEFORE, SAME, AFTER
     }
 
     @Override

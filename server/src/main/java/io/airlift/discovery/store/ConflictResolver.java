@@ -19,7 +19,7 @@ public class ConflictResolver
 {
     public Entry resolve(Entry a, Entry b)
     {
-        switch (a.getVersion().compare(b.getVersion())) {
+        switch (new Version(a.getTimestamp()).compare(new Version(b.getTimestamp()))) {
             case BEFORE:
                 return b;
             case AFTER:

@@ -102,7 +102,7 @@ public class DistributedStore
     {
         for (Entry entry : localStore.getAll()) {
             if (isExpired(entry)) {
-                localStore.delete(entry.getKey(), entry.getVersion());
+                localStore.delete(entry.getKey(), entry.getTimestamp());
             }
         }
 
