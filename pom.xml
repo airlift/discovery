@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>11</version>
+        <version>13</version>
     </parent>
 
     <groupId>io.airlift.discovery</groupId>
@@ -56,7 +56,7 @@
         <air.check.fail-basic>true</air.check.fail-basic>
         <air.check.skip-pmd>true</air.check.skip-pmd>
 
-        <dep.airlift.version>0.82</dep.airlift.version>
+        <dep.airlift.version>0.83</dep.airlift.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
         <dep.leveldb.version>0.5</dep.leveldb.version>
     </properties>
@@ -85,9 +85,16 @@
                 <artifactId>jmx-http-rpc</artifactId>
                 <version>${dep.airlift.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.airlift</groupId>
                 <artifactId>bootstrap</artifactId>
+                <version>${dep.airlift.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.airlift</groupId>
+                <artifactId>concurrent</artifactId>
                 <version>${dep.airlift.version}</version>
             </dependency>
 

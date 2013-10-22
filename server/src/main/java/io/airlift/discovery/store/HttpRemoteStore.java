@@ -22,7 +22,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.airlift.discovery.client.ServiceDescriptor;
 import io.airlift.discovery.client.ServiceSelector;
 import io.airlift.http.client.BodyGenerator;
@@ -49,7 +48,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -63,13 +61,15 @@ import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.inject.name.Names.named;
+import static io.airlift.concurrent.Threads.daemonThreadsNamed;
 import static io.airlift.http.client.StatusResponseHandler.createStatusResponseHandler;
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static org.weakref.jmx.ObjectNames.generatedNameOf;
 
 public class HttpRemoteStore
         implements RemoteStore
 {
-    private final static Logger log = Logger.get(HttpRemoteStore.class);
+    private static final Logger log = Logger.get(HttpRemoteStore.class);
 
     private final int maxBatchSize;
     private final int queueSize;
@@ -119,7 +119,7 @@ public class HttpRemoteStore
     {
         if (future == null) {
             // note: this *must* be single threaded for the shutdown logic to work correctly
-            executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("http-remote-store-" + name + "-%d").setDaemon(true).build());
+            executor = newSingleThreadScheduledExecutor(daemonThreadsNamed("http-remote-store-" + name + "-%d"));
 
             future = executor.scheduleWithFixedDelay(new Runnable()
             {
