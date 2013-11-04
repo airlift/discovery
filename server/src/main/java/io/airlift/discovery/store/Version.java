@@ -22,7 +22,7 @@ import com.google.common.primitives.Longs;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-class Version
+public class Version
 {
     private final long sequence;
 
