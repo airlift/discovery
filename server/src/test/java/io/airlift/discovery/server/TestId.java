@@ -42,7 +42,10 @@ public class TestId
     @Test
     public void testFromJson()
     {
-        Id<Holder> id = Id.valueOf("9e9b8190-6abd-4890-bc12-e290ebe20a7f");
+        String value = "abc/123";
+
+        Id<Holder> id = Id.valueOf(value);
+        assertEquals(id.get(), value);
 
         Map<String, String> map = ImmutableMap.of("id", id.toString());
         String json = jsonCodec(Object.class).toJson(map);

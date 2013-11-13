@@ -142,7 +142,7 @@ public class TestDynamicAnnouncementResource
                 new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111")))
         );
 
-        Id<Node> nodeId = Id.random();
+        Id<Node> nodeId = Id.valueOf("test123");
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId.toString())), announcement);
 
         assertNotNull(response);
