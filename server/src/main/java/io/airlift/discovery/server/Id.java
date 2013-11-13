@@ -17,44 +17,40 @@ package io.airlift.discovery.server;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.UUID;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Immutable
-public class Id<T>
+public final class Id<T>
 {
-    private final UUID id;
+    private final String id;
 
     @JsonCreator
-    public static <T> Id<T> valueOf(UUID id)
-    {
-        Preconditions.checkNotNull(id, "id is null");
-        return new Id<T>(id);
-    }
-
     public static <T> Id<T> valueOf(String id)
     {
-        Preconditions.checkNotNull(id, "id is null");
-        return new Id<>(UUID.fromString(id));
+        return new Id<>(id);
     }
 
     public static <T> Id<T> random()
     {
-        return new Id<>(UUID.randomUUID());
+        return new Id<>(UUID.randomUUID().toString());
     }
 
-    private Id(UUID id)
+    private Id(String id)
     {
+        checkNotNull(id, "id is null");
+        checkArgument(!id.isEmpty(), "id is empty");
         this.id = id;
     }
 
     @JsonValue
-    public UUID get()
+    public String get()
     {
         return id;
     }
@@ -80,7 +76,7 @@ public class Id<T>
     @Override
     public String toString()
     {
-        return id.toString();
+        return id;
     }
 
     public byte[] getBytes()
