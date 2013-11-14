@@ -62,7 +62,7 @@
     </properties>
 
     <modules>
-        <module>server</module>
+        <module>discovery-server</module>
     </modules>
 
     <dependencyManagement>
