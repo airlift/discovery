@@ -62,8 +62,7 @@
     </properties>
 
     <modules>
-        <module>server</module>
-        <module>cli</module>
+        <module>discovery-server</module>
     </modules>
 
     <dependencyManagement>
