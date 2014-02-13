@@ -56,9 +56,12 @@
         <air.check.fail-basic>true</air.check.fail-basic>
         <air.check.skip-pmd>true</air.check.skip-pmd>
 
-        <dep.airlift.version>0.85</dep.airlift.version>
+        <dep.airlift.version>0.86-SNAPSHOT</dep.airlift.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
         <dep.leveldb.version>0.7</dep.leveldb.version>
+        <!-- remove this when airbase is updated -->
+        <dep.jetty.version>9.1.1.v20140108</dep.jetty.version>
+        <dep.javax-servlet.version>3.1.0</dep.javax-servlet.version>
     </properties>
 
     <modules>

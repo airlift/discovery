@@ -28,9 +28,9 @@ import io.airlift.discovery.client.DiscoveryModule;
 import io.airlift.discovery.client.ServiceAnnouncement;
 import io.airlift.discovery.client.ServiceDescriptor;
 import io.airlift.discovery.client.ServiceSelector;
-import io.airlift.http.client.ApacheHttpClient;
 import io.airlift.http.client.HttpClient;
 import io.airlift.http.client.Request;
+import io.airlift.http.client.jetty.JettyHttpClient;
 import io.airlift.http.server.testing.TestingHttpServer;
 import io.airlift.http.server.testing.TestingHttpServerModule;
 import io.airlift.jaxrs.JaxrsModule;
@@ -182,7 +182,7 @@ public class TestDiscoveryServer
                 .put("properties", ImmutableMap.of("http", "http://host"))
                 .build();
 
-        HttpClient client = new ApacheHttpClient();
+        HttpClient client = new JettyHttpClient();
 
         Request request = preparePost()
                 .setUri(uriFor("/v1/announcement/static"))
