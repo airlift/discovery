@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>15</version>
+        <version>17</version>
     </parent>
 
     <groupId>io.airlift.discovery</groupId>
@@ -59,8 +59,6 @@
         <dep.airlift.version>0.86-SNAPSHOT</dep.airlift.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
         <dep.leveldb.version>0.7</dep.leveldb.version>
-        <!-- remove this when airbase is updated -->
-        <dep.jetty.version>9.1.1.v20140108</dep.jetty.version>
         <dep.javax-servlet.version>3.1.0</dep.javax-servlet.version>
     </properties>
 
