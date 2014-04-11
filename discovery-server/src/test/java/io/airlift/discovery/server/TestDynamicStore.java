@@ -16,6 +16,7 @@
 package io.airlift.discovery.server;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.units.Duration;
@@ -264,6 +265,39 @@ public abstract class TestDynamicStore
 
         assertTrue(store.get("storage").isEmpty());
         assertTrue(store.get("web", "poolA").isEmpty());
+    }
+
+    @Test
+    public void testDeleteSingleAnnouncementFromNode()
+    {
+        Id<Node> blueNodeId = Id.random();
+        DynamicServiceAnnouncement blueStorage = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:1111"));
+        DynamicServiceAnnouncement blueWeb = new DynamicServiceAnnouncement(Id.<Service>random(), "web", ImmutableMap.of("http", "http://localhost:2222"));
+        DynamicAnnouncement blue = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableSet.of(blueStorage, blueWeb));
+
+        Id<Node> redNodeId = Id.random();
+        DynamicServiceAnnouncement redStorage = new DynamicServiceAnnouncement(Id.<Service>random(), "storage", ImmutableMap.of("http", "http://localhost:3333"));
+        DynamicAnnouncement red = new DynamicAnnouncement("testing", "poolA", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableSet.of(redStorage));
+
+        store.put(blueNodeId, blue);
+        store.put(redNodeId, red);
+        assertEqualsIgnoreOrder(store.getAll(), concat(
+                transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
+                transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
+
+        currentTime.increment();
+        store.delete(blueNodeId, blueWeb.getType());
+        assertEqualsIgnoreOrder(store.getAll(), concat(
+                transform(ImmutableList.of(blueStorage), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
+                transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
+
+        currentTime.increment();
+        store.delete(redNodeId, redStorage.getType());
+        assertEqualsIgnoreOrder(store.getAll(), transform(ImmutableList.of(blueStorage), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())));
+
+        currentTime.increment();
+        store.delete(blueNodeId, blueStorage.getType());
+        assertEquals(store.getAll(), ImmutableList.of());
     }
 
     @Test

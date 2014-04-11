@@ -21,7 +21,6 @@ import io.airlift.discovery.store.Entry;
 import io.airlift.json.JsonCodec;
 
 import javax.inject.Inject;
-
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;

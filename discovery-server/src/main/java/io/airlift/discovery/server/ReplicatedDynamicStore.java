@@ -24,13 +24,14 @@ import io.airlift.json.JsonCodec;
 import io.airlift.units.Duration;
 
 import javax.inject.Inject;
-
 import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.and;
+import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Suppliers.memoizeWithExpiration;
+import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
 import static io.airlift.discovery.server.DynamicServiceAnnouncement.toServiceWith;
 import static io.airlift.discovery.server.Service.matchesPool;
@@ -62,16 +63,20 @@ public class ReplicatedDynamicStore
                 .transform(toServiceWith(nodeId, announcement.getLocation(), announcement.getPool()))
                 .toList();
 
-        byte[] key = nodeId.getBytes();
-        byte[] value = codec.toJsonBytes(services);
-
-        store.put(key, value, maxAge);
+        put(nodeId, services);
     }
 
     @Override
     public void delete(Id<Node> nodeId)
     {
         store.delete(nodeId.getBytes());
+    }
+
+    @Override
+    public void delete(Id<Node> nodeId, String applicationType)
+    {
+        List<Service> services = copyOf(filter(codec.fromJson(store.get(nodeId.getBytes())), not(matchesType(applicationType))));
+        put(nodeId, services);
     }
 
     @Override
@@ -90,6 +95,14 @@ public class ReplicatedDynamicStore
     public Set<Service> get(String type, String pool)
     {
         return ImmutableSet.copyOf(filter(getAll(), and(matchesType(type), matchesPool(pool))));
+    }
+
+    private void put(Id<Node> nodeId, List<Service> services)
+    {
+        byte[] key = nodeId.getBytes();
+        byte[] value = codec.toJsonBytes(services);
+
+        store.put(key, value, maxAge);
     }
 
     private Supplier<Set<Service>> servicesSupplier()

@@ -21,6 +21,7 @@ public interface DynamicStore
 {
     void put(Id<Node> nodeId, DynamicAnnouncement announcement);
     void delete(Id<Node> nodeId);
+    void delete(Id<Node> nodeId, String applicationType);
 
     Set<Service> getAll();
     Set<Service> get(String type);
