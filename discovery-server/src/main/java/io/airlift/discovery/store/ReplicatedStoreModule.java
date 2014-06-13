@@ -40,6 +40,7 @@ import static com.google.inject.multibindings.MapBinder.newMapBinder;
 import static com.google.inject.name.Names.named;
 import static io.airlift.configuration.ConfigurationModule.bindConfig;
 import static io.airlift.http.client.HttpClientBinder.httpClientBinder;
+import static io.airlift.jaxrs.JaxrsBinder.jaxrsBinder;
 import static org.weakref.jmx.ObjectNames.generatedNameOf;
 import static org.weakref.jmx.guice.ExportBinder.newExporter;
 
@@ -68,9 +69,9 @@ public class ReplicatedStoreModule
         binder.disableCircularProxies();
 
         // global
-        binder.bind(StoreResource.class).in(Scopes.SINGLETON);
+        jaxrsBinder(binder).bind(StoreResource.class);
         binder.bind(new TypeLiteral<Supplier<DateTime>>() {}).to(RealTimeSupplier.class).in(Scopes.SINGLETON);
-        binder.bind(SmileMapper.class).in(Scopes.SINGLETON);
+        jaxrsBinder(binder).bind(SmileMapper.class);
         binder.bind(ConflictResolver.class).in(Scopes.SINGLETON);
 
         // per store

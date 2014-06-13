@@ -19,7 +19,6 @@ import com.google.inject.Injector;
 import io.airlift.bootstrap.Bootstrap;
 import io.airlift.discovery.client.Announcer;
 import io.airlift.discovery.client.DiscoveryModule;
-import io.airlift.discovery.server.DiscoveryServerModule;
 import io.airlift.event.client.HttpEventModule;
 import io.airlift.http.server.HttpServerModule;
 import io.airlift.jaxrs.JaxrsModule;
@@ -44,7 +43,7 @@ public final class DiscoveryServer
                     new MBeanModule(),
                     new NodeModule(),
                     new HttpServerModule(),
-                    new JaxrsModule(),
+                    new JaxrsModule(true),
                     new JsonModule(),
                     new JmxModule(),
                     new JmxHttpRpcModule(),

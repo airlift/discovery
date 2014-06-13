@@ -92,7 +92,7 @@ public class TestDiscoveryServer
                 new TestingNodeModule("testing"),
                 new TestingHttpServerModule(),
                 new JsonModule(),
-                new JaxrsModule(),
+                new JaxrsModule(true),
                 new DiscoveryServerModule(),
                 new DiscoveryModule(),
                 new Module()
