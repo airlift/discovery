@@ -71,7 +71,6 @@ public class ReplicatedStoreModule
         // global
         jaxrsBinder(binder).bind(StoreResource.class);
         binder.bind(new TypeLiteral<Supplier<DateTime>>() {}).to(RealTimeSupplier.class).in(Scopes.SINGLETON);
-        jaxrsBinder(binder).bind(SmileMapper.class);
         binder.bind(ConflictResolver.class).in(Scopes.SINGLETON);
 
         // per store
