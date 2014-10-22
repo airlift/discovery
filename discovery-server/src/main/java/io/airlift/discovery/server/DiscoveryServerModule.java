@@ -16,6 +16,8 @@
 package io.airlift.discovery.server;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Provides;
@@ -41,6 +43,7 @@ import static io.airlift.json.JsonCodecBinder.jsonCodecBinder;
 public class DiscoveryServerModule
         implements Module
 {
+    @Override
     public void configure(Binder binder)
     {
         bindConfig(binder).to(DiscoveryConfig.class);
@@ -85,6 +88,14 @@ public class DiscoveryServerModule
             public List<ServiceDescriptor> selectAllServices()
             {
                 return ImmutableList.copyOf(inventory.getServiceDescriptors(getType()));
+            }
+
+            @Override
+            public ListenableFuture<List<ServiceDescriptor>> refresh()
+            {
+                // this should be async, but it is never used
+                inventory.updateServiceInventory();
+                return Futures.immediateFuture(selectAllServices());
             }
         };
     }
