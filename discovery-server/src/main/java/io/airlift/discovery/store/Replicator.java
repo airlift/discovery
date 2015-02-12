@@ -83,7 +83,7 @@ public class Replicator
     public synchronized void start()
     {
         if (future == null) {
-            executor = newSingleThreadScheduledExecutor(daemonThreadsNamed("replicator-" + name + "-%d"));
+            executor = newSingleThreadScheduledExecutor(daemonThreadsNamed("replicator-" + name));
 
             future = executor.scheduleAtFixedRate(new Runnable()
             {

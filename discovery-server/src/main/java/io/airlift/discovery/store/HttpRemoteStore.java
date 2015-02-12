@@ -119,7 +119,7 @@ public class HttpRemoteStore
     {
         if (future == null) {
             // note: this *must* be single threaded for the shutdown logic to work correctly
-            executor = newSingleThreadScheduledExecutor(daemonThreadsNamed("http-remote-store-" + name + "-%d"));
+            executor = newSingleThreadScheduledExecutor(daemonThreadsNamed("http-remote-store-" + name));
 
             future = executor.scheduleWithFixedDelay(new Runnable()
             {

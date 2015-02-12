@@ -69,7 +69,7 @@ public class DistributedStore
         tombstoneMaxAge = config.getTombstoneMaxAge();
         garbageCollectionInterval = config.getGarbageCollectionInterval();
 
-        garbageCollector = newSingleThreadScheduledExecutor(daemonThreadsNamed("distributed-store-gc-" + name + "-%d"));
+        garbageCollector = newSingleThreadScheduledExecutor(daemonThreadsNamed("distributed-store-gc-" + name));
     }
 
     @PostConstruct
