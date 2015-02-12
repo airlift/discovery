@@ -68,7 +68,7 @@ public class BatchProcessor<T>
     public synchronized void start()
     {
         if (future == null) {
-            executor = newSingleThreadExecutor(threadsNamed("batch-processor-" + name + "-%d"));
+            executor = newSingleThreadExecutor(threadsNamed("batch-processor-" + name + "-%s"));
 
             future = executor.submit(new Runnable() {
                 public void run()
