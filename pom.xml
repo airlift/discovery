@@ -56,7 +56,7 @@
 
         <dep.airlift.version>0.118</dep.airlift.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
-        <dep.leveldb.version>0.7</dep.leveldb.version>
+        <dep.leveldb.version>0.8</dep.leveldb.version>
     </properties>
 
     <modules>
