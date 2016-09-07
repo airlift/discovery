@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>56</version>
+        <version>57</version>
     </parent>
 
     <groupId>io.airlift.discovery</groupId>
@@ -54,7 +54,7 @@
     <properties>
         <air.check.skip-extended>true</air.check.skip-extended>
 
-        <dep.airlift.version>0.132</dep.airlift.version>
+        <dep.airlift.version>0.136</dep.airlift.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
         <dep.leveldb.version>0.8</dep.leveldb.version>
     </properties>
@@ -140,7 +140,7 @@
             <dependency>
                 <groupId>io.airlift</groupId>
                 <artifactId>units</artifactId>
-                <version>${dep.airlift.version}</version>
+                <version>1.0</version>
             </dependency>
 
             <dependency>
