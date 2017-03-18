@@ -18,7 +18,6 @@ package io.airlift.discovery.store;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.google.common.base.Function;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import io.airlift.log.Logger;
 import org.iq80.leveldb.DB;
@@ -26,7 +25,9 @@ import org.iq80.leveldb.Options;
 import org.iq80.leveldb.impl.Iq80DBFactory;
 
 import javax.inject.Inject;
+
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -54,7 +55,7 @@ public class PersistentStore
             dbEntry = mapper.writeValueAsBytes(entry);
         }
         catch (IOException e) {
-            throw Throwables.propagate(e);
+            throw new UncheckedIOException(e);
         }
 
         db.put(entry.getKey(), dbEntry);
@@ -67,7 +68,7 @@ public class PersistentStore
             return mapper.readValue(db.get(key), Entry.class);
         }
         catch (IOException e) {
-            throw Throwables.propagate(e);
+            throw new UncheckedIOException(e);
         }
     }
 

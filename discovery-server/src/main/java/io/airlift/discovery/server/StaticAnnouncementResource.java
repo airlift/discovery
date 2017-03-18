@@ -15,7 +15,6 @@
  */
 package io.airlift.discovery.server;
 
-import com.google.common.base.Objects;
 import io.airlift.node.NodeInfo;
 
 import javax.inject.Inject;
@@ -30,8 +29,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
 import java.net.URI;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
@@ -60,7 +61,7 @@ public class StaticAnnouncementResource
         }
 
         Id<Service> id = Id.random();
-        String location = Objects.firstNonNull(announcement.getLocation(), "/somewhere/" + id);
+        String location = firstNonNull(announcement.getLocation(), "/somewhere/" + id);
 
         Service service = Service.copyOf(announcement)
                     .setId(id)

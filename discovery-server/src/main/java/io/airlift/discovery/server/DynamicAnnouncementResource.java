@@ -15,7 +15,6 @@
  */
 package io.airlift.discovery.server;
 
-import com.google.common.base.Objects;
 import io.airlift.node.NodeInfo;
 
 import javax.inject.Inject;
@@ -29,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -56,7 +56,7 @@ public class DynamicAnnouncementResource
                     .build();
         }
 
-        String location = Objects.firstNonNull(announcement.getLocation(), "/somewhere/" + nodeId.toString());
+        String location = firstNonNull(announcement.getLocation(), "/somewhere/" + nodeId.toString());
 
         DynamicAnnouncement announcementWithLocation = DynamicAnnouncement.copyOf(announcement)
                 .setLocation(location)

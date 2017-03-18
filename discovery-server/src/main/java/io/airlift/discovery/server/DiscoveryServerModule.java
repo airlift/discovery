@@ -35,7 +35,7 @@ import javax.inject.Singleton;
 
 import java.util.List;
 
-import static io.airlift.configuration.ConfigurationModule.bindConfig;
+import static io.airlift.configuration.ConfigBinder.configBinder;
 import static io.airlift.discovery.client.DiscoveryBinder.discoveryBinder;
 import static io.airlift.jaxrs.JaxrsBinder.jaxrsBinder;
 import static io.airlift.json.JsonCodecBinder.jsonCodecBinder;
@@ -46,7 +46,7 @@ public class DiscoveryServerModule
     @Override
     public void configure(Binder binder)
     {
-        bindConfig(binder).to(DiscoveryConfig.class);
+        configBinder(binder).bindConfig(DiscoveryConfig.class);
         jaxrsBinder(binder).bind(ServiceResource.class);
 
         discoveryBinder(binder).bindHttpAnnouncement("discovery");
@@ -63,7 +63,7 @@ public class DiscoveryServerModule
         jaxrsBinder(binder).bind(StaticAnnouncementResource.class);
         binder.bind(StaticStore.class).to(ReplicatedStaticStore.class).in(Scopes.SINGLETON);
         binder.install(new ReplicatedStoreModule("static", ForStaticStore.class, PersistentStore.class));
-        bindConfig(binder).prefixedWith("static").to(PersistentStoreConfig.class);
+        configBinder(binder).bindConfig(PersistentStoreConfig.class, "static");
     }
 
     @Singleton

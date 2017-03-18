@@ -38,7 +38,7 @@ import java.lang.annotation.Annotation;
 
 import static com.google.inject.multibindings.MapBinder.newMapBinder;
 import static com.google.inject.name.Names.named;
-import static io.airlift.configuration.ConfigurationModule.bindConfig;
+import static io.airlift.configuration.ConfigBinder.configBinder;
 import static io.airlift.http.client.HttpClientBinder.httpClientBinder;
 import static io.airlift.jaxrs.JaxrsBinder.jaxrsBinder;
 import static org.weakref.jmx.ObjectNames.generatedNameOf;
@@ -79,7 +79,7 @@ public class ReplicatedStoreModule
         Key<StoreConfig> storeConfigKey = Key.get(StoreConfig.class, annotation);
         Key<RemoteStore> remoteStoreKey = Key.get(RemoteStore.class, annotation);
 
-        bindConfig(binder).annotatedWith(annotation).prefixedWith(name).to(StoreConfig.class);
+        configBinder(binder).bindConfig(StoreConfig.class, annotation, name);
         httpClientBinder(binder).bindHttpClient(name, annotation);
 
         binder.bind(DistributedStore.class).annotatedWith(annotation).toProvider(new DistributedStoreProvider(name, localStoreKey, storeConfigKey, remoteStoreKey)).in(Scopes.SINGLETON);

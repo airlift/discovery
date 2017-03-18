@@ -20,7 +20,6 @@ import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.discovery.client.ServiceDescriptor;
 import io.airlift.discovery.client.ServiceSelector;
@@ -157,7 +156,7 @@ public class HttpRemoteStore
                 Thread.currentThread().interrupt();
             }
             catch (ExecutionException e) {
-                Throwables.propagate(e);
+                throw new RuntimeException(e);
             }
 
             executor.shutdownNow();
