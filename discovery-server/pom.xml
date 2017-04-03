@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.airlift.discovery</groupId>
         <artifactId>discovery-root</artifactId>
-        <version>1.28-SNAPSHOT</version>
+        <version>1.28</version>
     </parent>
 
     <artifactId>discovery-server</artifactId>
