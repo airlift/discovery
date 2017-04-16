@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Predicates.and;
+import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Iterables.filter;
 import static io.airlift.discovery.server.DynamicServiceAnnouncement.toServiceWith;
@@ -69,6 +70,19 @@ public class InMemoryDynamicStore
         Preconditions.checkNotNull(nodeId, "nodeId is null");
 
         descriptors.remove(nodeId);
+    }
+
+    @Override
+    public synchronized void delete(Id<Node> nodeId, String applicationType)
+    {
+        Preconditions.checkNotNull(nodeId, "nodeId is null");
+
+        Entry old = descriptors.get(nodeId);
+        if (old == null) {
+            return;
+        }
+        Entry updated = new Entry(old.getExpiration(), ImmutableSet.copyOf(filter(old.getServices(), not(matchesType(applicationType)))));
+        descriptors.put(nodeId, updated);
     }
 
     @Override

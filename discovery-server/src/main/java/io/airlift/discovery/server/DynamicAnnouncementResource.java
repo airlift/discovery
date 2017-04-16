@@ -74,4 +74,13 @@ public class DynamicAnnouncementResource
 
         return Response.noContent().build();
     }
+
+    @DELETE
+    @Path("{app_type}")
+    public Response delete(@PathParam("node_id") Id<Node> nodeId, @PathParam("app_type") String applicationType)
+    {
+        dynamicStore.delete(nodeId, applicationType);
+
+        return Response.noContent().build();
+    }
 }
