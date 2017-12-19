@@ -15,25 +15,14 @@
  */
 package io.airlift.discovery.server;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Binder;
 import com.google.inject.Module;
-import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import io.airlift.discovery.client.ServiceDescriptor;
-import io.airlift.discovery.client.ServiceInventory;
 import io.airlift.discovery.client.ServiceSelector;
 import io.airlift.discovery.store.InMemoryStore;
 import io.airlift.discovery.store.PersistentStore;
 import io.airlift.discovery.store.PersistentStoreConfig;
 import io.airlift.discovery.store.ReplicatedStoreModule;
-import io.airlift.node.NodeInfo;
-
-import javax.inject.Singleton;
-
-import java.util.List;
 
 import static io.airlift.configuration.ConfigBinder.configBinder;
 import static io.airlift.discovery.client.DiscoveryBinder.discoveryBinder;
@@ -54,6 +43,8 @@ public class DiscoveryServerModule
         jsonCodecBinder(binder).bindJsonCodec(Service.class);
         jsonCodecBinder(binder).bindListJsonCodec(Service.class);
 
+        binder.bind(ServiceSelector.class).to(DiscoveryServiceSelector.class);
+
         // dynamic announcements
         jaxrsBinder(binder).bind(DynamicAnnouncementResource.class);
         binder.bind(DynamicStore.class).to(ReplicatedDynamicStore.class).in(Scopes.SINGLETON);
@@ -64,39 +55,5 @@ public class DiscoveryServerModule
         binder.bind(StaticStore.class).to(ReplicatedStaticStore.class).in(Scopes.SINGLETON);
         binder.install(new ReplicatedStoreModule("static", ForStaticStore.class, PersistentStore.class));
         configBinder(binder).bindConfig(PersistentStoreConfig.class, "static");
-    }
-
-    @Singleton
-    @Provides
-    public ServiceSelector getServiceInventory(final ServiceInventory inventory, final NodeInfo nodeInfo)
-    {
-        return new ServiceSelector()
-        {
-            @Override
-            public String getType()
-            {
-                return "discovery";
-            }
-
-            @Override
-            public String getPool()
-            {
-                return nodeInfo.getPool();
-            }
-
-            @Override
-            public List<ServiceDescriptor> selectAllServices()
-            {
-                return ImmutableList.copyOf(inventory.getServiceDescriptors(getType()));
-            }
-
-            @Override
-            public ListenableFuture<List<ServiceDescriptor>> refresh()
-            {
-                // this should be async, but it is never used
-                inventory.updateServiceInventory();
-                return Futures.immediateFuture(selectAllServices());
-            }
-        };
     }
 }
