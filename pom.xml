@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>78</version>
+        <version>97</version>
     </parent>
 
     <groupId>io.airlift.discovery</groupId>
@@ -35,8 +35,8 @@
         <connection>scm:git:git://github.com/airlift/discovery.git</connection>
         <developerConnection>scm:git:git@github.com:airlift/discovery.git</developerConnection>
         <url>https://github.com/airlift/discovery</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <developers>
         <developer>
@@ -54,9 +54,9 @@
     <properties>
         <air.check.skip-extended>true</air.check.skip-extended>
 
-        <dep.airlift.version>0.159</dep.airlift.version>
+        <dep.airlift.version>0.193</dep.airlift.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
-        <dep.leveldb.version>0.10</dep.leveldb.version>
+        <dep.leveldb.version>0.12</dep.leveldb.version>
     </properties>
 
     <modules>
@@ -140,7 +140,7 @@
             <dependency>
                 <groupId>io.airlift</groupId>
                 <artifactId>units</artifactId>
-                <version>1.0</version>
+                <version>1.6</version>
             </dependency>
 
             <dependency>
@@ -157,7 +157,7 @@
 
             <dependency>
                 <groupId>io.airlift</groupId>
-                <artifactId>event</artifactId>
+                <artifactId>event-http</artifactId>
                 <version>${dep.airlift.version}</version>
             </dependency>
 
@@ -174,39 +174,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.7</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.7</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>ant-contrib</groupId>
-                            <artifactId>ant-contrib</artifactId>
-                            <version>1.0b3</version>
-                            <exclusions>
-                                <exclusion>
-                                    <groupId>ant</groupId>
-                                    <artifactId>ant</artifactId>
-                                </exclusion>
-                            </exclusions>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.ant</groupId>
-                            <artifactId>ant-nodeps</artifactId>
-                            <version>1.8.1</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 </project>

@@ -35,14 +35,13 @@ public class TestingDiscoveryServer
     private final TestingHttpServer server;
 
     public TestingDiscoveryServer(String environment)
-            throws Exception
     {
         Bootstrap app = new Bootstrap(
                 new MBeanModule(),
                 new TestingNodeModule(environment),
                 new TestingHttpServerModule(),
                 new JsonModule(),
-                new JaxrsModule(true),
+                new JaxrsModule(),
                 new TestingJmxModule(),
                 new DiscoveryModule(),
                 new EmbeddedDiscoveryModule());
