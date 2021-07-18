@@ -53,7 +53,7 @@ public final class DiscoveryServer
                     new DiscoveryModule()
             );
 
-            Injector injector = app.strictConfig().initialize();
+            Injector injector = app.initialize();
             injector.getInstance(Announcer.class).start();
         }
         catch (Throwable t) {

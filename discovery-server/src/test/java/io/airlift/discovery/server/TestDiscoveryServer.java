@@ -17,7 +17,6 @@ package io.airlift.discovery.server;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.Files;
 import com.google.inject.Binder;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -64,6 +63,7 @@ import static io.airlift.http.client.StatusResponseHandler.StatusResponse;
 import static io.airlift.http.client.StatusResponseHandler.createStatusResponseHandler;
 import static io.airlift.json.JsonCodec.jsonCodec;
 import static io.airlift.json.JsonCodec.mapJsonCodec;
+import static java.nio.file.Files.createTempDirectory;
 import static javax.ws.rs.core.Response.Status;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -79,7 +79,7 @@ public class TestDiscoveryServer
     public void setup()
             throws Exception
     {
-        tempDir = Files.createTempDir();
+        tempDir = createTempDirectory(null).toFile();
 
         // start server
         Map<String, String> serverProperties = ImmutableMap.<String, String>builder()
@@ -92,7 +92,7 @@ public class TestDiscoveryServer
                 new TestingNodeModule("testing"),
                 new TestingHttpServerModule(),
                 new JsonModule(),
-                new JaxrsModule(true),
+                new JaxrsModule(),
                 new DiscoveryServerModule(),
                 new DiscoveryModule(),
                 new Module()
@@ -106,7 +106,6 @@ public class TestDiscoveryServer
                 });
 
         Injector serverInjector = bootstrap
-                .strictConfig()
                 .doNotInitializeLogging()
                 .setRequiredConfigurationProperties(serverProperties)
                 .initialize();
@@ -138,7 +137,6 @@ public class TestDiscoveryServer
                 new DiscoveryModule());
 
         Injector announcerInjector = bootstrap
-                .strictConfig()
                 .doNotInitializeLogging()
                 .setRequiredConfigurationProperties(announcerProperties)
                 .initialize();
@@ -235,7 +233,6 @@ public class TestDiscoveryServer
                 });
 
         Injector clientInjector = bootstrap
-                .strictConfig()
                 .doNotInitializeLogging()
                 .setRequiredConfigurationProperties(clientProperties)
                 .initialize();

@@ -47,7 +47,6 @@ public class TestingDiscoveryServer
                 new EmbeddedDiscoveryModule());
 
         Injector injector = app
-                .strictConfig()
                 .doNotInitializeLogging()
                 .setRequiredConfigurationProperty("discovery.store-cache-ttl", "0ms")
                 .quiet()
