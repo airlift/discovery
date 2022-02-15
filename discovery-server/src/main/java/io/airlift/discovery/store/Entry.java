@@ -36,7 +36,7 @@ public class Entry
             @JsonProperty("value") byte[] value,
             @JsonProperty("version") Version version, 
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("maxAge") Long maxAgeInMs)
+            @JsonProperty("maxAgeInMs") Long maxAgeInMs)
     {
         Preconditions.checkNotNull(key, "key is null");
         Preconditions.checkNotNull(version, "version is null");
