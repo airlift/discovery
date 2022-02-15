@@ -25,13 +25,13 @@ public class TestEntry
     @Test
     public void testEntry()
     {
-        Entry entry = entryOf("fruit", "apple", 123, 456);
+        Entry entry = entryOf("fruit", "apple", 123, 456, 3000L);
 
         assertEquals(entry.getKey(), "fruit".getBytes(UTF_8));
         assertEquals(entry.getValue(), "apple".getBytes(UTF_8));
         assertEquals(entry.getVersion().getSequence(), 123);
         assertEquals(entry.getTimestamp(), 456);
-        assertEquals(entry.getMaxAgeInMs(), null);
+        assertEquals(entry.getMaxAgeInMs(), Long.valueOf(3000L));
     }
 
     @Test
@@ -40,14 +40,14 @@ public class TestEntry
     {
         JsonCodec<Entry> codec = jsonCodec(Entry.class);
 
-        Entry expected = entryOf("fruit", "apple", 123, 456);
+        Entry expected = entryOf("fruit", "apple", 123, 456, 3000L);
         Entry actual = codec.fromJson(codec.toJsonBytes(expected));
 
         assertEquals(actual, expected);
     }
 
-    private static Entry entryOf(String key, String value, long version, long timestamp)
+    private static Entry entryOf(String key, String value, long version, long timestamp, Long maxAgeInMs)
     {
-        return new Entry(key.getBytes(UTF_8), value.getBytes(UTF_8), new Version(version), timestamp, null);
+        return new Entry(key.getBytes(UTF_8), value.getBytes(UTF_8), new Version(version), timestamp, maxAgeInMs);
     }
 }
