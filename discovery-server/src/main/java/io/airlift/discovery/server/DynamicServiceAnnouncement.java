@@ -21,7 +21,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.Map;
+import java.util.Objects;
 
 public class DynamicServiceAnnouncement
 {
@@ -76,17 +78,13 @@ public class DynamicServiceAnnouncement
 
         DynamicServiceAnnouncement that = (DynamicServiceAnnouncement) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) {
+        if (!Objects.equals(id, that.id)) {
             return false;
         }
-        if (properties != null ? !properties.equals(that.properties) : that.properties != null) {
+        if (!Objects.equals(properties, that.properties)) {
             return false;
         }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(type, that.type);
     }
 
     @Override
@@ -108,7 +106,7 @@ public class DynamicServiceAnnouncement
                 '}';
     }
 
-    public static Function<DynamicServiceAnnouncement, Service> toServiceWith(final Id<Node> nodeId, final String location, final String pool)
+    public static Function<DynamicServiceAnnouncement, Service> toServiceWith(Id<Node> nodeId, String location, String pool)
     {
         return new Function<DynamicServiceAnnouncement, Service>()
         {
@@ -119,6 +117,4 @@ public class DynamicServiceAnnouncement
             }
         };
     }
-
-
 }

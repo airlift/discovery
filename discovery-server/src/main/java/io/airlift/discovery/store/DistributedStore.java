@@ -185,6 +185,7 @@ public class DistributedStore
     {
         return new Predicate<Entry>()
         {
+            @Override
             public boolean apply(Entry entry)
             {
                 return isExpired(entry);
@@ -196,6 +197,7 @@ public class DistributedStore
     {
         return new Predicate<Entry>()
         {
+            @Override
             public boolean apply(Entry entry)
             {
                 return entry.getValue() == null;

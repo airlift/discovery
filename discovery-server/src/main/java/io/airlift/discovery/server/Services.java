@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.concurrent.Immutable;
+
 import java.util.Set;
 
 @Immutable
@@ -64,11 +65,7 @@ public class Services
         if (!environment.equals(services1.environment)) {
             return false;
         }
-        if (!services.equals(services1.services)) {
-            return false;
-        }
-
-        return true;
+        return services.equals(services1.services);
     }
 
     @Override

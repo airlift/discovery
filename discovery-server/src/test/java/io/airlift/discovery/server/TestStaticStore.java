@@ -30,10 +30,10 @@ import static org.testng.Assert.assertTrue;
 
 public abstract class TestStaticStore
 {
-    private static final Service BLUE = new Service(Id.<Service>random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
-    private static final Service RED = new Service(Id.<Service>random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableMap.of("http", "http://localhost:2222"));
-    private static final Service GREEN = new Service(Id.<Service>random(), null, "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:3333"));
-    private static final Service YELLOW = new Service(Id.<Service>random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:4444"));
+    private static final Service BLUE = new Service(Id.random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111"));
+    private static final Service RED = new Service(Id.random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot2", ImmutableMap.of("http", "http://localhost:2222"));
+    private static final Service GREEN = new Service(Id.random(), null, "monitoring", "poolA", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:3333"));
+    private static final Service YELLOW = new Service(Id.random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:4444"));
 
     protected StaticStore store;
     protected TestingTimeSupplier currentTime;
@@ -117,7 +117,7 @@ public abstract class TestStaticStore
     {
         ImmutableSet.Builder<Service> builder = ImmutableSet.builder();
         for (int i = 0; i < 5000; ++i) {
-            builder.add(new Service(Id.<Service>random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111")));
+            builder.add(new Service(Id.random(), null, "storage", "poolA", "/US/West/SC4/rack1/host1/vm1/slot1", ImmutableMap.of("http", "http://localhost:1111")));
         }
         Set<Service> services = builder.build();
 

@@ -49,7 +49,7 @@ import static org.weakref.jmx.guice.ExportBinder.newExporter;
  * Provides a DistributedStore with the specified annotation.
  */
 public class ReplicatedStoreModule
-    implements Module
+        implements Module
 {
     private final String name;
     private final Class<? extends Annotation> annotation;
@@ -94,8 +94,8 @@ public class ReplicatedStoreModule
         newExporter(binder).export(Replicator.class).annotatedWith(annotation).as(generatedNameOf(Replicator.class, named(name)));
 
         newMapBinder(binder, String.class, LocalStore.class)
-            .addBinding(name)
-            .to(localStoreKey);
+                .addBinding(name)
+                .to(localStoreKey);
 
         newMapBinder(binder, String.class, StoreConfig.class)
                 .addBinding(name)
@@ -104,7 +104,7 @@ public class ReplicatedStoreModule
 
     @ThreadSafe
     private static class ReplicatorProvider
-        implements Provider<Replicator>
+            implements Provider<Replicator>
     {
         private final String name;
         private final Key<? extends LocalStore> localStoreKey;
@@ -196,7 +196,6 @@ public class ReplicatedStoreModule
         private final Key<? extends HttpClient> httpClientKey;
         private final Key<StoreConfig> storeConfigKey;
 
-
         @Inject
         private RemoteHttpStoreProvider(String name, Key<? extends HttpClient> httpClientKey, Key<StoreConfig> storeConfigKey)
         {
@@ -205,6 +204,7 @@ public class ReplicatedStoreModule
             this.storeConfigKey = storeConfigKey;
         }
 
+        @Override
         public synchronized HttpRemoteStore get()
         {
             if (remoteStore == null) {

@@ -28,7 +28,7 @@ import static io.airlift.discovery.server.Service.matchesPool;
 import static io.airlift.discovery.server.Service.matchesType;
 
 public class InMemoryStaticStore
-    implements StaticStore
+        implements StaticStore
 {
     private final Map<Id<Service>, Service> services = Maps.newHashMap();
 

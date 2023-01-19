@@ -37,14 +37,14 @@ public class TestDynamicAnnouncement
     @Test
     public void testRejectsNullEnvironment()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement(null, "pool", "/location", Collections.<DynamicServiceAnnouncement>emptySet());
+        DynamicAnnouncement announcement = new DynamicAnnouncement(null, "pool", "/location", Collections.emptySet());
         assertFailsValidation(announcement, "environment", "may not be null", NotNull.class);
     }
 
     @Test
     public void testAllowsNullLocation()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", null, Collections.<DynamicServiceAnnouncement>emptySet());
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", null, Collections.emptySet());
 
         assertValidates(announcement);
     }
@@ -52,7 +52,7 @@ public class TestDynamicAnnouncement
     @Test
     public void testRejectsNullPool()
     {
-        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", null, "/location", Collections.<DynamicServiceAnnouncement>emptySet());
+        DynamicAnnouncement announcement = new DynamicAnnouncement("testing", null, "/location", Collections.emptySet());
         assertFailsValidation(announcement, "pool", "may not be null", NotNull.class);
     }
 
@@ -67,7 +67,7 @@ public class TestDynamicAnnouncement
     public void testValidatesNestedServiceAnnouncements()
     {
         DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", "/location", ImmutableSet.of(
-                new DynamicServiceAnnouncement(null, "type", Collections.<String, String>emptyMap()))
+                new DynamicServiceAnnouncement(null, "type", Collections.emptyMap()))
         );
 
         assertFailsValidation(announcement, "serviceAnnouncements[].id", "may not be null", NotNull.class);
@@ -81,8 +81,8 @@ public class TestDynamicAnnouncement
 
         DynamicAnnouncement parsed = codec.fromJson(Resources.toString(Resources.getResource("announcement.json"), Charsets.UTF_8));
 
-        DynamicServiceAnnouncement red = new DynamicServiceAnnouncement(Id.<Service>valueOf("1c001650-7841-11e0-a1f0-0800200c9a66"), "red", ImmutableMap.of("key", "redValue"));
-        DynamicServiceAnnouncement blue = new DynamicServiceAnnouncement(Id.<Service>valueOf("2a817750-7841-11e0-a1f0-0800200c9a66"), "blue", ImmutableMap.of("key", "blueValue"));
+        DynamicServiceAnnouncement red = new DynamicServiceAnnouncement(Id.valueOf("1c001650-7841-11e0-a1f0-0800200c9a66"), "red", ImmutableMap.of("key", "redValue"));
+        DynamicServiceAnnouncement blue = new DynamicServiceAnnouncement(Id.valueOf("2a817750-7841-11e0-a1f0-0800200c9a66"), "blue", ImmutableMap.of("key", "blueValue"));
         DynamicAnnouncement expected = new DynamicAnnouncement("testing", "poolA", "/a/b/c", ImmutableSet.of(red, blue));
 
         assertEquals(parsed, expected);
@@ -92,7 +92,7 @@ public class TestDynamicAnnouncement
     public void testToString()
     {
         DynamicAnnouncement announcement = new DynamicAnnouncement("testing", "pool", "/location", ImmutableSet.of(
-                new DynamicServiceAnnouncement(Id.<Service>random(), "type", Collections.<String, String>emptyMap()))
+                new DynamicServiceAnnouncement(Id.random(), "type", Collections.emptyMap()))
         );
 
         assertNotNull(announcement.toString());

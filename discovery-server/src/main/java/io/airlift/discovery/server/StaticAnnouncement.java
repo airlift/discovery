@@ -20,7 +20,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.Map;
+import java.util.Objects;
 
 public class StaticAnnouncement
 {
@@ -92,23 +94,19 @@ public class StaticAnnouncement
 
         StaticAnnouncement that = (StaticAnnouncement) o;
 
-        if (environment != null ? !environment.equals(that.environment) : that.environment != null) {
+        if (!Objects.equals(environment, that.environment)) {
             return false;
         }
-        if (location != null ? !location.equals(that.location) : that.location != null) {
+        if (!Objects.equals(location, that.location)) {
             return false;
         }
-        if (pool != null ? !pool.equals(that.pool) : that.pool != null) {
+        if (!Objects.equals(pool, that.pool)) {
             return false;
         }
-        if (properties != null ? !properties.equals(that.properties) : that.properties != null) {
+        if (!Objects.equals(properties, that.properties)) {
             return false;
         }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(type, that.type);
     }
 
     @Override

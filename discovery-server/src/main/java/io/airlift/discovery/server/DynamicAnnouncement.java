@@ -22,6 +22,8 @@ import com.google.common.collect.ImmutableSet;
 import javax.annotation.concurrent.Immutable;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import java.util.Objects;
 import java.util.Set;
 
 @Immutable
@@ -87,20 +89,16 @@ public class DynamicAnnouncement
 
         DynamicAnnouncement that = (DynamicAnnouncement) o;
 
-        if (environment != null ? !environment.equals(that.environment) : that.environment != null) {
+        if (!Objects.equals(environment, that.environment)) {
             return false;
         }
-        if (location != null ? !location.equals(that.location) : that.location != null) {
+        if (!Objects.equals(location, that.location)) {
             return false;
         }
-        if (pool != null ? !pool.equals(that.pool) : that.pool != null) {
+        if (!Objects.equals(pool, that.pool)) {
             return false;
         }
-        if (services != null ? !services.equals(that.services) : that.services != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(services, that.services);
     }
 
     @Override
