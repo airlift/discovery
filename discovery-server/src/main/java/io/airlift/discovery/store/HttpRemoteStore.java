@@ -21,11 +21,13 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.TypeToken;
 import io.airlift.discovery.client.ServiceDescriptor;
 import io.airlift.discovery.client.ServiceSelector;
-import io.airlift.http.client.BodyGenerator;
 import io.airlift.http.client.HttpClient;
 import io.airlift.http.client.Request;
+import io.airlift.json.JsonCodec;
+import io.airlift.json.JsonCodecFactory;
 import io.airlift.log.Logger;
 import io.airlift.node.NodeInfo;
 import io.airlift.units.Duration;
@@ -36,7 +38,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
-import java.io.OutputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,6 +62,7 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.inject.name.Names.named;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
+import static io.airlift.http.client.JsonBodyGenerator.jsonBodyGenerator;
 import static io.airlift.http.client.StatusResponseHandler.createStatusResponseHandler;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static org.weakref.jmx.ObjectNames.generatedNameOf;
@@ -234,7 +236,8 @@ public class HttpRemoteStore
     private static class MyBatchHandler
             implements BatchProcessor.BatchHandler<Entry>
     {
-        private final ObjectMapper mapper = new ObjectMapper(new SmileFactory());
+        private static final ObjectMapper SMILE_MAPPER = new ObjectMapper(new SmileFactory());
+        private static final JsonCodec<Collection<Entry>> CODEC = new JsonCodecFactory(() -> SMILE_MAPPER).jsonCodec(new TypeToken<>() {});
 
         private final URI uri;
         private final HttpClient httpClient;
@@ -253,14 +256,7 @@ public class HttpRemoteStore
             Request request = Request.Builder.preparePost()
                     .setUri(uri)
                     .setHeader("Content-Type", "application/x-jackson-smile")
-                    .setBodyGenerator(new BodyGenerator() {
-                        @Override
-                        public void write(OutputStream out)
-                                throws Exception
-                        {
-                            mapper.writeValue(out, entries);
-                        }
-                    })
+                    .setBodyGenerator(jsonBodyGenerator(CODEC, entries))
                     .build();
 
             try {
