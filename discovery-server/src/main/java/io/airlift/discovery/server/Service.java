@@ -22,6 +22,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
+
 import java.util.Map;
 
 @Immutable
@@ -105,11 +106,7 @@ public class Service
 
         Service that = (Service) o;
 
-        if (!id.equals(that.id)) {
-            return false;
-        }
-
-        return true;
+        return id.equals(that.id);
     }
 
     @Override
@@ -118,11 +115,11 @@ public class Service
         return id.hashCode();
     }
 
-
-    public static Predicate<Service> matchesType(final String type)
+    public static Predicate<Service> matchesType(String type)
     {
         return new Predicate<Service>()
         {
+            @Override
             public boolean apply(Service descriptor)
             {
                 return descriptor.getType().equals(type);
@@ -130,10 +127,11 @@ public class Service
         };
     }
 
-    public static Predicate<Service> matchesPool(final String pool)
+    public static Predicate<Service> matchesPool(String pool)
     {
         return new Predicate<Service>()
         {
+            @Override
             public boolean apply(Service descriptor)
             {
                 return descriptor.getPool().equals(pool);

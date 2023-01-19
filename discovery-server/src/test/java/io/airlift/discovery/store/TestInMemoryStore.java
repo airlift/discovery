@@ -40,13 +40,13 @@ public class TestInMemoryStore
         Entry entry = entryOf("blue", "apple", 1, 0);
         store.put(entry);
 
-        assertEquals(store.get("blue".getBytes(Charsets.UTF_8)), entry);
+        assertEquals(store.get("blue".getBytes(UTF_8)), entry);
     }
 
     @Test
     public void testDelete()
     {
-        byte[] key = "blue".getBytes(Charsets.UTF_8);
+        byte[] key = "blue".getBytes(UTF_8);
         Entry entry = entryOf("blue", "apple", 1, 0);
         store.put(entry);
 
@@ -58,13 +58,13 @@ public class TestInMemoryStore
     @Test
     public void testDeleteOlderVersion()
     {
-        byte[] key = "blue".getBytes(Charsets.UTF_8);
+        byte[] key = "blue".getBytes(UTF_8);
         Entry entry = entryOf("blue", "apple", 5, 0);
         store.put(entry);
 
         store.delete(key, new Version(2));
 
-        assertEquals(store.get("blue".getBytes(Charsets.UTF_8)), entry);
+        assertEquals(store.get("blue".getBytes(UTF_8)), entry);
     }
 
     @Test
@@ -76,11 +76,11 @@ public class TestInMemoryStore
         Entry entry1 = entryOf("blue", "banana", 1, 0);
         store.put(entry1);
 
-        assertEquals(store.get("blue".getBytes(Charsets.UTF_8)), entry2);
+        assertEquals(store.get("blue".getBytes(UTF_8)), entry2);
     }
 
     private static Entry entryOf(String key, String value, long version, long timestamp)
     {
-        return new Entry(key.getBytes(UTF_8), value.getBytes(Charsets.UTF_8), new Version(version), timestamp, null);
+        return new Entry(key.getBytes(UTF_8), value.getBytes(UTF_8), new Version(version), timestamp, null);
     }
 }

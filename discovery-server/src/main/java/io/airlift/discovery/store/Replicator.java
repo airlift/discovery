@@ -46,7 +46,7 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 public class Replicator
 {
-    private final static Logger log = Logger.get(Replicator.class);
+    private static final Logger log = Logger.get(Replicator.class);
 
     private final String name;
     private final NodeInfo node;
@@ -76,7 +76,6 @@ public class Replicator
         this.localStore = localStore;
 
         this.replicationInterval = config.getReplicationInterval();
-
     }
 
     @PostConstruct
@@ -155,7 +154,6 @@ public class Replicator
                             throws Exception
                     {
                         // TODO: read server date (to use to calibrate entry dates)
-
 
                         if (response.getStatusCode() == 200) {
                             try {

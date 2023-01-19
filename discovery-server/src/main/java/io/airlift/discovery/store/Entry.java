@@ -20,7 +20,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 
 import javax.annotation.concurrent.Immutable;
+
 import java.util.Arrays;
+import java.util.Objects;
 
 @Immutable
 public class Entry
@@ -34,7 +36,7 @@ public class Entry
     @JsonCreator
     public Entry(@JsonProperty("key") byte[] key,
             @JsonProperty("value") byte[] value,
-            @JsonProperty("version") Version version, 
+            @JsonProperty("version") Version version,
             @JsonProperty("timestamp") long timestamp,
             @JsonProperty("maxAgeInMs") Long maxAgeInMs)
     {
@@ -97,17 +99,13 @@ public class Entry
         if (!Arrays.equals(key, entry.key)) {
             return false;
         }
-        if (maxAgeInMs != null ? !maxAgeInMs.equals(entry.maxAgeInMs) : entry.maxAgeInMs != null) {
+        if (!Objects.equals(maxAgeInMs, entry.maxAgeInMs)) {
             return false;
         }
         if (!Arrays.equals(value, entry.value)) {
             return false;
         }
-        if (!version.equals(entry.version)) {
-            return false;
-        }
-
-        return true;
+        return version.equals(entry.version);
     }
 
     @Override

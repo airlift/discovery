@@ -80,8 +80,8 @@ public class TestStaticAnnouncementResource
     @Test
     public void testDelete()
     {
-        Service blue = new Service(Id.<Service>random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueBlue"));
-        Service red = new Service(Id.<Service>random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueRed"));
+        Service blue = new Service(Id.random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueBlue"));
+        Service red = new Service(Id.random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueRed"));
 
         store.put(red);
         store.put(blue);
@@ -109,8 +109,8 @@ public class TestStaticAnnouncementResource
     @Test
     public void testGet()
     {
-        Service blue = new Service(Id.<Service>random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueBlue"));
-        Service red = new Service(Id.<Service>random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueRed"));
+        Service blue = new Service(Id.random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueBlue"));
+        Service red = new Service(Id.random(), null, "storage", "alpha", "/a/b/c", ImmutableMap.of("key", "valueRed"));
 
         store.put(red);
         store.put(blue);

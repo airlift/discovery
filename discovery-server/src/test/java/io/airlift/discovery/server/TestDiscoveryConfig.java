@@ -52,7 +52,6 @@ public class TestDiscoveryConfig
         ConfigAssertions.assertFullMapping(properties, expected);
     }
 
-
     @Test
     public void testValidatesNotNullDuration()
     {

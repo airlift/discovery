@@ -45,13 +45,13 @@ public class Version
         if (comparison < 0) {
             return Occurs.BEFORE;
         }
-        else if (comparison > 0) {
+        if (comparison > 0) {
             return Occurs.AFTER;
         }
 
         return Occurs.SAME;
     }
-    
+
     public enum Occurs
     {
         BEFORE, SAME, CONCURRENT, AFTER
@@ -69,11 +69,7 @@ public class Version
 
         Version version = (Version) o;
 
-        if (sequence != version.sequence) {
-            return false;
-        }
-
-        return true;
+        return sequence == version.sequence;
     }
 
     @Override

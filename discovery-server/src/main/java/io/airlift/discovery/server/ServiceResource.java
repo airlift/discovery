@@ -26,7 +26,6 @@ import javax.ws.rs.core.MediaType;
 
 import static com.google.common.collect.Sets.union;
 
-
 @Path("/v1/service")
 public class ServiceResource
 {

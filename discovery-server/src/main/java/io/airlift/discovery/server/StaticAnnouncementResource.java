@@ -64,9 +64,9 @@ public class StaticAnnouncementResource
         String location = firstNonNull(announcement.getLocation(), "/somewhere/" + id);
 
         Service service = Service.copyOf(announcement)
-                    .setId(id)
-                    .setLocation(location)
-                    .build();
+                .setId(id)
+                .setLocation(location)
+                .build();
 
         store.put(service);
 

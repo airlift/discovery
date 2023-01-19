@@ -34,7 +34,7 @@ import java.util.Map;
 import static com.google.common.base.Predicates.notNull;
 
 public class PersistentStore
-    implements LocalStore
+        implements LocalStore
 {
     private static final Logger log = Logger.get(PersistentStore.class);
     private final DB db;
