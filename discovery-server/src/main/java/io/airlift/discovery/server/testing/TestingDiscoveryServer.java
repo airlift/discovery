@@ -24,6 +24,7 @@ import io.airlift.jaxrs.JaxrsModule;
 import io.airlift.jmx.testing.TestingJmxModule;
 import io.airlift.json.JsonModule;
 import io.airlift.node.testing.TestingNodeModule;
+import io.airlift.tracing.TracingModule;
 import org.weakref.jmx.guice.MBeanModule;
 
 import java.net.URI;
@@ -43,6 +44,7 @@ public class TestingDiscoveryServer
                 new JsonModule(),
                 new JaxrsModule(),
                 new TestingJmxModule(),
+                new TracingModule("discovery", "testversion"),
                 new DiscoveryModule(),
                 new EmbeddedDiscoveryModule());
 

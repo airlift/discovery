@@ -28,10 +28,14 @@ import io.airlift.json.JsonModule;
 import io.airlift.log.Logger;
 import io.airlift.node.NodeModule;
 import io.airlift.tracetoken.TraceTokenModule;
+import io.airlift.tracing.TracingModule;
 import org.weakref.jmx.guice.MBeanModule;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 public final class DiscoveryServer
 {
+    private static final String VERSION = firstNonNull(DiscoveryServer.class.getPackage().getImplementationVersion(), "unknown");
     private static final Logger log = Logger.get(DiscoveryServer.class);
 
     private DiscoveryServer() {}
@@ -50,6 +54,7 @@ public final class DiscoveryServer
                     new DiscoveryServerModule(),
                     new HttpEventModule(),
                     new TraceTokenModule(),
+                    new TracingModule("discovery", VERSION),
                     new DiscoveryModule()
             );
 
