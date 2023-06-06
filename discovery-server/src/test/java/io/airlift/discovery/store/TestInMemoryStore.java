@@ -15,7 +15,6 @@
  */
 package io.airlift.discovery.store;
 
-import com.google.common.base.Charsets;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

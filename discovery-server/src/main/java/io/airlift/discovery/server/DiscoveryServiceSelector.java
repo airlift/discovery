@@ -15,12 +15,11 @@ package io.airlift.discovery.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.inject.Inject;
 import io.airlift.discovery.client.ServiceDescriptor;
 import io.airlift.discovery.client.ServiceInventory;
 import io.airlift.discovery.client.ServiceSelector;
 import io.airlift.node.NodeInfo;
-
-import javax.inject.Inject;
 
 import java.util.List;
 
