@@ -18,12 +18,11 @@ package io.airlift.discovery.server;
 import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.Inject;
 import io.airlift.discovery.store.DistributedStore;
 import io.airlift.discovery.store.Entry;
 import io.airlift.json.JsonCodec;
 import io.airlift.units.Duration;
-
-import javax.inject.Inject;
 
 import java.util.List;
 import java.util.Set;
