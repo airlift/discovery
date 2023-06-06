@@ -19,10 +19,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.jaxrs.testing.MockUriInfo;
 import io.airlift.node.NodeInfo;
+import jakarta.ws.rs.core.Response;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import javax.ws.rs.core.Response;
 
 import java.net.URI;
 

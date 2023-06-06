@@ -17,12 +17,11 @@ package io.airlift.discovery.server;
 
 import com.google.inject.Inject;
 import io.airlift.node.NodeInfo;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
 import static com.google.common.collect.Sets.union;
 

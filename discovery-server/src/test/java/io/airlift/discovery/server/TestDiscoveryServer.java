@@ -36,6 +36,8 @@ import io.airlift.jaxrs.JaxrsModule;
 import io.airlift.json.JsonModule;
 import io.airlift.node.NodeInfo;
 import io.airlift.node.testing.TestingNodeModule;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import org.iq80.leveldb.util.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -44,8 +46,6 @@ import org.weakref.jmx.guice.MBeanModule;
 import org.weakref.jmx.testing.TestingMBeanServer;
 
 import javax.management.MBeanServer;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 
 import java.io.File;
 import java.net.URI;
@@ -63,8 +63,8 @@ import static io.airlift.http.client.StatusResponseHandler.StatusResponse;
 import static io.airlift.http.client.StatusResponseHandler.createStatusResponseHandler;
 import static io.airlift.json.JsonCodec.jsonCodec;
 import static io.airlift.json.JsonCodec.mapJsonCodec;
+import static jakarta.ws.rs.core.Response.Status;
 import static java.nio.file.Files.createTempDirectory;
-import static javax.ws.rs.core.Response.Status;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
