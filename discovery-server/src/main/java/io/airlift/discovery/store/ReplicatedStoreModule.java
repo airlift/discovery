@@ -27,10 +27,10 @@ import com.google.inject.TypeLiteral;
 import io.airlift.discovery.client.ServiceSelector;
 import io.airlift.http.client.HttpClient;
 import io.airlift.node.NodeInfo;
+import jakarta.annotation.PreDestroy;
 import org.joda.time.DateTime;
 import org.weakref.jmx.MBeanExporter;
 
-import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 

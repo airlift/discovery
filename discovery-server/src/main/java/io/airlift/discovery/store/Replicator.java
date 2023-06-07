@@ -28,10 +28,9 @@ import io.airlift.http.client.ResponseHandler;
 import io.airlift.log.Logger;
 import io.airlift.node.NodeInfo;
 import io.airlift.units.Duration;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.weakref.jmx.Managed;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import java.io.EOFException;
 import java.net.URI;
