@@ -17,10 +17,9 @@ package io.airlift.discovery.store;
 
 import com.google.common.base.Preconditions;
 import io.airlift.log.Logger;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.weakref.jmx.Managed;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import java.util.ArrayList;
 import java.util.Collection;

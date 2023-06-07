@@ -20,11 +20,10 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import io.airlift.units.Duration;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.joda.time.DateTime;
 import org.weakref.jmx.Managed;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import java.util.Arrays;
 import java.util.concurrent.ScheduledExecutorService;
