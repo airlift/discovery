@@ -19,9 +19,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 
-import javax.annotation.concurrent.Immutable;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import com.google.errorprone.annotations.Immutable;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Objects;
 import java.util.Set;
