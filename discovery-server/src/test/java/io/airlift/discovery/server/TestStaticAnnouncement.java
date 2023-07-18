@@ -22,7 +22,7 @@ import com.google.common.io.Resources;
 import io.airlift.json.JsonCodec;
 import org.testng.annotations.Test;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -39,28 +39,28 @@ public class TestStaticAnnouncement
     public void testValidatesNullEnvironment()
     {
         StaticAnnouncement announcement = new StaticAnnouncement(null, "type", "pool", "location", Collections.emptyMap());
-        assertFailsValidation(announcement, "environment", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "environment", "must not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullType()
     {
         StaticAnnouncement announcement = new StaticAnnouncement("environment", null, "pool", "location", Collections.emptyMap());
-        assertFailsValidation(announcement, "type", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "type", "must not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullPool()
     {
         StaticAnnouncement announcement = new StaticAnnouncement("environment", "type", null, "location", Collections.emptyMap());
-        assertFailsValidation(announcement, "pool", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "pool", "must not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullProperties()
     {
         StaticAnnouncement announcement = new StaticAnnouncement("environment", "type", "pool", "location", null);
-        assertFailsValidation(announcement, "properties", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "properties", "must not be null", NotNull.class);
     }
 
     @Test

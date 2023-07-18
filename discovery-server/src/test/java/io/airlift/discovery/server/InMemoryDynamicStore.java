@@ -23,7 +23,7 @@ import com.google.inject.Inject;
 import io.airlift.units.Duration;
 import org.joda.time.DateTime;
 
-import javax.annotation.concurrent.ThreadSafe;
+import com.google.errorprone.annotations.ThreadSafe;
 
 import java.util.Iterator;
 import java.util.Map;

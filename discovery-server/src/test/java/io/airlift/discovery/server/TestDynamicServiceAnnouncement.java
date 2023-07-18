@@ -22,7 +22,7 @@ import com.google.common.io.Resources;
 import io.airlift.json.JsonCodec;
 import org.testng.annotations.Test;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -40,21 +40,21 @@ public class TestDynamicServiceAnnouncement
     public void testValidatesNullId()
     {
         DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(null, "type", Collections.emptyMap());
-        assertFailsValidation(announcement, "id", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "id", "must not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullType()
     {
         DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(Id.random(), null, Collections.emptyMap());
-        assertFailsValidation(announcement, "type", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "type", "must not be null", NotNull.class);
     }
 
     @Test
     public void testValidatesNullProperties()
     {
         DynamicServiceAnnouncement announcement = new DynamicServiceAnnouncement(Id.random(), "type", null);
-        assertFailsValidation(announcement, "properties", "may not be null", NotNull.class);
+        assertFailsValidation(announcement, "properties", "must not be null", NotNull.class);
     }
 
     @Test
