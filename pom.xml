@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>143</version>
+        <version>156</version>
     </parent>
 
     <groupId>io.airlift.discovery</groupId>
@@ -31,13 +31,6 @@
         </license>
     </licenses>
 
-    <scm>
-        <connection>scm:git:git://github.com/airlift/discovery.git</connection>
-        <developerConnection>scm:git:git@github.com:airlift/discovery.git</developerConnection>
-        <url>https://github.com/airlift/discovery</url>
-        <tag>HEAD</tag>
-    </scm>
-
     <developers>
         <developer>
             <id>dain</id>
@@ -51,34 +44,30 @@
         </developer>
     </developers>
 
-    <properties>
-        <air.check.skip-extended>true</air.check.skip-extended>
-        <air.javadoc.lint>all,-missing</air.javadoc.lint>
-
-        <project.build.targetJdk>17</project.build.targetJdk>
-
-        <dep.airlift.version>234</dep.airlift.version>
-        <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
-        <dep.leveldb.version>0.12</dep.leveldb.version>
-    </properties>
-
     <modules>
         <module>discovery-server</module>
     </modules>
 
+    <scm>
+        <connection>scm:git:git://github.com/airlift/discovery.git</connection>
+        <developerConnection>scm:git:git@github.com:airlift/discovery.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/airlift/discovery</url>
+    </scm>
+
+    <properties>
+        <air.check.skip-extended>true</air.check.skip-extended>
+        <air.javadoc.lint>all,-missing</air.javadoc.lint>
+
+        <project.build.targetJdk>21</project.build.targetJdk>
+
+        <dep.airlift.version>247</dep.airlift.version>
+        <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
+        <dep.leveldb.version>0.12</dep.leveldb.version>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.iq80.leveldb</groupId>
-                <artifactId>leveldb-api</artifactId>
-                <version>${dep.leveldb.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.iq80.leveldb</groupId>
-                <artifactId>leveldb</artifactId>
-                <version>${dep.leveldb.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>io.airlift</groupId>
@@ -91,7 +80,18 @@
             <dependency>
                 <groupId>io.airlift</groupId>
                 <artifactId>units</artifactId>
-                <version>1.6</version>
+                <version>1.10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.iq80.leveldb</groupId>
+                <artifactId>leveldb</artifactId>
+                <version>${dep.leveldb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.iq80.leveldb</groupId>
+                <artifactId>leveldb-api</artifactId>
+                <version>${dep.leveldb.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
