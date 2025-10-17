@@ -18,9 +18,9 @@ package io.airlift.discovery.server;
 import com.google.common.collect.ImmutableMap;
 import io.airlift.configuration.testing.ConfigAssertions;
 import io.airlift.units.Duration;
-import org.testng.annotations.Test;
 
 import jakarta.validation.constraints.NotNull;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

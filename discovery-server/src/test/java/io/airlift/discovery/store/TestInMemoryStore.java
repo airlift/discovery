@@ -15,18 +15,18 @@
  */
 package io.airlift.discovery.store;
 
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import static com.google.common.base.Charsets.UTF_8;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TestInMemoryStore
 {
     private LocalStore store;
 
-    @BeforeMethod
+    @BeforeEach
     protected void setUp()
             throws Exception
     {

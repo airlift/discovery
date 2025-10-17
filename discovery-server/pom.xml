@@ -53,6 +53,8 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
+            <version>7.0.0</version>
+            <classifier>classes</classifier>
         </dependency>
 
         <dependency>
@@ -77,11 +79,6 @@
 
         <dependency>
             <groupId>io.airlift</groupId>
-            <artifactId>event-http</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
             <artifactId>http-client</artifactId>
         </dependency>
 
@@ -99,10 +96,6 @@
             <groupId>io.airlift</groupId>
             <artifactId>jmx</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>jmx-http-rpc</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>io.airlift</groupId>
@@ -117,11 +110,6 @@
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>node</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>trace-token</artifactId>
         </dependency>
 
         <dependency>
@@ -171,14 +159,32 @@
 
         <dependency>
             <groupId>io.airlift</groupId>
+            <artifactId>configuration-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.airlift</groupId>
             <artifactId>testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
 
         <!-- for testing -->
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

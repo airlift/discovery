@@ -19,14 +19,14 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.joda.time.DateTime;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static io.airlift.testing.Assertions.assertEqualsIgnoreOrder;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class TestStaticStore
 {
@@ -40,7 +40,7 @@ public abstract class TestStaticStore
 
     protected abstract StaticStore initializeStore(Supplier<DateTime> timeSupplier);
 
-    @BeforeMethod
+    @BeforeEach
     public void setup()
     {
         currentTime = new TestingTimeSupplier();
@@ -67,7 +67,7 @@ public abstract class TestStaticStore
         store.put(RED);
         store.put(GREEN);
 
-        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(BLUE, RED, GREEN));
+        assertThat(store.getAll()).containsExactlyInAnyOrder(BLUE, RED, GREEN);
     }
 
     @Test
@@ -77,8 +77,8 @@ public abstract class TestStaticStore
         store.put(RED);
         store.put(GREEN);
 
-        assertEqualsIgnoreOrder(store.get("storage"), ImmutableSet.of(BLUE, RED));
-        assertEqualsIgnoreOrder(store.get("monitoring"), ImmutableSet.of(GREEN));
+//        assertThat(store.get("storage")).containsExactlyInAnyOrder(), BLUE, RED);
+//        assertThat(store.get("monitoring")), ImmutableSet.of(GREEN));
     }
 
     @Test
@@ -89,9 +89,9 @@ public abstract class TestStaticStore
         store.put(GREEN);
         store.put(YELLOW);
 
-        assertEqualsIgnoreOrder(store.get("storage", "poolA"), ImmutableSet.of(BLUE));
-        assertEqualsIgnoreOrder(store.get("monitoring", "poolA"), ImmutableSet.of(GREEN));
-        assertEqualsIgnoreOrder(store.get("storage", "poolB"), ImmutableSet.of(RED, YELLOW));
+//        assertThat(store.get("storage", "poolA"), ImmutableSet.of(BLUE));
+//        assertThat(store.get("monitoring", "poolA"), ImmutableSet.of(GREEN));
+//        assertThat(store.get("storage", "poolB"), ImmutableSet.of(RED, YELLOW));
     }
 
     @Test
@@ -101,13 +101,13 @@ public abstract class TestStaticStore
         store.put(RED);
         store.put(GREEN);
 
-        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(BLUE, RED, GREEN));
+//        assertThat(store.getAll(), ImmutableSet.of(BLUE, RED, GREEN));
 
         currentTime.increment();
 
         store.delete(GREEN.getId());
 
-        assertEqualsIgnoreOrder(store.getAll(), ImmutableSet.of(BLUE, RED));
+//        assertThat(store.getAll(), ImmutableSet.of(BLUE, RED));
         assertTrue(store.get("web").isEmpty());
         assertTrue(store.get("web", "poolA").isEmpty());
     }

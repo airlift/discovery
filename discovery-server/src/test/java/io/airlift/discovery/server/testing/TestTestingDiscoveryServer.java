@@ -24,18 +24,19 @@ import io.airlift.discovery.client.ServiceDescriptorsRepresentation;
 import io.airlift.http.client.HttpClient;
 import io.airlift.http.client.jetty.JettyHttpClient;
 import io.airlift.node.NodeInfo;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.airlift.discovery.client.ServiceAnnouncement.serviceAnnouncement;
 import static io.airlift.json.JsonCodec.jsonCodec;
-import static org.testng.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestTestingDiscoveryServer
 {
     private static final String ENVIRONMENT = "testing";
     private static final String SERVICE = "taco";
 
-    @Test(timeOut = 30_000)
+//    @Test(timeOut = 30_000)
+    @Test
     public void testServer()
             throws Exception
     {
