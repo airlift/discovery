@@ -15,13 +15,13 @@
  */
 package io.airlift.discovery.server;
 
-import com.google.common.base.Supplier;
 import io.airlift.discovery.store.ConflictResolver;
 import io.airlift.discovery.store.DistributedStore;
 import io.airlift.discovery.store.InMemoryStore;
 import io.airlift.discovery.store.RemoteStore;
 import io.airlift.discovery.store.StoreConfig;
-import org.joda.time.DateTime;
+
+import java.time.Clock;
 
 import static io.airlift.json.JsonCodec.jsonCodec;
 
@@ -29,11 +29,11 @@ public class TestReplicatedStaticStore
         extends TestStaticStore
 {
     @Override
-    protected StaticStore initializeStore(Supplier<DateTime> timeSupplier)
+    protected StaticStore initializeStore(Clock clock)
     {
         RemoteStore dummy = entry -> {};
 
-        DistributedStore distributedStore = new DistributedStore("static", new InMemoryStore(new ConflictResolver()), dummy, new StoreConfig(), timeSupplier);
+        DistributedStore distributedStore = new DistributedStore("static", new InMemoryStore(new ConflictResolver()), dummy, new StoreConfig(), clock);
 
         return new ReplicatedStaticStore(distributedStore, jsonCodec(Service.class));
     }

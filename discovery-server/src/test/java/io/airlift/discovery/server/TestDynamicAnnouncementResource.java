@@ -17,9 +17,9 @@ package io.airlift.discovery.server;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import io.airlift.discovery.store.RealTimeSupplier;
 import io.airlift.jaxrs.testing.MockUriInfo;
 import io.airlift.node.NodeInfo;
+import io.airlift.testing.TestingClock;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ public class TestDynamicAnnouncementResource
     @BeforeEach
     public void setup()
     {
-        store = new InMemoryDynamicStore(new DiscoveryConfig(), new RealTimeSupplier());
+        store = new InMemoryDynamicStore(new DiscoveryConfig(), new TestingClock());
         resource = new DynamicAnnouncementResource(store, new NodeInfo("testing"));
     }
 

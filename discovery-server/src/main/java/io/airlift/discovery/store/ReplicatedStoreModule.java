@@ -15,7 +15,8 @@
  */
 package io.airlift.discovery.store;
 
-import com.google.common.base.Supplier;
+import com.google.errorprone.annotations.ThreadSafe;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -23,18 +24,14 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-import com.google.inject.TypeLiteral;
 import io.airlift.discovery.client.ServiceSelector;
 import io.airlift.http.client.HttpClient;
 import io.airlift.node.NodeInfo;
 import jakarta.annotation.PreDestroy;
-import org.joda.time.DateTime;
 import org.weakref.jmx.MBeanExporter;
 
-import com.google.errorprone.annotations.concurrent.GuardedBy;
-import com.google.errorprone.annotations.ThreadSafe;
-
 import java.lang.annotation.Annotation;
+import java.time.Clock;
 
 import static com.google.inject.multibindings.MapBinder.newMapBinder;
 import static com.google.inject.name.Names.named;
@@ -70,7 +67,7 @@ public class ReplicatedStoreModule
 
         // global
         jaxrsBinder(binder).bind(StoreResource.class);
-        binder.bind(new TypeLiteral<Supplier<DateTime>>() {}).to(RealTimeSupplier.class).in(Scopes.SINGLETON);
+        binder.bind(Clock.class).toInstance(Clock.systemUTC());
         binder.bind(ConflictResolver.class).in(Scopes.SINGLETON);
 
         // per store
@@ -260,7 +257,7 @@ public class ReplicatedStoreModule
         private final Key<? extends RemoteStore> remoteStoreKey;
 
         private Injector injector;
-        private Supplier<DateTime> timeSupplier;
+        private Clock clock;
         private DistributedStore store;
 
         public DistributedStoreProvider(String name,
@@ -282,7 +279,7 @@ public class ReplicatedStoreModule
                 StoreConfig storeConfig = injector.getInstance(storeConfigKey);
                 RemoteStore remoteStore = injector.getInstance(remoteStoreKey);
 
-                store = new DistributedStore(name, localStore, remoteStore, storeConfig, timeSupplier);
+                store = new DistributedStore(name, localStore, remoteStore, storeConfig, clock);
                 store.start();
             }
 
@@ -304,9 +301,9 @@ public class ReplicatedStoreModule
         }
 
         @Inject
-        public synchronized void setTimeSupplier(Supplier<DateTime> timeSupplier)
+        public synchronized void setClock(Clock clock)
         {
-            this.timeSupplier = timeSupplier;
+            this.clock = clock;
         }
     }
 }
