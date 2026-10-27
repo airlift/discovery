@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>156</version>
+        <version>421</version>
     </parent>
 
     <groupId>io.airlift.discovery</groupId>
@@ -58,10 +58,11 @@
     <properties>
         <air.check.skip-extended>true</air.check.skip-extended>
         <air.javadoc.lint>all,-missing</air.javadoc.lint>
+        <air.java.version>25</air.java.version>
 
-        <project.build.targetJdk>21</project.build.targetJdk>
+        <project.build.targetJdk>25</project.build.targetJdk>
 
-        <dep.airlift.version>247</dep.airlift.version>
+        <dep.airlift.version>454</dep.airlift.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
         <dep.leveldb.version>0.12</dep.leveldb.version>
     </properties>
@@ -80,7 +81,7 @@
             <dependency>
                 <groupId>io.airlift</groupId>
                 <artifactId>units</artifactId>
-                <version>1.10</version>
+                <version>1.13</version>
             </dependency>
 
             <dependency>

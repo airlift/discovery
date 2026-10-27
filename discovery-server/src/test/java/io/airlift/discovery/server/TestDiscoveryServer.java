@@ -87,7 +87,7 @@ public class TestDiscoveryServer
         Bootstrap bootstrap = new Bootstrap(
                 new MBeanModule(),
                 new TestingNodeModule("testing"),
-                new TestingHttpServerModule(),
+                new TestingHttpServerModule("discovery"),
                 new JsonModule(),
                 new JaxrsModule(),
                 new DiscoveryServerModule(),

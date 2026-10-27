@@ -40,7 +40,7 @@ public class TestingDiscoveryServer
         Bootstrap app = new Bootstrap(
                 new MBeanModule(),
                 new TestingNodeModule(environment),
-                new TestingHttpServerModule(),
+                new TestingHttpServerModule("discovery"),
                 new JsonModule(),
                 new JaxrsModule(),
                 new TestingJmxModule(),

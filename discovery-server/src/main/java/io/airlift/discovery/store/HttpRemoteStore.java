@@ -15,7 +15,7 @@
  */
 package io.airlift.discovery.store;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -235,7 +235,7 @@ public class HttpRemoteStore
     private static class MyBatchHandler
             implements BatchProcessor.BatchHandler<Entry>
     {
-        private static final ObjectMapper SMILE_MAPPER = new ObjectMapper(new SmileFactory());
+        private static final JsonMapper SMILE_MAPPER = JsonMapper.builder(new SmileFactory()).build();
         private static final JsonCodec<Collection<Entry>> CODEC = new JsonCodecFactory(() -> SMILE_MAPPER).jsonCodec(new TypeToken<>() {});
 
         private final URI uri;
