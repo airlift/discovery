@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import io.airlift.json.JsonCodec;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -29,8 +29,7 @@ import java.util.Collections;
 
 import static io.airlift.testing.ValidationAssertions.assertFailsValidation;
 import static io.airlift.testing.ValidationAssertions.assertValidates;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDynamicAnnouncement
 {
@@ -85,7 +84,7 @@ public class TestDynamicAnnouncement
         DynamicServiceAnnouncement blue = new DynamicServiceAnnouncement(Id.valueOf("2a817750-7841-11e0-a1f0-0800200c9a66"), "blue", ImmutableMap.of("key", "blueValue"));
         DynamicAnnouncement expected = new DynamicAnnouncement("testing", "poolA", "/a/b/c", ImmutableSet.of(red, blue));
 
-        assertEquals(parsed, expected);
+        assertThat(parsed).isEqualTo(expected);
     }
 
     @Test
@@ -95,6 +94,6 @@ public class TestDynamicAnnouncement
                 new DynamicServiceAnnouncement(Id.random(), "type", Collections.emptyMap()))
         );
 
-        assertNotNull(announcement.toString());
+        assertThat(announcement.toString()).isNotNull();
     }
 }

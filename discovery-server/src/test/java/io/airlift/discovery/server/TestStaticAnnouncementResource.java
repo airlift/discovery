@@ -20,22 +20,19 @@ import com.google.common.collect.ImmutableSet;
 import io.airlift.jaxrs.testing.MockUriInfo;
 import io.airlift.node.NodeInfo;
 import jakarta.ws.rs.core.Response;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestStaticAnnouncementResource
 {
     private InMemoryStaticStore store;
     private StaticAnnouncementResource resource;
 
-    @BeforeMethod
+    @BeforeEach
     public void setup()
     {
         store = new InMemoryStaticStore();
@@ -49,18 +46,18 @@ public class TestStaticAnnouncementResource
 
         Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/static")));
 
-        assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.CREATED.getStatusCode());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        assertEquals(store.getAll().size(), 1);
+        assertThat(store.getAll().size()).isEqualTo(1);
         Service service = store.getAll().iterator().next();
 
-        assertNotNull(service.getId());
-        assertNull(service.getNodeId());
-        assertEquals(service.getLocation(), announcement.getLocation());
-        assertEquals(service.getType(), announcement.getType());
-        assertEquals(service.getPool(), announcement.getPool());
-        assertEquals(service.getProperties(), announcement.getProperties());
+        assertThat(service.getId()).isNotNull();
+        assertThat(service.getNodeId()).isNull();
+        assertThat(service.getLocation()).isEqualTo(announcement.getLocation());
+        assertThat(service.getType()).isEqualTo(announcement.getType());
+        assertThat(service.getPool()).isEqualTo(announcement.getPool());
+        assertThat(service.getProperties()).isEqualTo(announcement.getProperties());
     }
 
     @Test
@@ -70,10 +67,10 @@ public class TestStaticAnnouncementResource
 
         Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/static")));
 
-        assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
-        assertTrue(store.getAll().isEmpty());
+        assertThat(store.getAll().isEmpty()).isTrue();
     }
 
     @Test
@@ -86,7 +83,7 @@ public class TestStaticAnnouncementResource
         store.put(blue);
 
         resource.delete(blue.getId());
-        assertEquals(store.getAll(), ImmutableSet.of(red));
+        assertThat(store.getAll()).isEqualTo(ImmutableSet.of(red));
     }
 
     @Test
@@ -96,13 +93,13 @@ public class TestStaticAnnouncementResource
 
         Response response = resource.post(announcement, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/")));
 
-        assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.CREATED.getStatusCode());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        assertEquals(store.getAll().size(), 1);
+        assertThat(store.getAll().size()).isEqualTo(1);
         Service service = store.getAll().iterator().next();
-        assertEquals(service.getId(), service.getId());
-        assertNotNull(service.getLocation());
+        assertThat(service.getId()).isEqualTo(service.getId());
+        assertThat(service.getLocation()).isNotNull();
     }
 
     @Test
@@ -117,6 +114,6 @@ public class TestStaticAnnouncementResource
         Services actual = resource.get();
         Services expected = new Services("testing", ImmutableSet.of(red, blue));
 
-        assertEquals(actual, expected);
+        assertThat(actual).isEqualTo(expected);
     }
 }

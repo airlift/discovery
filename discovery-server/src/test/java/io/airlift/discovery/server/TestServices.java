@@ -21,15 +21,15 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import io.airlift.json.JsonCodec;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
 import static io.airlift.json.JsonCodec.jsonCodec;
-import static io.airlift.testing.Assertions.assertNotEquals;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestServices
 {
@@ -40,10 +40,10 @@ public class TestServices
         set.add(new Service(Id.random(), Id.random(), "blue", "pool", "/location", ImmutableMap.of("key", "value")));
 
         Services services = new Services("testing", set);
-        assertEquals(services.getServices(), set);
+        assertThat(services.getServices()).isEqualTo(set);
 
         set.add(new Service(Id.random(), Id.random(), "red", "pool", "/location", ImmutableMap.of("key", "value")));
-        assertNotEquals(services.getServices(), set);
+        assertThat(services.getServices()).isNotEqualTo(set);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class TestServices
             services.getServices().add(new Service(Id.random(), Id.random(), "red", "pool", "/location", ImmutableMap.of("key", "value")));
 
             // a copy of the internal map is acceptable
-            assertEquals(services.getServices(), ImmutableSet.of(blue));
+            assertThat(services.getServices()).isEqualTo(ImmutableSet.of(blue));
         }
         catch (UnsupportedOperationException e) {
             // an exception is ok, too
@@ -77,18 +77,22 @@ public class TestServices
         Object parsed = codec.fromJson(json);
         Object expected = codec.fromJson(Resources.toString(Resources.getResource("services.json"), Charsets.UTF_8));
 
-        assertEquals(parsed, expected);
+        assertThat(parsed).isEqualTo(expected);
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "environment.*")
+    @Test
     public void testValidatesEnvironmentNotNull()
     {
-        new Services(null, Collections.emptySet());
+        assertThatThrownBy(() -> new Services(null, Collections.emptySet()))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageMatching("environment.*");
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "services.*")
+    @Test
     public void testValidatesServicesNotNull()
     {
-        new Services("testing", null);
+        assertThatThrownBy(() -> new Services("testing", null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageMatching("services.*");
     }
 }

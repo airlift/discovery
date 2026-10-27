@@ -18,12 +18,13 @@ package io.airlift.discovery.server;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import static io.airlift.json.JsonCodec.jsonCodec;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestId
 {
@@ -35,7 +36,7 @@ public class TestId
 
         String json = jsonCodec(Holder.class).toJson(holder);
 
-        assertEquals(jsonCodec(Object.class).fromJson(json), expected);
+        assertThat(jsonCodec(Object.class).fromJson(json)).isEqualTo(expected);
     }
 
     @Test
@@ -44,24 +45,28 @@ public class TestId
         String value = "abc/123";
 
         Id<Holder> id = Id.valueOf(value);
-        assertEquals(id.get(), value);
+        assertThat(id.get()).isEqualTo(value);
 
         Map<String, String> map = ImmutableMap.of("id", id.toString());
         String json = jsonCodec(Object.class).toJson(map);
 
-        assertEquals(jsonCodec(Holder.class).fromJson(json).getId(), id);
+        assertThat(jsonCodec(Holder.class).fromJson(json).getId()).isEqualTo(id);
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "id is null")
+    @Test
     public void testNullId()
     {
-        Id.valueOf(null);
+        assertThatThrownBy(() -> Id.valueOf(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageMatching("id is null");
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "id is empty")
+    @Test
     public void testEmptyId()
     {
-        Id.valueOf("");
+        assertThatThrownBy(() -> Id.valueOf(""))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageMatching("id is empty");
     }
 
     public static class Holder

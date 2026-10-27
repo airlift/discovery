@@ -39,9 +39,9 @@ import io.airlift.node.testing.TestingNodeModule;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import org.iq80.leveldb.util.FileUtils;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.weakref.jmx.guice.MBeanModule;
 import org.weakref.jmx.testing.TestingMBeanServer;
 
@@ -65,17 +65,14 @@ import static io.airlift.json.JsonCodec.jsonCodec;
 import static io.airlift.json.JsonCodec.mapJsonCodec;
 import static jakarta.ws.rs.core.Response.Status;
 import static java.nio.file.Files.createTempDirectory;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDiscoveryServer
 {
     private TestingHttpServer server;
     private File tempDir;
 
-    @BeforeMethod
+    @BeforeEach
     public void setup()
             throws Exception
     {
@@ -114,7 +111,7 @@ public class TestDiscoveryServer
         server.start();
     }
 
-    @AfterMethod
+    @AfterEach
     public void teardown()
             throws Exception
     {
@@ -151,19 +148,19 @@ public class TestDiscoveryServer
         NodeInfo announcerNodeInfo = announcerInjector.getInstance(NodeInfo.class);
 
         List<ServiceDescriptor> services = selectorFor("apple", "red").selectAllServices();
-        assertEquals(services.size(), 1);
+        assertThat(services.size()).isEqualTo(1);
 
         ServiceDescriptor service = services.get(0);
-        assertNotNull(service.getId());
-        assertEquals(service.getNodeId(), announcerNodeInfo.getNodeId());
-        assertEquals(service.getLocation(), announcerNodeInfo.getLocation());
-        assertEquals(service.getPool(), announcerNodeInfo.getPool());
-        assertEquals(service.getProperties(), announcement.getProperties());
+        assertThat(service.getId()).isNotNull();
+        assertThat(service.getNodeId()).isEqualTo(announcerNodeInfo.getNodeId());
+        assertThat(service.getLocation()).isEqualTo(announcerNodeInfo.getLocation());
+        assertThat(service.getPool()).isEqualTo(announcerNodeInfo.getPool());
+        assertThat(service.getProperties()).isEqualTo(announcement.getProperties());
 
         // ensure that service is no longer visible
         client.unannounce().get();
 
-        assertTrue(selectorFor("apple", "red").selectAllServices().isEmpty());
+        assertThat(selectorFor("apple", "red").selectAllServices().isEmpty()).isTrue();
     }
 
     @Test
@@ -188,27 +185,27 @@ public class TestDiscoveryServer
                 .build();
         JsonResponse<Map<String, Object>> createResponse = client.execute(request, createFullJsonResponseHandler(mapJsonCodec(String.class, Object.class)));
 
-        assertEquals(createResponse.getStatusCode(), Status.CREATED.getStatusCode());
+        assertThat(createResponse.getStatusCode()).isEqualTo(Status.CREATED.getStatusCode());
         String id = createResponse.getValue().get("id").toString();
 
         List<ServiceDescriptor> services = selectorFor("apple", "red").selectAllServices();
-        assertEquals(services.size(), 1);
+        assertThat(services.size()).isEqualTo(1);
 
         ServiceDescriptor service = services.get(0);
-        assertEquals(service.getId().toString(), id);
-        assertNull(service.getNodeId());
-        assertEquals(service.getLocation(), announcement.get("location"));
-        assertEquals(service.getPool(), announcement.get("pool"));
-        assertEquals(service.getProperties(), announcement.get("properties"));
+        assertThat(service.getId().toString()).isEqualTo(id);
+        assertThat(service.getNodeId()).isNull();
+        assertThat(service.getLocation()).isEqualTo(announcement.get("location"));
+        assertThat(service.getPool()).isEqualTo(announcement.get("pool"));
+        assertThat(service.getProperties()).isEqualTo(announcement.get("properties"));
 
         // remove announcement
         request = prepareDelete().setUri(uriFor("/v1/announcement/static/" + id)).build();
         StatusResponse deleteResponse = client.execute(request, createStatusResponseHandler());
 
-        assertEquals(deleteResponse.getStatusCode(), Status.NO_CONTENT.getStatusCode());
+        assertThat(deleteResponse.getStatusCode()).isEqualTo(Status.NO_CONTENT.getStatusCode());
 
         // ensure announcement is gone
-        assertTrue(selectorFor("apple", "red").selectAllServices().isEmpty());
+        assertThat(selectorFor("apple", "red").selectAllServices().isEmpty()).isTrue();
     }
 
     private ServiceSelector selectorFor(String type, String pool)
