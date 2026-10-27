@@ -21,24 +21,21 @@ import io.airlift.discovery.store.RealTimeSupplier;
 import io.airlift.jaxrs.testing.MockUriInfo;
 import io.airlift.node.NodeInfo;
 import jakarta.ws.rs.core.Response;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
 import static com.google.common.collect.Iterables.transform;
 import static io.airlift.discovery.server.DynamicServiceAnnouncement.toServiceWith;
-import static io.airlift.testing.Assertions.assertEqualsIgnoreOrder;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDynamicAnnouncementResource
 {
     private InMemoryDynamicStore store;
     private DynamicAnnouncementResource resource;
 
-    @BeforeMethod
+    @BeforeEach
     public void setup()
     {
         store = new InMemoryDynamicStore(new DiscoveryConfig(), new RealTimeSupplier());
@@ -55,10 +52,10 @@ public class TestDynamicAnnouncementResource
         Id<Node> nodeId = Id.random();
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId)), announcement);
 
-        assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.ACCEPTED.getStatusCode());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
     }
 
     @Test
@@ -77,10 +74,10 @@ public class TestDynamicAnnouncementResource
 
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId)), announcement);
 
-        assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.ACCEPTED.getStatusCode());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
     }
 
     @Test
@@ -93,10 +90,10 @@ public class TestDynamicAnnouncementResource
         Id<Node> nodeId = Id.random();
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId)), announcement);
 
-        assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
-        assertTrue(store.getAll().isEmpty());
+        assertThat(store.getAll().isEmpty()).isTrue();
     }
 
     @Test
@@ -117,10 +114,10 @@ public class TestDynamicAnnouncementResource
 
         Response response = resource.delete(blueNodeId);
 
-        assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.NO_CONTENT.getStatusCode());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
     }
 
     @Test
@@ -128,10 +125,10 @@ public class TestDynamicAnnouncementResource
     {
         Response response = resource.delete(Id.random());
 
-        assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.NO_CONTENT.getStatusCode());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
-        assertTrue(store.getAll().isEmpty());
+        assertThat(store.getAll().isEmpty()).isTrue();
     }
 
     @Test
@@ -144,12 +141,12 @@ public class TestDynamicAnnouncementResource
         Id<Node> nodeId = Id.valueOf("test123");
         Response response = resource.put(nodeId, new MockUriInfo(URI.create("http://localhost:8080/v1/announcement/" + nodeId)), announcement);
 
-        assertNotNull(response);
-        assertEquals(response.getStatus(), Response.Status.ACCEPTED.getStatusCode());
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
 
-        assertEquals(store.getAll().size(), 1);
+        assertThat(store.getAll().size()).isEqualTo(1);
         Service service = store.getAll().iterator().next();
-        assertEquals(service.getId(), service.getId());
-        assertNotNull(service.getLocation());
+        assertThat(service.getId()).isEqualTo(service.getId());
+        assertThat(service.getLocation()).isNotNull();
     }
 }

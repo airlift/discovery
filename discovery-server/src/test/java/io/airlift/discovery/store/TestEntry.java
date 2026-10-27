@@ -14,11 +14,11 @@
 package io.airlift.discovery.store;
 
 import io.airlift.json.JsonCodec;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.airlift.json.JsonCodec.jsonCodec;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestEntry
 {
@@ -27,11 +27,11 @@ public class TestEntry
     {
         Entry entry = entryOf("fruit", "apple", 123, 456, 3000L);
 
-        assertEquals(entry.getKey(), "fruit".getBytes(UTF_8));
-        assertEquals(entry.getValue(), "apple".getBytes(UTF_8));
-        assertEquals(entry.getVersion().getSequence(), 123);
-        assertEquals(entry.getTimestamp(), 456);
-        assertEquals(entry.getMaxAgeInMs(), Long.valueOf(3000L));
+        assertThat(entry.getKey()).isEqualTo("fruit".getBytes(UTF_8));
+        assertThat(entry.getValue()).isEqualTo("apple".getBytes(UTF_8));
+        assertThat(entry.getVersion().getSequence()).isEqualTo(123);
+        assertThat(entry.getTimestamp()).isEqualTo(456);
+        assertThat(entry.getMaxAgeInMs()).isEqualTo(Long.valueOf(3000L));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class TestEntry
         Entry expected = entryOf("fruit", "apple", 123, 456, 3000L);
         Entry actual = codec.fromJson(codec.toJsonBytes(expected));
 
-        assertEquals(actual, expected);
+        assertThat(actual).isEqualTo(expected);
     }
 
     private static Entry entryOf(String key, String value, long version, long timestamp, Long maxAgeInMs)

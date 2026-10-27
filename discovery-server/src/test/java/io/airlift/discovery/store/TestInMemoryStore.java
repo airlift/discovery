@@ -15,18 +15,17 @@
  */
 package io.airlift.discovery.store;
 
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.google.common.base.Charsets.UTF_8;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestInMemoryStore
 {
     private LocalStore store;
 
-    @BeforeMethod
+    @BeforeEach
     protected void setUp()
             throws Exception
     {
@@ -39,7 +38,7 @@ public class TestInMemoryStore
         Entry entry = entryOf("blue", "apple", 1, 0);
         store.put(entry);
 
-        assertEquals(store.get("blue".getBytes(UTF_8)), entry);
+        assertThat(store.get("blue".getBytes(UTF_8))).isEqualTo(entry);
     }
 
     @Test
@@ -51,7 +50,7 @@ public class TestInMemoryStore
 
         store.delete(key, entry.getVersion());
 
-        assertNull(store.get(key));
+        assertThat(store.get(key)).isNull();
     }
 
     @Test
@@ -63,7 +62,7 @@ public class TestInMemoryStore
 
         store.delete(key, new Version(2));
 
-        assertEquals(store.get("blue".getBytes(UTF_8)), entry);
+        assertThat(store.get("blue".getBytes(UTF_8))).isEqualTo(entry);
     }
 
     @Test
@@ -75,7 +74,7 @@ public class TestInMemoryStore
         Entry entry1 = entryOf("blue", "banana", 1, 0);
         store.put(entry1);
 
-        assertEquals(store.get("blue".getBytes(UTF_8)), entry2);
+        assertThat(store.get("blue".getBytes(UTF_8))).isEqualTo(entry2);
     }
 
     private static Entry entryOf(String key, String value, long version, long timestamp)

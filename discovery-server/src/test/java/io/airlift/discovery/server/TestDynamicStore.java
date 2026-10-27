@@ -20,8 +20,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.units.Duration;
 import org.joda.time.DateTime;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -29,9 +29,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Iterables.concat;
 import static io.airlift.discovery.server.DynamicServiceAnnouncement.toServiceWith;
-import static io.airlift.testing.Assertions.assertEqualsIgnoreOrder;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class TestDynamicStore
 {
@@ -42,7 +40,7 @@ public abstract class TestDynamicStore
 
     protected abstract DynamicStore initializeStore(DiscoveryConfig config, Supplier<DateTime> timeSupplier);
 
-    @BeforeMethod
+    @BeforeEach
     public void setup()
     {
         currentTime = new TestingTimeSupplier();
@@ -55,7 +53,7 @@ public abstract class TestDynamicStore
     @Test
     public void testEmpty()
     {
-        assertTrue(store.getAll().isEmpty(), "store should be empty");
+        assertThat(store.getAll().isEmpty()).as("store should be empty").isTrue();
     }
 
     @Test
@@ -68,7 +66,7 @@ public abstract class TestDynamicStore
 
         store.put(nodeId, blue);
 
-        assertEquals(store.getAll(), transform(blue.getServiceAnnouncements(), toServiceWith(nodeId, blue.getLocation(), blue.getPool())));
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(blue.getServiceAnnouncements(), toServiceWith(nodeId, blue.getLocation(), blue.getPool())));
     }
 
     @Test
@@ -81,7 +79,7 @@ public abstract class TestDynamicStore
 
         store.put(nodeId, blue);
         advanceTimeBeyondMaxAge();
-        assertEquals(store.getAll(), Collections.<Service>emptySet());
+        assertThat(store.getAll()).isEqualTo(Collections.<Service>emptySet());
     }
 
     @Test
@@ -96,7 +94,7 @@ public abstract class TestDynamicStore
 
         store.put(nodeId, announcement);
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(announcement.getServiceAnnouncements(), toServiceWith(nodeId, announcement.getLocation(), announcement.getPool())));
     }
 
     @Test
@@ -116,7 +114,7 @@ public abstract class TestDynamicStore
         currentTime.increment();
         store.put(nodeId, newAnnouncement);
 
-        assertEquals(store.getAll(), transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation(), newAnnouncement.getPool())));
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation(), newAnnouncement.getPool())));
     }
 
     @Test
@@ -136,7 +134,7 @@ public abstract class TestDynamicStore
         advanceTimeBeyondMaxAge();
         store.put(nodeId, newAnnouncement);
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation(), newAnnouncement.getPool())));
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation(), newAnnouncement.getPool())));
     }
 
     @Test
@@ -161,7 +159,7 @@ public abstract class TestDynamicStore
         store.put(redNodeId, red);
         store.put(greenNodeId, green);
 
-        assertEqualsIgnoreOrder(store.getAll(), concat(
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(concat(
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
                 transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())),
                 transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, green.getLocation(), green.getPool()))));
@@ -189,11 +187,11 @@ public abstract class TestDynamicStore
         store.put(redNodeId, red);
         store.put(greenNodeId, green);
 
-        assertEqualsIgnoreOrder(store.get("storage"), concat(
+        assertThat(store.get("storage")).containsExactlyInAnyOrderElementsOf(concat(
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
                 transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
 
-        assertEqualsIgnoreOrder(store.get("monitoring"), transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, green.getLocation(), green.getPool())));
+        assertThat(store.get("monitoring")).containsExactlyInAnyOrderElementsOf(transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, green.getLocation(), green.getPool())));
     }
 
     @Test
@@ -224,15 +222,13 @@ public abstract class TestDynamicStore
         store.put(greenNodeId, green);
         store.put(yellowNodeId, yellow);
 
-        assertEqualsIgnoreOrder(store.get("storage", "poolA"), concat(
+        assertThat(store.get("storage", "poolA")).containsExactlyInAnyOrderElementsOf(concat(
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
                 transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
 
-        assertEqualsIgnoreOrder(store.get("monitoring", "poolA"),
-                transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, red.getLocation(), red.getPool())));
+        assertThat(store.get("monitoring", "poolA")).containsExactlyInAnyOrderElementsOf(transform(green.getServiceAnnouncements(), toServiceWith(greenNodeId, red.getLocation(), red.getPool())));
 
-        assertEqualsIgnoreOrder(store.get("storage", "poolB"),
-                transform(yellow.getServiceAnnouncements(), toServiceWith(yellowNodeId, red.getLocation(), red.getPool())));
+        assertThat(store.get("storage", "poolB")).containsExactlyInAnyOrderElementsOf(transform(yellow.getServiceAnnouncements(), toServiceWith(yellowNodeId, red.getLocation(), red.getPool())));
     }
 
     @Test
@@ -252,7 +248,7 @@ public abstract class TestDynamicStore
         store.put(blueNodeId, blue);
         store.put(redNodeId, red);
 
-        assertEqualsIgnoreOrder(store.getAll(), concat(
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(concat(
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
                 transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
 
@@ -260,10 +256,10 @@ public abstract class TestDynamicStore
 
         store.delete(blueNodeId);
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
 
-        assertTrue(store.get("storage").isEmpty());
-        assertTrue(store.get("web", "poolA").isEmpty());
+        assertThat(store.get("storage").isEmpty()).isTrue();
+        assertThat(store.get("web", "poolA").isEmpty()).isTrue();
     }
 
     @Test
@@ -275,7 +271,7 @@ public abstract class TestDynamicStore
         ));
 
         store.put(redNodeId, red);
-        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
 
         currentTime.increment();
 
@@ -285,7 +281,7 @@ public abstract class TestDynamicStore
 
         store.put(redNodeId, red);
 
-        assertEqualsIgnoreOrder(store.getAll(), transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
     }
 
     @Test
@@ -307,7 +303,7 @@ public abstract class TestDynamicStore
                     serviceAnnouncement.getProperties()));
         }
 
-        assertEqualsIgnoreOrder(store.getAll(), builder.build());
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(builder.build());
     }
 
     private void advanceTimeBeyondMaxAge()

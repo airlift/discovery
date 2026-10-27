@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import io.airlift.json.JsonCodec;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -28,10 +28,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import static io.airlift.testing.Assertions.assertNotEquals;
 import static io.airlift.testing.EquivalenceTester.equivalenceTester;
 import static io.airlift.testing.ValidationAssertions.assertFailsValidation;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestStaticAnnouncement
 {
@@ -72,7 +71,7 @@ public class TestStaticAnnouncement
         StaticAnnouncement parsed = codec.fromJson(Resources.toString(Resources.getResource("static-announcement.json"), Charsets.UTF_8));
         StaticAnnouncement expected = new StaticAnnouncement("testing", "blue", "poolA", "/a/b/c", ImmutableMap.of("key", "valueA"));
 
-        assertEquals(parsed, expected);
+        assertThat(parsed).isEqualTo(expected);
     }
 
     @Test
@@ -128,9 +127,9 @@ public class TestStaticAnnouncement
         properties.put("key", "value");
         StaticAnnouncement announcement = new StaticAnnouncement("testing", "type", "pool", "/a/b", properties);
 
-        assertEquals(announcement.getProperties(), properties);
+        assertThat(announcement.getProperties()).isEqualTo(properties);
         properties.put("key2", "value2");
-        assertNotEquals(announcement.getProperties(), properties);
+        assertThat(announcement.getProperties()).isNotEqualTo(properties);
     }
 
     @Test
@@ -142,7 +141,7 @@ public class TestStaticAnnouncement
             announcement.getProperties().put("key2", "value2");
 
             // a copy of the internal map is acceptable
-            assertEquals(announcement.getProperties(), ImmutableMap.of("key", "value"));
+            assertThat(announcement.getProperties()).isEqualTo(ImmutableMap.of("key", "value"));
         }
         catch (UnsupportedOperationException e) {
             // an exception is ok, too

@@ -20,14 +20,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import io.airlift.json.JsonCodec;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Map;
 
-import static io.airlift.testing.Assertions.assertNotEquals;
 import static io.airlift.testing.EquivalenceTester.equivalenceTester;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestService
 {
@@ -51,9 +51,9 @@ public class TestService
         properties.put("key", "value");
         Service service = new Service(Id.random(), Id.random(), "type", "pool", "/location", properties);
 
-        assertEquals(service.getProperties(), properties);
+        assertThat(service.getProperties()).isEqualTo(properties);
         properties.put("key2", "value2");
-        assertNotEquals(service.getProperties(), properties);
+        assertThat(service.getProperties()).isNotEqualTo(properties);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class TestService
             service.getProperties().put("key2", "value2");
 
             // a copy of the internal map is acceptable
-            assertEquals(service.getProperties(), ImmutableMap.of("key", "value"));
+            assertThat(service.getProperties()).isEqualTo(ImmutableMap.of("key", "value"));
         }
         catch (UnsupportedOperationException e) {
             // an exception is ok, too
@@ -85,7 +85,7 @@ public class TestService
         Object parsed = codec.fromJson(json);
         Object expected = codec.fromJson(Resources.toString(Resources.getResource("service.json"), Charsets.UTF_8));
 
-        assertEquals(parsed, expected);
+        assertThat(parsed).isEqualTo(expected);
     }
 
     @Test
@@ -97,36 +97,46 @@ public class TestService
 
         Service expected = new Service(Id.valueOf("c0c5be5f-b298-4cfa-922a-3e5954208444"), Id.valueOf("3ff52f57-04e0-46c3-b606-7497b09dd5c7"), "type", "pool", "/location", ImmutableMap.of("key", "value"));
 
-        assertEquals(parsed, expected);
+        assertThat(parsed).isEqualTo(expected);
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "id.*")
+    @Test
     public void testValidatesIdNotNull()
     {
-        new Service(null, Id.random(), "type", "pool", "/location", ImmutableMap.of("key", "value"));
+        assertThatThrownBy(() -> new Service(null, Id.random(), "type", "pool", "/location", ImmutableMap.of("key", "value")))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageMatching("id.*");
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "type.*")
+    @Test
     public void testValidatesTypeNotNull()
     {
-        new Service(Id.random(), Id.random(), null, "pool", "/location", ImmutableMap.of("key", "value"));
+        assertThatThrownBy(() -> new Service(Id.random(), Id.random(), null, "pool", "/location", ImmutableMap.of("key", "value")))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageMatching("type.*");
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "pool.*")
+    @Test
     public void testValidatesPoolNotNull()
     {
-        new Service(Id.random(), Id.random(), "type", null, "/location", ImmutableMap.of("key", "value"));
+        assertThatThrownBy(() -> new Service(Id.random(), Id.random(), "type", null, "/location", ImmutableMap.of("key", "value")))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageMatching("pool.*");
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "location.*")
+    @Test
     public void testValidatesLocationNotNull()
     {
-        new Service(Id.random(), Id.random(), "type", "type", null, ImmutableMap.of("key", "value"));
+        assertThatThrownBy(() -> new Service(Id.random(), Id.random(), "type", "type", null, ImmutableMap.of("key", "value")))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageMatching("location.*");
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "properties.*")
+    @Test
     public void testValidatesPropertiesNotNull()
     {
-        new Service(Id.random(), Id.random(), "type", "type", "/location", null);
+        assertThatThrownBy(() -> new Service(Id.random(), Id.random(), "type", "type", "/location", null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageMatching("properties.*");
     }
 }

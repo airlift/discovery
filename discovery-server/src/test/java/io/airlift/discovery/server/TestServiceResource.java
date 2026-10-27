@@ -17,21 +17,21 @@ package io.airlift.discovery.server;
 
 import com.google.common.collect.ImmutableMap;
 import io.airlift.node.NodeInfo;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static io.airlift.discovery.server.DynamicServiceAnnouncement.toServiceWith;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestServiceResource
 {
     private InMemoryDynamicStore dynamicStore;
     private ServiceResource resource;
 
-    @BeforeMethod
+    @BeforeEach
     protected void setUp()
     {
         dynamicStore = new InMemoryDynamicStore(new DiscoveryConfig(), new TestingTimeSupplier());
@@ -58,15 +58,15 @@ public class TestServiceResource
         dynamicStore.put(greenNodeId, green);
         dynamicStore.put(blueNodeId, blue);
 
-        assertEquals(resource.getServices("storage"), new Services("testing", of(
+        assertThat(resource.getServices("storage")).isEqualTo(new Services("testing", of(
                 toServiceWith(redNodeId, red.getLocation(), red.getPool()).apply(redStorage),
                 toServiceWith(greenNodeId, green.getLocation(), green.getPool()).apply(greenStorage),
                 toServiceWith(blueNodeId, blue.getLocation(), blue.getPool()).apply(blueStorage))));
 
-        assertEquals(resource.getServices("web"), new Services("testing", of(
+        assertThat(resource.getServices("web")).isEqualTo(new Services("testing", of(
                 toServiceWith(redNodeId, red.getLocation(), red.getPool()).apply(redWeb))));
 
-        assertEquals(resource.getServices("unknown"), new Services("testing", Collections.emptySet()));
+        assertThat(resource.getServices("unknown")).isEqualTo(new Services("testing", Collections.emptySet()));
     }
 
     @Test
@@ -89,13 +89,13 @@ public class TestServiceResource
         dynamicStore.put(greenNodeId, green);
         dynamicStore.put(blueNodeId, blue);
 
-        assertEquals(resource.getServices("storage", "alpha"), new Services("testing", of(
+        assertThat(resource.getServices("storage", "alpha")).isEqualTo(new Services("testing", of(
                 toServiceWith(redNodeId, red.getLocation(), red.getPool()).apply(redStorage),
                 toServiceWith(greenNodeId, green.getLocation(), green.getPool()).apply(greenStorage))));
 
-        assertEquals(resource.getServices("storage", "beta"), new Services("testing", of(toServiceWith(blueNodeId, blue.getLocation(), blue.getPool()).apply(blueStorage))));
+        assertThat(resource.getServices("storage", "beta")).isEqualTo(new Services("testing", of(toServiceWith(blueNodeId, blue.getLocation(), blue.getPool()).apply(blueStorage))));
 
-        assertEquals(resource.getServices("storage", "unknown"), new Services("testing", Collections.emptySet()));
+        assertThat(resource.getServices("storage", "unknown")).isEqualTo(new Services("testing", Collections.emptySet()));
     }
 
     @Test
@@ -118,7 +118,7 @@ public class TestServiceResource
         dynamicStore.put(greenNodeId, green);
         dynamicStore.put(blueNodeId, blue);
 
-        assertEquals(resource.getServices(), new Services("testing", of(
+        assertThat(resource.getServices()).isEqualTo(new Services("testing", of(
                 toServiceWith(redNodeId, red.getLocation(), red.getPool()).apply(redStorage),
                 toServiceWith(redNodeId, red.getLocation(), red.getPool()).apply(redWeb),
                 toServiceWith(greenNodeId, green.getLocation(), green.getPool()).apply(greenStorage),

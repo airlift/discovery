@@ -24,18 +24,20 @@ import io.airlift.discovery.client.ServiceDescriptorsRepresentation;
 import io.airlift.http.client.HttpClient;
 import io.airlift.http.client.jetty.JettyHttpClient;
 import io.airlift.node.NodeInfo;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import static io.airlift.discovery.client.ServiceAnnouncement.serviceAnnouncement;
 import static io.airlift.json.JsonCodec.jsonCodec;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestTestingDiscoveryServer
 {
     private static final String ENVIRONMENT = "testing";
     private static final String SERVICE = "taco";
 
-    @Test(timeOut = 30_000)
+    @Test
+    @Timeout(30)
     public void testServer()
             throws Exception
     {
@@ -54,17 +56,17 @@ public class TestTestingDiscoveryServer
                     httpClient);
 
             ServiceDescriptors response = lookup.getServices(SERVICE).get();
-            assertEquals(response.getServiceDescriptors().size(), 0);
+            assertThat(response.getServiceDescriptors().size()).isEqualTo(0);
 
             announcement.announce(ImmutableSet.of(serviceAnnouncement(SERVICE).build())).get();
 
             response = lookup.getServices(SERVICE).get();
-            assertEquals(response.getServiceDescriptors().size(), 1);
+            assertThat(response.getServiceDescriptors().size()).isEqualTo(1);
 
             announcement.unannounce().get();
 
             response = lookup.getServices(SERVICE).get();
-            assertEquals(response.getServiceDescriptors().size(), 0);
+            assertThat(response.getServiceDescriptors().size()).isEqualTo(0);
         }
     }
 }
