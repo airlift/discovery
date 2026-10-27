@@ -15,39 +15,40 @@
  */
 package io.airlift.discovery.server;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import io.airlift.testing.TestingClock;
 import io.airlift.units.Duration;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Iterables.concat;
 import static io.airlift.discovery.server.DynamicServiceAnnouncement.toServiceWith;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class TestDynamicStore
 {
     private static final Duration MAX_AGE = new Duration(1, TimeUnit.MINUTES);
 
-    protected TestingTimeSupplier currentTime;
+    protected TestingClock clock;
     protected DynamicStore store;
 
-    protected abstract DynamicStore initializeStore(DiscoveryConfig config, Supplier<DateTime> timeSupplier);
+    protected abstract DynamicStore initializeStore(DiscoveryConfig config, Clock clock);
 
     @BeforeEach
     public void setup()
     {
-        currentTime = new TestingTimeSupplier();
+        clock = new TestingClock();
         DiscoveryConfig config = new DiscoveryConfig()
                 .setMaxAge(new Duration(1, TimeUnit.MINUTES))
                 .setStoreCacheTtl(new Duration(0, TimeUnit.SECONDS));
-        store = initializeStore(config, currentTime);
+        store = initializeStore(config, clock);
     }
 
     @Test
@@ -78,7 +79,10 @@ public abstract class TestDynamicStore
         ));
 
         store.put(nodeId, blue);
-        advanceTimeBeyondMaxAge();
+        clock.increment(MAX_AGE.toMillis(), MILLISECONDS);
+        assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(blue.getServiceAnnouncements(), toServiceWith(nodeId, blue.getLocation(), blue.getPool())));
+
+        clock.increment(1, MILLISECONDS);
         assertThat(store.getAll()).isEqualTo(Collections.<Service>emptySet());
     }
 
@@ -111,7 +115,7 @@ public abstract class TestDynamicStore
         ));
 
         store.put(nodeId, oldAnnouncement);
-        currentTime.increment();
+        clock.increment(1, MILLISECONDS);
         store.put(nodeId, newAnnouncement);
 
         assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(newAnnouncement.getServiceAnnouncements(), toServiceWith(nodeId, newAnnouncement.getLocation(), newAnnouncement.getPool())));
@@ -252,7 +256,7 @@ public abstract class TestDynamicStore
                 transform(blue.getServiceAnnouncements(), toServiceWith(blueNodeId, blue.getLocation(), blue.getPool())),
                 transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool()))));
 
-        currentTime.increment();
+        clock.increment(1, MILLISECONDS);
 
         store.delete(blueNodeId);
 
@@ -273,11 +277,11 @@ public abstract class TestDynamicStore
         store.put(redNodeId, red);
         assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(transform(red.getServiceAnnouncements(), toServiceWith(redNodeId, red.getLocation(), red.getPool())));
 
-        currentTime.increment();
+        clock.increment(1, MILLISECONDS);
 
         store.delete(redNodeId);
 
-        currentTime.increment();
+        clock.increment(1, MILLISECONDS);
 
         store.put(redNodeId, red);
 
@@ -308,6 +312,6 @@ public abstract class TestDynamicStore
 
     private void advanceTimeBeyondMaxAge()
     {
-        currentTime.add(new Duration(MAX_AGE.toMillis() * 2, TimeUnit.MILLISECONDS));
+        clock.increment(MAX_AGE.toMillis() * 2, MILLISECONDS);
     }
 }

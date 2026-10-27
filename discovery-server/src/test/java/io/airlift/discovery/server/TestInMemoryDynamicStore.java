@@ -15,15 +15,14 @@
  */
 package io.airlift.discovery.server;
 
-import com.google.common.base.Supplier;
-import org.joda.time.DateTime;
+import java.time.Clock;
 
 public class TestInMemoryDynamicStore
         extends TestDynamicStore
 {
     @Override
-    public DynamicStore initializeStore(DiscoveryConfig config, Supplier<DateTime> timeSupplier)
+    public DynamicStore initializeStore(DiscoveryConfig config, Clock clock)
     {
-        return new InMemoryDynamicStore(config, timeSupplier);
+        return new InMemoryDynamicStore(config, clock);
     }
 }

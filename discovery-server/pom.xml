@@ -51,11 +51,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>bootstrap</artifactId>
         </dependency>
@@ -77,7 +72,8 @@
 
         <dependency>
             <groupId>io.airlift</groupId>
-            <artifactId>event-http</artifactId>
+            <artifactId>guice</artifactId>
+            <version>${dep.airlift.guice.version}</version>
         </dependency>
 
         <dependency>
@@ -101,7 +97,7 @@
         </dependency>
         <dependency>
             <groupId>io.airlift</groupId>
-            <artifactId>jmx-http-rpc</artifactId>
+            <artifactId>jmx-http</artifactId>
         </dependency>
 
         <dependency>
@@ -117,11 +113,6 @@
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>node</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>trace-token</artifactId>
         </dependency>
 
         <dependency>
@@ -150,11 +141,6 @@
         </dependency>
 
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.iq80.leveldb</groupId>
             <artifactId>leveldb</artifactId>
         </dependency>
@@ -169,13 +155,26 @@
             <artifactId>jmxutils</artifactId>
         </dependency>
 
+        <!-- for testing -->
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>configuration-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>junit-extensions</artifactId>
+            <version>2</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>testing</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- for testing -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>

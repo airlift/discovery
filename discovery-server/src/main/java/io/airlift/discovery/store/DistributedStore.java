@@ -16,15 +16,14 @@
 package io.airlift.discovery.store;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import io.airlift.units.Duration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.joda.time.DateTime;
 import org.weakref.jmx.Managed;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +43,7 @@ public class DistributedStore
     private final String name;
     private final LocalStore localStore;
     private final RemoteStore remoteStore;
-    private final Supplier<DateTime> timeSupplier;
+    private final Clock clock;
     private final Duration tombstoneMaxAge;
     private final Duration garbageCollectionInterval;
 
@@ -57,12 +56,12 @@ public class DistributedStore
             LocalStore localStore,
             RemoteStore remoteStore,
             StoreConfig config,
-            Supplier<DateTime> timeSupplier)
+            Clock clock)
     {
         this.name = checkNotNull(name, "name is null");
         this.localStore = checkNotNull(localStore, "localStore is null");
         this.remoteStore = checkNotNull(remoteStore, "remoteStore is null");
-        this.timeSupplier = checkNotNull(timeSupplier, "timeSupplier is null");
+        this.clock = checkNotNull(clock, "clock is null");
 
         checkNotNull(config, "config is null");
         tombstoneMaxAge = config.getTombstoneMaxAge();
@@ -105,12 +104,12 @@ public class DistributedStore
             }
         }
 
-        lastGcTimestamp.set(System.currentTimeMillis());
+        lastGcTimestamp.set(clock.millis());
     }
 
     private boolean isExpired(Entry entry)
     {
-        long ageInMs = timeSupplier.get().getMillis() - entry.getTimestamp();
+        long ageInMs = clock.millis() - entry.getTimestamp();
 
         return entry.getValue() == null && ageInMs > tombstoneMaxAge.toMillis() ||  // TODO: this is repeated in StoreResource
                 entry.getMaxAgeInMs() != null && ageInMs > entry.getMaxAgeInMs();
@@ -127,7 +126,7 @@ public class DistributedStore
         checkNotNull(key, "key is null");
         checkNotNull(value, "value is null");
 
-        long now = timeSupplier.get().getMillis();
+        long now = clock.millis();
 
         Entry entry = new Entry(key, value, new Version(now), now, null);
 
@@ -141,7 +140,7 @@ public class DistributedStore
         checkNotNull(value, "value is null");
         checkNotNull(maxAge, "maxAge is null");
 
-        long now = timeSupplier.get().getMillis();
+        long now = clock.millis();
 
         Entry entry = new Entry(key, value, new Version(now), now, maxAge.toMillis());
 
@@ -167,7 +166,7 @@ public class DistributedStore
     {
         checkNotNull(key, "key is null");
 
-        long now = timeSupplier.get().getMillis();
+        long now = clock.millis();
 
         Entry entry = new Entry(key, null, new Version(now), now, null);
 

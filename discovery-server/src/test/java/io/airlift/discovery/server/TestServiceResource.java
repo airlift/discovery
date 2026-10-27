@@ -17,6 +17,7 @@ package io.airlift.discovery.server;
 
 import com.google.common.collect.ImmutableMap;
 import io.airlift.node.NodeInfo;
+import io.airlift.testing.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +35,7 @@ public class TestServiceResource
     @BeforeEach
     protected void setUp()
     {
-        dynamicStore = new InMemoryDynamicStore(new DiscoveryConfig(), new TestingTimeSupplier());
+        dynamicStore = new InMemoryDynamicStore(new DiscoveryConfig(), new TestingClock());
         resource = new ServiceResource(dynamicStore, new InMemoryStaticStore(), new NodeInfo("testing"));
     }
 

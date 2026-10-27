@@ -15,13 +15,13 @@
  */
 package io.airlift.discovery.server;
 
-import com.google.common.base.Supplier;
 import io.airlift.discovery.store.ConflictResolver;
 import io.airlift.discovery.store.DistributedStore;
 import io.airlift.discovery.store.InMemoryStore;
 import io.airlift.discovery.store.RemoteStore;
 import io.airlift.discovery.store.StoreConfig;
-import org.joda.time.DateTime;
+
+import java.time.Clock;
 
 import static io.airlift.json.JsonCodec.listJsonCodec;
 
@@ -29,11 +29,11 @@ public class TestReplicatedDynamicStore
         extends TestDynamicStore
 {
     @Override
-    protected DynamicStore initializeStore(DiscoveryConfig config, Supplier<DateTime> timeSupplier)
+    protected DynamicStore initializeStore(DiscoveryConfig config, Clock clock)
     {
         RemoteStore dummy = entry -> {};
 
-        DistributedStore distributedStore = new DistributedStore("dynamic", new InMemoryStore(new ConflictResolver()), dummy, new StoreConfig(), timeSupplier);
+        DistributedStore distributedStore = new DistributedStore("dynamic", new InMemoryStore(new ConflictResolver()), dummy, new StoreConfig(), clock);
 
         return new ReplicatedDynamicStore(distributedStore, config, listJsonCodec(Service.class));
     }

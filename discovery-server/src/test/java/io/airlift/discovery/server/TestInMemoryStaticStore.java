@@ -15,14 +15,13 @@
  */
 package io.airlift.discovery.server;
 
-import com.google.common.base.Supplier;
-import org.joda.time.DateTime;
+import java.time.Clock;
 
 public class TestInMemoryStaticStore
         extends TestStaticStore
 {
     @Override
-    protected StaticStore initializeStore(Supplier<DateTime> timeSupplier)
+    protected StaticStore initializeStore(Clock clock)
     {
         return new InMemoryStaticStore();
     }

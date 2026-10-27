@@ -15,15 +15,16 @@
  */
 package io.airlift.discovery.server;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.joda.time.DateTime;
+import io.airlift.testing.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
 import java.util.Set;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class TestStaticStore
@@ -34,15 +35,15 @@ public abstract class TestStaticStore
     private static final Service YELLOW = new Service(Id.random(), null, "storage", "poolB", "/US/West/SC4/rack1/host1/vm1/slot3", ImmutableMap.of("http", "http://localhost:4444"));
 
     protected StaticStore store;
-    protected TestingTimeSupplier currentTime;
+    protected TestingClock clock;
 
-    protected abstract StaticStore initializeStore(Supplier<DateTime> timeSupplier);
+    protected abstract StaticStore initializeStore(Clock clock);
 
     @BeforeEach
     public void setup()
     {
-        currentTime = new TestingTimeSupplier();
-        store = initializeStore(currentTime);
+        clock = new TestingClock();
+        store = initializeStore(clock);
     }
 
     @Test
@@ -101,7 +102,7 @@ public abstract class TestStaticStore
 
         assertThat(store.getAll()).containsExactlyInAnyOrderElementsOf(ImmutableSet.of(BLUE, RED, GREEN));
 
-        currentTime.increment();
+        clock.increment(1, MILLISECONDS);
 
         store.delete(GREEN.getId());
 
